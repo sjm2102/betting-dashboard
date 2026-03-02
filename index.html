@@ -498,6 +498,20 @@
     color: var(--red);
   }
 
+
+  /* ── DvP BADGES ── */
+  .dvp-badge {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1px;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 2px;
+    font-weight: 600; white-space: nowrap;
+  }
+  .dvp-strong   { background: #00e67622; color: var(--green); border: 1px solid #00e67655; }
+  .dvp-favorable{ background: #00e67611; color: #00c853;      border: 1px solid #00e67633; }
+  .dvp-neutral  { background: var(--bg4); color: var(--text3); border: 1px solid var(--border2); }
+  .dvp-tough    { background: #ff3d5722; color: var(--red);   border: 1px solid #ff3d5755; }
+  .dvp-elite    { background: #ff3d5733; color: var(--red);   border: 1px solid var(--red); }
+  .dvp-rank     { font-family: var(--mono); font-size: 0.58rem; color: var(--text3); margin-left: 6px; }
+
   /* ── PROP CARDS ── */
   .prop-card {
     background: var(--bg2);
@@ -624,7 +638,24 @@
   <div class="panel" id="panel-props">
     <div class="refresh-bar">
       <span id="propsUpdated">Select a game to load props</span>
-      <button class="btn btn-green" id="propsRefreshBtn" onclick="fetchProps()" style="display:none">↻ REFRESH</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="toggleDvpEditor()">✎ DvP RANKINGS</button>
+        <button class="btn btn-green" id="propsRefreshBtn" onclick="fetchProps()" style="display:none">↻ REFRESH</button>
+      </div>
+    </div>
+
+    <!-- DvP Editor -->
+    <div id="dvpEditor" style="display:none;background:var(--bg2);border-bottom:1px solid var(--border);padding:16px">
+      <div style="font-family:var(--display);font-size:1.1rem;letter-spacing:2px;margin-bottom:8px">DvP RANKINGS EDITOR</div>
+      <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);margin-bottom:12px;line-height:1.6">
+        Update weekly from <a href="https://hashtagbasketball.com/fantasy-basketball-defense-vs-position" target="_blank" style="color:var(--green)">HashtagBasketball.com</a>.
+        Rank 1 = best defense (toughest), Rank 30 = worst defense (easiest matchup).
+      </div>
+      <div id="dvpEditorGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green" onclick="saveDvpEdits()">SAVE RANKINGS</button>
+        <button class="btn btn-ghost" onclick="toggleDvpEditor()">CANCEL</button>
+      </div>
     </div>
     <div class="status-bar">
       <span id="propsStatusText"><span class="dot dot-amber"></span>WAITING</span>
@@ -795,6 +826,135 @@
 const WORKER_URL = "https://odds-proxy.stevenmcgraw89.workers.dev";
 const BOOKS = ['draftkings','fanduel'];
 const BOOK_LABELS = {draftkings:'DK',fanduel:'FD'};
+
+
+// ═══════════ DvP RANKINGS TABLE ═══════════
+// Source: dvp.csv — update weekly from HashtagBasketball.com
+// Grade A = weakest defense = best matchup, F = toughest defense
+// Positions: PG, SG, SF, PF, C
+
+const DVP = {
+  // PG
+  PG_rank: {
+    ATL:14, BKN:4, BOS:2, CHA:10, CHI:8, CLE:20, DAL:8, DEN:15, DET:3, GS:16,
+    HOU:7, IND:25, LAC:16, LAL:13, MEM:20, MIA:18, MIL:29, MIN:25, NO:22, NY:5,
+    OKC:1, ORL:30, PHI:11, PHO:6, POR:23, SA:12, SAC:18, TOR:28, UTA:25, WAS:24,
+  },
+  PG_grade: {
+    ATL:'C', BKN:'A', BOS:'A', CHA:'B', CHI:'B', CLE:'C', DAL:'B', DEN:'C', DET:'A', GS:'C',
+    HOU:'B', IND:'D', LAC:'C', LAL:'C', MEM:'C', MIA:'C', MIL:'F', MIN:'D', NO:'D', NY:'A',
+    OKC:'A', ORL:'F', PHI:'C', PHO:'B', POR:'D', SA:'C', SAC:'C', TOR:'F', UTA:'D', WAS:'D',
+  },
+  // SG
+  SG_rank: {
+    ATL:27, BKN:13, BOS:2, CHA:4, CHI:8, CLE:8, DAL:28, DEN:3, DET:23, GS:17,
+    HOU:1, IND:8, LAC:16, LAL:21, MEM:17, MIA:25, MIL:6, MIN:5, NO:28, NY:25,
+    OKC:15, ORL:8, PHI:20, PHO:7, POR:17, SA:13, SAC:24, TOR:12, UTA:30, WAS:21,
+  },
+  SG_grade: {
+    ATL:'F', BKN:'C', BOS:'A', CHA:'A', CHI:'B', CLE:'B', DAL:'F', DEN:'A', DET:'D', GS:'C',
+    HOU:'A', IND:'B', LAC:'C', LAL:'D', MEM:'C', MIA:'D', MIL:'B', MIN:'A', NO:'F', NY:'D',
+    OKC:'C', ORL:'B', PHI:'C', PHO:'B', POR:'C', SA:'C', SAC:'D', TOR:'C', UTA:'F', WAS:'D',
+  },
+  // SF
+  SF_rank: {
+    ATL:28, BKN:22, BOS:8, CHA:7, CHI:24, CLE:17, DAL:3, DEN:25, DET:8, GS:14,
+    HOU:11, IND:20, LAC:12, LAL:30, MEM:27, MIA:15, MIL:17, MIN:2, NO:26, NY:13,
+    OKC:5, ORL:6, PHI:20, PHO:17, POR:8, SA:3, SAC:15, TOR:1, UTA:23, WAS:29,
+  },
+  SF_grade: {
+    ATL:'F', BKN:'D', BOS:'B', CHA:'B', CHI:'D', CLE:'C', DAL:'A', DEN:'D', DET:'B', GS:'C',
+    HOU:'C', IND:'C', LAC:'C', LAL:'F', MEM:'F', MIA:'C', MIL:'C', MIN:'A', NO:'F', NY:'C',
+    OKC:'A', ORL:'B', PHI:'C', PHO:'C', POR:'B', SA:'A', SAC:'C', TOR:'A', UTA:'D', WAS:'F',
+  },
+  // PF
+  PF_rank: {
+    ATL:11, BKN:22, BOS:19, CHA:22, CHI:30, CLE:17, DAL:25, DEN:17, DET:8, GS:5,
+    HOU:3, IND:20, LAC:1, LAL:11, MEM:22, MIA:20, MIL:13, MIN:25, NO:7, NY:9,
+    OKC:3, ORL:13, PHI:13, PHO:2, POR:13, SA:10, SAC:27, TOR:6, UTA:29, WAS:28,
+  },
+  PF_grade: {
+    ATL:'C', BKN:'D', BOS:'C', CHA:'D', CHI:'F', CLE:'C', DAL:'D', DEN:'C', DET:'B', GS:'A',
+    HOU:'A', IND:'C', LAC:'A', LAL:'C', MEM:'D', MIA:'C', MIL:'C', MIN:'D', NO:'B', NY:'B',
+    OKC:'A', ORL:'C', PHI:'C', PHO:'A', POR:'C', SA:'B', SAC:'F', TOR:'B', UTA:'F', WAS:'F',
+  },
+  // C
+  C_rank: {
+    ATL:19, BKN:15, BOS:6, CHA:21, CHI:24, CLE:15, DAL:27, DEN:22, DET:1, GS:12,
+    HOU:10, IND:25, LAC:14, LAL:2, MEM:11, MIA:15, MIL:6, MIN:15, NO:26, NY:3,
+    OKC:4, ORL:4, PHI:9, PHO:20, POR:28, SA:13, SAC:30, TOR:8, UTA:23, WAS:29,
+  },
+  C_grade: {
+    ATL:'C', BKN:'C', BOS:'B', CHA:'D', CHI:'D', CLE:'C', DAL:'F', DEN:'D', DET:'A', GS:'C',
+    HOU:'B', IND:'D', LAC:'C', LAL:'A', MEM:'C', MIA:'C', MIL:'B', MIN:'C', NO:'F', NY:'A',
+    OKC:'A', ORL:'A', PHI:'B', PHO:'C', POR:'F', SA:'C', SAC:'F', TOR:'B', UTA:'D', WAS:'F',
+  },
+};
+
+// Team full name → DVP abbreviation
+const TEAM_TO_DVP = {
+  'Atlanta Hawks':'ATL','Boston Celtics':'BOS','Brooklyn Nets':'BKN',
+  'Charlotte Hornets':'CHA','Chicago Bulls':'CHI','Cleveland Cavaliers':'CLE',
+  'Dallas Mavericks':'DAL','Denver Nuggets':'DEN','Detroit Pistons':'DET',
+  'Golden State Warriors':'GS','Houston Rockets':'HOU','Indiana Pacers':'IND',
+  'Los Angeles Clippers':'LAC','Los Angeles Lakers':'LAL','Memphis Grizzlies':'MEM',
+  'Miami Heat':'MIA','Milwaukee Bucks':'MIL','Minnesota Timberwolves':'MIN',
+  'New Orleans Pelicans':'NO','New York Knicks':'NY','Oklahoma City Thunder':'OKC',
+  'Orlando Magic':'ORL','Philadelphia 76ers':'PHI','Phoenix Suns':'PHO',
+  'Portland Trail Blazers':'POR','Sacramento Kings':'SAC','San Antonio Spurs':'SA',
+  'Toronto Raptors':'TOR','Utah Jazz':'UTA','Washington Wizards':'WAS'
+};
+
+// Grade → badge config
+const GRADE_BADGE = {
+  A: { label:'🔥 STRONG MATCHUP', cls:'dvp-strong'  },
+  B: { label:'✓ FAVORABLE',       cls:'dvp-favorable'},
+  C: { label:'~ NEUTRAL',         cls:'dvp-neutral'  },
+  D: { label:'✗ TOUGH MATCHUP',  cls:'dvp-tough'    },
+  F: { label:'🧱 ELITE DEFENSE',  cls:'dvp-elite'    },
+};
+
+// Get best badge across all positions for a given team+market
+function getDvpBadge(opposingTeamFull) {
+  const abbr = TEAM_TO_DVP[opposingTeamFull];
+  if (!abbr) return null;
+  const positions = ['PG','SG','SF','PF','C'];
+  // Find the best (highest-ranked = weakest defense) grade across all positions
+  let bestGrade = null, bestRank = 0, bestPos = null;
+  positions.forEach(pos => {
+    const rank = DVP[pos + '_rank']?.[abbr];
+    const grade = DVP[pos + '_grade']?.[abbr];
+    if (rank && rank > bestRank) { bestRank = rank; bestGrade = grade; bestPos = pos; }
+  });
+  if (!bestGrade) return null;
+  return { ...GRADE_BADGE[bestGrade], rank: bestRank, pos: bestPos, grade: bestGrade };
+}
+
+// Get badge for a specific position
+function getDvpBadgeForPos(pos, opposingTeamFull) {
+  const abbr = TEAM_TO_DVP[opposingTeamFull];
+  if (!abbr) return null;
+  const rank = DVP[pos + '_rank']?.[abbr];
+  const grade = DVP[pos + '_grade']?.[abbr];
+  if (!rank || !grade) return null;
+  return { ...GRADE_BADGE[grade], rank, pos, grade };
+}
+
+function getDvpBadge(marketKey, opposingTeamFull) {
+  const abbr = TEAM_ABBR[opposingTeamFull];
+  if (!abbr) return null;
+  const rankings = DVP[marketKey];
+  if (!rankings) return null;
+  const rank = rankings[abbr];
+  if (!rank) return null;
+  // Rank 25-30 = weak defense = good for OVER (strong matchup)
+  // Rank 1-6   = strong defense = bad for OVER (tough matchup)
+  if (rank >= 25) return { label: '🔥 STRONG MATCHUP', cls: 'dvp-strong', rank };
+  if (rank >= 18) return { label: '✓ FAVORABLE',       cls: 'dvp-favorable', rank };
+  if (rank >= 10) return { label: '~ NEUTRAL',         cls: 'dvp-neutral', rank };
+  if (rank >= 4)  return { label: '✗ TOUGH MATCHUP',  cls: 'dvp-tough', rank };
+  return             { label: '🧱 ELITE DEFENSE',     cls: 'dvp-elite', rank };
+}
 
 // ═══════════ STATE ═══════════
 let gamesData = [];
@@ -1463,6 +1623,11 @@ function renderProps() {
     return;
   }
 
+  // Get both teams for this game so we can show DvP for the opposing team
+  const selectedGame = gamesData.find(g => g.id === selectedPropGameId);
+  const homeTeam = selectedGame?.home_team || '';
+  const awayTeam = selectedGame?.away_team || '';
+
   eventData.bookmakers.forEach(book => {
     book.markets?.forEach(market => {
       availableMarkets.add(market.key);
@@ -1555,10 +1720,32 @@ function renderProps() {
       </div>`;
     }).join('');
 
+    // DvP — show one badge per team (all positions shown as pills)
+    const positions = ['PG','SG','SF','PF','C'];
+    function teamBadgeHtml(teamName, label) {
+      const abbr = TEAM_TO_DVP[teamName];
+      if (!abbr) return '';
+      const pills = positions.map(pos => {
+        const rank = DVP[pos + '_rank']?.[abbr];
+        const grade = DVP[pos + '_grade']?.[abbr];
+        if (!rank || !grade) return '';
+        const cfg = GRADE_BADGE[grade];
+        return `<span class="dvp-badge ${cfg.cls}" style="font-size:0.55rem;padding:2px 5px" title="${pos} vs ${abbr}">${pos} ${grade}</span>`;
+      }).join('');
+      return `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:3px">
+        <span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">vs ${abbr}:</span>
+        ${pills}
+      </div>`;
+    }
+    const badgeHtml = teamBadgeHtml(homeTeam, 'HOME') + teamBadgeHtml(awayTeam, 'AWAY');
+
     cards.push(`<div class="prop-card">
       <div class="prop-card-header">
-        <div>
-          <div class="prop-player">${prop.player}</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div class="prop-player">${prop.player}</div>
+            ${badgeHtml}
+          </div>
           <div class="prop-market">${prop.marketLabel}</div>
         </div>
         <div class="prop-line-badge">${prop.line !== undefined ? prop.line : '—'}</div>
@@ -1577,7 +1764,82 @@ function renderProps() {
 }
 
 
+
+// ═══════════ DvP EDITOR ═══════════
+function toggleDvpEditor() {
+  const el = document.getElementById('dvpEditor');
+  const isOpen = el.style.display !== 'none';
+  if (!isOpen) buildDvpEditor();
+  el.style.display = isOpen ? 'none' : 'block';
+}
+
+function buildDvpEditor() {
+  const grid = document.getElementById('dvpEditorGrid');
+  const positions = ['PG','SG','SF','PF','C'];
+  const teamAbbrs = ['ATL','BKN','BOS','CHA','CHI','CLE','DAL','DEN','DET','GS',
+                     'HOU','IND','LAC','LAL','MEM','MIA','MIL','MIN','NO','NY',
+                     'OKC','ORL','PHI','PHO','POR','SA','SAC','TOR','UTA','WAS'];
+  grid.innerHTML = positions.map(pos => `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:10px">
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--green);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">${pos}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+        ${teamAbbrs.map(abbr => {
+          const rank = DVP[pos+'_rank']?.[abbr] || '';
+          const grade = DVP[pos+'_grade']?.[abbr] || '';
+          const cfg = grade ? GRADE_BADGE[grade] : null;
+          return `<div style="display:flex;align-items:center;gap:3px">
+            <span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);min-width:26px">${abbr}</span>
+            <input type="number" min="1" max="30" id="dvp_${pos}_${abbr}" value="${rank}"
+              style="width:36px;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:2px 4px;border-radius:2px;outline:none"
+              oninput="updateDvpGrade('${pos}','${abbr}',this.value)"
+            />
+            <span id="dvpg_${pos}_${abbr}" class="dvp-badge ${cfg ? cfg.cls : 'dvp-neutral'}" style="font-size:0.5rem;padding:1px 4px">${grade}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateDvpGrade(pos, abbr, val) {
+  const rank = parseInt(val);
+  if (isNaN(rank)) return;
+  const grade = rank <= 6 ? 'A' : rank <= 12 ? 'B' : rank <= 18 ? 'C' : rank <= 24 ? 'D' : 'F';
+  DVP[pos+'_rank'][abbr] = rank;
+  DVP[pos+'_grade'][abbr] = grade;
+  const el = document.getElementById('dvpg_'+pos+'_'+abbr);
+  if (el) {
+    const cfg = GRADE_BADGE[grade];
+    el.className = 'dvp-badge ' + cfg.cls;
+    el.textContent = grade;
+  }
+}
+
+function saveDvpEdits() {
+  localStorage.setItem('pickroll_dvp', JSON.stringify({
+    ranks: Object.fromEntries(['PG','SG','SF','PF','C'].map(p => [p, DVP[p+'_rank']])),
+    grades: Object.fromEntries(['PG','SG','SF','PF','C'].map(p => [p, DVP[p+'_grade']]))
+  }));
+  document.getElementById('dvpEditor').style.display = 'none';
+  if (propsData && (Array.isArray(propsData) ? propsData.length > 0 : propsData.bookmakers)) {
+    renderProps();
+  }
+}
+
+function loadSavedDvp() {
+  const saved = localStorage.getItem('pickroll_dvp');
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    ['PG','SG','SF','PF','C'].forEach(pos => {
+      if (data.ranks?.[pos]) Object.assign(DVP[pos+'_rank'], data.ranks[pos]);
+      if (data.grades?.[pos]) Object.assign(DVP[pos+'_grade'], data.grades[pos]);
+    });
+  } catch(e) {}
+}
+
 // ═══════════ INIT — auto-fetch on load ═══════════
+loadSavedDvp();
 renderTracker();
 renderParlay();
 fetchOdds();
