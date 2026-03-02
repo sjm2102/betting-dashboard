@@ -1411,7 +1411,8 @@ async function fetchProps() {
   document.getElementById('propsList').innerHTML = '<div class="loading-wrap"><div class="spinner"></div>FETCHING PLAYER PROPS…</div>';
 
   const markets = PROP_MARKETS.map(m => m.key).join(',');
-  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american&regions=us`;
+  // Use regions=us to get all available books, don't restrict to specific bookmakers
+  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american&regions=us,us2`;
 
   try {
     const res = await fetch(url);
@@ -1469,7 +1470,30 @@ function renderProps() {
     book.markets?.forEach(market => {
       availableMarkets.add(market.key);
       market.outcomes?.forEach(outcome => {
-        const playerName = outcome.description || outcome.name;
+        // The Odds API player props format:
+        // outcome.name = player name (e.g. "LeBron James")
+        // outcome.description = "Over" or "Under"
+        // outcome.point = the line (e.g. 25.5)
+        // Fallback: some books put Over/Under in name instead
+        let playerName, side;
+        const nameLC = (outcome.name || '').toLowerCase();
+        const descLC = (outcome.description || '').toLowerCase();
+
+        if (descLC === 'over' || descLC === 'under') {
+          // Standard format: name=player, description=over/under
+          playerName = outcome.name;
+          side = descLC;
+        } else if (nameLC.includes('over') || nameLC.includes('under')) {
+          // Alternate format: name contains over/under, description=player
+          playerName = outcome.description || outcome.name;
+          side = nameLC.includes('over') ? 'over' : 'under';
+        } else {
+          // Unknown format - skip
+          return;
+        }
+
+        if (!playerName) return;
+
         const mapKey = `${playerName}|${market.key}`;
         if (!playerMap[mapKey]) {
           playerMap[mapKey] = {
@@ -1481,7 +1505,6 @@ function renderProps() {
           };
         }
         if (!playerMap[mapKey].books[book.key]) playerMap[mapKey].books[book.key] = {};
-        const side = outcome.name.toLowerCase().includes('over') ? 'over' : 'under';
         playerMap[mapKey].books[book.key][side] = outcome.price;
         if (outcome.point !== undefined) playerMap[mapKey].line = outcome.point;
       });
