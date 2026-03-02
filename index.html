@@ -1466,34 +1466,22 @@ function renderProps() {
     return;
   }
 
+  // Confirmed Odds API format:
+  // outcome.name = "Over" or "Under"
+  // outcome.description = player name (e.g. "LeBron James")
+  // outcome.point = the line (e.g. 25.5)
   eventData.bookmakers.forEach(book => {
     book.markets?.forEach(market => {
       availableMarkets.add(market.key);
       market.outcomes?.forEach(outcome => {
-        // The Odds API player props format:
-        // outcome.name = player name (e.g. "LeBron James")
-        // outcome.description = "Over" or "Under"
-        // outcome.point = the line (e.g. 25.5)
-        // Fallback: some books put Over/Under in name instead
-        let playerName, side;
         const nameLC = (outcome.name || '').toLowerCase();
-        const descLC = (outcome.description || '').toLowerCase();
+        const side = nameLC === 'over' ? 'over' : nameLC === 'under' ? 'under' : null;
+        if (!side) return; // skip non over/under outcomes
 
-        if (descLC === 'over' || descLC === 'under') {
-          // Standard format: name=player, description=over/under
-          playerName = outcome.name;
-          side = descLC;
-        } else if (nameLC.includes('over') || nameLC.includes('under')) {
-          // Alternate format: name contains over/under, description=player
-          playerName = outcome.description || outcome.name;
-          side = nameLC.includes('over') ? 'over' : 'under';
-        } else {
-          // Unknown format - skip
-          return;
-        }
-
+        const playerName = (outcome.description || '').trim();
         if (!playerName) return;
 
+        // Key is player + market only (NOT line) so all books group together
         const mapKey = `${playerName}|${market.key}`;
         if (!playerMap[mapKey]) {
           playerMap[mapKey] = {
@@ -1504,9 +1492,14 @@ function renderProps() {
             books: {}
           };
         }
-        if (!playerMap[mapKey].books[book.key]) playerMap[mapKey].books[book.key] = {};
+        if (!playerMap[mapKey].books[book.key]) {
+          playerMap[mapKey].books[book.key] = {};
+        }
         playerMap[mapKey].books[book.key][side] = outcome.price;
-        if (outcome.point !== undefined) playerMap[mapKey].line = outcome.point;
+        // Use the consensus line (most common) — update if not set yet
+        if (outcome.point !== undefined && playerMap[mapKey].line === undefined) {
+          playerMap[mapKey].line = outcome.point;
+        }
       });
     });
   });
