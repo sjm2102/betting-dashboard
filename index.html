@@ -1455,35 +1455,26 @@ function setPropFilter(key) {
 
 function renderProps() {
   const el = document.getElementById('propsList');
-
-  // Collect all player props across all bookmakers
-  const playerMap = {}; // key: "playerName|marketKey" => { player, market, books: {bookKey: {over, under}} }
-
+  const playerMap = {};
   const availableMarkets = new Set();
 
-  // propsData could be a single event object or array
   const eventData = Array.isArray(propsData) ? propsData[0] : propsData;
   if (!eventData || !eventData.bookmakers) {
     el.innerHTML = '<div class="loading-wrap">No prop data available for this game.</div>';
     return;
   }
 
-  // Confirmed Odds API format:
-  // outcome.name = "Over" or "Under"
-  // outcome.description = player name (e.g. "LeBron James")
-  // outcome.point = the line (e.g. 25.5)
   eventData.bookmakers.forEach(book => {
     book.markets?.forEach(market => {
       availableMarkets.add(market.key);
       market.outcomes?.forEach(outcome => {
+        // API format: name = "Over"/"Under", description = player name
         const nameLC = (outcome.name || '').toLowerCase();
         const side = nameLC === 'over' ? 'over' : nameLC === 'under' ? 'under' : null;
-        if (!side) return; // skip non over/under outcomes
-
+        if (!side) return;
         const playerName = (outcome.description || '').trim();
         if (!playerName) return;
 
-        // Key is player + market only (NOT line) so all books group together
         const mapKey = `${playerName}|${market.key}`;
         if (!playerMap[mapKey]) {
           playerMap[mapKey] = {
@@ -1494,11 +1485,8 @@ function renderProps() {
             books: {}
           };
         }
-        if (!playerMap[mapKey].books[book.key]) {
-          playerMap[mapKey].books[book.key] = {};
-        }
+        if (!playerMap[mapKey].books[book.key]) playerMap[mapKey].books[book.key] = {};
         playerMap[mapKey].books[book.key][side] = outcome.price;
-        // Use the consensus line (most common) — update if not set yet
         if (outcome.point !== undefined && playerMap[mapKey].line === undefined) {
           playerMap[mapKey].line = outcome.point;
         }
@@ -1517,22 +1505,23 @@ function renderProps() {
     return;
   }
 
-  // Render with market section headers
   let lastMarket = null;
   const cards = [];
+
   entries.forEach(prop => {
     if (prop.marketLabel !== lastMarket) {
       lastMarket = prop.marketLabel;
-      cards.push(`<div style="font-family:var(--mono);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--text2);padding:16px 2px 8px;margin-top:4px">— ${prop.marketLabel} —</div>`);
+      cards.push(`<div style="font-family:var(--mono);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--text2);padding:16px 2px 8px;border-bottom:1px solid var(--border);margin-bottom:4px">— ${prop.marketLabel} —</div>`);
     }
-    // Build book rows
-    const booksWithData = Object.keys(prop.books).filter(bk => prop.books[bk].over || prop.books[bk].under);
+
+    const booksWithData = Object.keys(prop.books).filter(bk => prop.books[bk].over !== undefined || prop.books[bk].under !== undefined);
     let bestOver = null, bestOverBook = null, bestUnder = null, bestUnderBook = null;
     booksWithData.forEach(bk => {
       const o = prop.books[bk].over, u = prop.books[bk].under;
       if (o !== undefined && (bestOver === null || o > bestOver)) { bestOver = o; bestOverBook = bk; }
       if (u !== undefined && (bestUnder === null || u > bestUnder)) { bestUnder = u; bestUnderBook = bk; }
     });
+
     let evOverStr = '—', evUnderStr = '—';
     if (bestOver !== null && bestUnder !== null) {
       const [pOver, pUnder] = vigFreeProb(bestOver, bestUnder);
@@ -1541,8 +1530,10 @@ function renderProps() {
       evOverStr = `<span class="${evOver > 0 ? 'ev-pos' : 'ev-neg'}">${evOver > 0 ? '+' : ''}${evOver.toFixed(3)}u</span>`;
       evUnderStr = `<span class="${evUnder > 0 ? 'ev-pos' : 'ev-neg'}">${evUnder > 0 ? '+' : ''}${evUnder.toFixed(3)}u</span>`;
     }
+
     const bookRows = booksWithData.map(bk => {
-      const o = prop.books[bk].over, u = prop.books[bk].under;
+      const o = prop.books[bk].over;
+      const u = prop.books[bk].under;
       const label = PROP_BOOK_LABELS[bk] || bk;
       return `<div class="prop-book-row">
         <div class="prop-book-name">${label}</div>
@@ -1564,6 +1555,7 @@ function renderProps() {
         </div>
       </div>`;
     }).join('');
+
     cards.push(`<div class="prop-card">
       <div class="prop-card-header">
         <div>
@@ -1581,26 +1573,10 @@ function renderProps() {
       </div>
     </div>`);
   });
-  el.innerHTML = cards.join('');
 
-    return `<div class="prop-card">
-      <div class="prop-card-header">
-        <div>
-          <div class="prop-player">${prop.player}</div>
-          <div class="prop-market">${prop.marketLabel}</div>
-        </div>
-        <div class="prop-line-badge">${prop.line !== undefined ? prop.line : '—'}</div>
-      </div>
-      ${bookRows}
-      <div class="prop-ev-row">
-        <div class="ev-item"><div class="ev-label">OVER EV</div><div class="ev-val">${evOverStr}</div></div>
-        <div class="ev-item"><div class="ev-label">UNDER EV</div><div class="ev-val">${evUnderStr}</div></div>
-        <div class="ev-item"><div class="ev-label">BEST OVER</div><div class="ev-val ev-neu">${bestOver !== null ? fmtOdds(bestOver) + ' ' + (PROP_BOOK_LABELS[bestOverBook] || bestOverBook) : '—'}</div></div>
-        <div class="ev-item"><div class="ev-label">BEST UNDER</div><div class="ev-val ev-neu">${bestUnder !== null ? fmtOdds(bestUnder) + ' ' + (PROP_BOOK_LABELS[bestUnderBook] || bestUnderBook) : '—'}</div></div>
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML = cards.join('');
 }
+
 
 // ═══════════ INIT — auto-fetch on load ═══════════
 renderTracker();
