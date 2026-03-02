@@ -101,26 +101,30 @@
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* ── API CONFIG BANNER ── */
-  .config-bar {
+  /* ── STATUS BAR ── */
+  .status-bar {
+    padding: 8px 16px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap; gap: 4px;
+  }
+  .status-bar .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .dot-green { background: var(--green); }
+  .dot-red { background: var(--red); }
+  .dot-amber { background: var(--amber); }
+
+  /* ── REFRESH BAR ── */
+  .refresh-bar {
     background: var(--bg3);
     border-bottom: 1px solid var(--border);
-    padding: 10px 16px;
+    padding: 8px 16px;
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    justify-content: space-between;
   }
-  .config-bar label { font-family: var(--mono); font-size: 0.68rem; color: var(--text2); letter-spacing: 1px; }
-  .config-bar input {
-    flex: 1; min-width: 180px;
-    background: var(--bg);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    padding: 6px 10px;
-    border-radius: 2px;
-    outline: none;
-  }
-  .config-bar input:focus { border-color: var(--green); }
+  .refresh-bar span { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); }
   .btn {
     font-family: var(--mono);
     font-size: 0.7rem;
@@ -137,21 +141,6 @@
   .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
   .btn-ghost:hover { border-color: var(--text2); color: var(--text); }
   .btn-red { background: var(--red); color: #fff; }
-
-  /* ── STATUS BAR ── */
-  .status-bar {
-    padding: 8px 16px;
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    color: var(--text3);
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap; gap: 4px;
-  }
-  .status-bar .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-  .dot-green { background: var(--green); }
-  .dot-red { background: var(--red); }
-  .dot-amber { background: var(--amber); }
 
   /* ── STATS STRIP ── */
   .stats-strip {
@@ -273,9 +262,7 @@
   .ev-neu { color: var(--text2); }
 
   /* ── PARLAY BUILDER ── */
-  .parlay-builder {
-    padding: 16px;
-  }
+  .parlay-builder { padding: 16px; }
   .parlay-empty {
     border: 1px dashed var(--border2);
     border-radius: 4px;
@@ -391,9 +378,6 @@
     padding: 16px;
   }
   .bankroll-main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
-  .bk-item { }
-  .bk-label { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
-  .bk-val { font-family: var(--display); font-size: 1.5rem; line-height: 1; }
 
   /* ── ARBITRAGE ── */
   .arb-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -421,7 +405,6 @@
     padding-top: 10px;
     display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
   }
-  .arb-calc-item { }
   .arb-stake-input {
     background: var(--bg);
     border: 1px solid var(--border2);
@@ -452,7 +435,6 @@
   }
   .line-game { font-family: var(--mono); font-size: 0.72rem; color: var(--text); }
   .line-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-  .line-market { }
   .line-market-label { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
   .line-track { display: flex; align-items: center; gap: 8px; }
   .line-open { font-family: var(--mono); font-size: 0.75rem; color: var(--text3); min-width: 44px; }
@@ -483,7 +465,6 @@
     margin-top: 12px;
     display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
   }
-  .ev-res-item { }
   .ev-res-label { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
   .ev-res-val { font-family: var(--display); font-size: 1.4rem; line-height: 1; }
 
@@ -553,15 +534,13 @@
 
   <!-- ═══════════════════ ODDS PANEL ═══════════════════ -->
   <div class="panel active" id="panel-odds">
-    <div class="config-bar">
-      <label>API KEY</label>
-      <input type="password" id="apiKeyInput" placeholder="Enter your Odds API key…" />
-      <button class="btn btn-green" onclick="fetchOdds()">FETCH</button>
-      <button class="btn btn-ghost" onclick="loadDemo()">DEMO</button>
+    <div class="refresh-bar">
+      <span id="lastUpdated">Loading odds…</span>
+      <button class="btn btn-green" onclick="fetchOdds()">↻ REFRESH</button>
     </div>
     <div class="status-bar">
-      <span id="statusText"><span class="dot dot-red"></span>NOT LOADED</span>
-      <span id="lastUpdated"></span>
+      <span id="statusText"><span class="dot dot-amber"></span>LOADING…</span>
+      <span id="quotaInfo"></span>
     </div>
     <div id="oddsError" style="display:none" class="error-wrap"></div>
     <div class="stats-strip">
@@ -575,7 +554,7 @@
       <span class="section-count" id="gamesCount"></span>
     </div>
     <div id="gamesList" class="game-list">
-      <div class="loading-wrap" style="color:var(--text3)">Enter your API key and press FETCH — or try DEMO mode</div>
+      <div class="loading-wrap"><div class="spinner"></div>FETCHING LIVE ODDS…</div>
     </div>
   </div>
 
@@ -602,13 +581,13 @@
             <input class="form-input" id="evNoVig" type="number" placeholder="-105" oninput="calcEV()"/>
           </div>
         </div>
-        <div class="ev-result-box" id="evResults">
-          <div class="ev-res-item"><div class="ev-res-label">EXPECTED VALUE</div><div class="ev-res-val" id="evResEV" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">EDGE %</div><div class="ev-res-val" id="evResEdge" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">KELLY BET</div><div class="ev-res-val" id="evResKelly" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">BREAK-EVEN %</div><div class="ev-res-val" id="evResBreak" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">PROFIT (WIN)</div><div class="ev-res-val" id="evResProfit" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">EXPECTED P&L</div><div class="ev-res-val" id="evResPnL" style="color:var(--text3)">—</div></div>
+        <div class="ev-result-box">
+          <div><div class="ev-res-label">EXPECTED VALUE</div><div class="ev-res-val" id="evResEV" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">EDGE %</div><div class="ev-res-val" id="evResEdge" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">KELLY BET</div><div class="ev-res-val" id="evResKelly" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">BREAK-EVEN %</div><div class="ev-res-val" id="evResBreak" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">PROFIT (WIN)</div><div class="ev-res-val" id="evResProfit" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">EXPECTED P&L</div><div class="ev-res-val" id="evResPnL" style="color:var(--text3)">—</div></div>
         </div>
       </div>
 
@@ -624,11 +603,11 @@
             <input class="form-input" id="vigB" type="number" placeholder="-110" oninput="calcNoVig()"/>
           </div>
         </div>
-        <div class="ev-result-box" id="vigResults">
-          <div class="ev-res-item"><div class="ev-res-label">SIDE A FAIR PROB</div><div class="ev-res-val" id="vigResA" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">SIDE B FAIR PROB</div><div class="ev-res-val" id="vigResB" style="color:var(--text3)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">VIG %</div><div class="ev-res-val" id="vigResPct" style="color:var(--amber)">—</div></div>
-          <div class="ev-res-item"><div class="ev-res-label">FAIR ODDS A</div><div class="ev-res-val" id="vigResFairA" style="color:var(--text3)">—</div></div>
+        <div class="ev-result-box">
+          <div><div class="ev-res-label">SIDE A FAIR PROB</div><div class="ev-res-val" id="vigResA" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">SIDE B FAIR PROB</div><div class="ev-res-val" id="vigResB" style="color:var(--text3)">—</div></div>
+          <div><div class="ev-res-label">VIG %</div><div class="ev-res-val" id="vigResPct" style="color:var(--amber)">—</div></div>
+          <div><div class="ev-res-label">FAIR ODDS A</div><div class="ev-res-val" id="vigResFairA" style="color:var(--text3)">—</div></div>
         </div>
       </div>
     </div>
@@ -722,7 +701,7 @@
 
 <script>
 // ═══════════ CONFIG ═══════════
-const API_KEY_DEFAULT = "";  // <-- paste your key here to hardcode
+const WORKER_URL = "https://odds-proxy.stevenmcgraw89.workers.dev";
 const BOOKS = ['draftkings','fanduel','betmgm'];
 const BOOK_LABELS = {draftkings:'DK',fanduel:'FD',betmgm:'MGM'};
 
@@ -731,7 +710,6 @@ let gamesData = [];
 let parlayLegs = [];
 let bets = JSON.parse(localStorage.getItem('edge_bets') || '[]');
 let lineHistory = JSON.parse(localStorage.getItem('edge_lines') || '{}');
-let apiKey = API_KEY_DEFAULT;
 
 // ═══════════ TABS ═══════════
 function switchTab(id) {
@@ -788,33 +766,42 @@ function fmtOdds(o) {
 function fmtPct(v) { return isNaN(v)?'—':(v*100).toFixed(1)+'%'; }
 function fmtUSD(v) { return isNaN(v)?'—':'$'+Math.abs(v).toFixed(2); }
 
-// ═══════════ FETCH ODDS ═══════════
+// ═══════════ FETCH ODDS VIA WORKER ═══════════
 async function fetchOdds() {
-  const key = document.getElementById('apiKeyInput').value.trim() || API_KEY_DEFAULT;
-  if (!key) { showError('Please enter your Odds API key.'); return; }
-  apiKey = key;
   setStatus('loading');
   hideError();
+  document.getElementById('lastUpdated').textContent = 'Refreshing…';
+
   try {
-    const url = `https://api.the-odds-api.com/v4/sports/basketball_nba/odds/?apiKey=${key}&regions=us&markets=h2h,spreads&oddsFormat=american&bookmakers=${BOOKS.join(',')}`;
+    const url = `${WORKER_URL}?regions=us&markets=h2h,spreads&oddsFormat=american&bookmakers=${BOOKS.join(',')}`;
     const res = await fetch(url);
+
     if (!res.ok) {
       const err = await res.json().catch(()=>({message:'Unknown error'}));
       throw new Error(err.message || `HTTP ${res.status}`);
     }
+
     const data = await res.json();
+
+    // Show remaining quota from response headers if available
+    const remaining = res.headers.get('x-requests-remaining');
+    const used = res.headers.get('x-requests-used');
+    if (remaining !== null) {
+      document.getElementById('quotaInfo').textContent = `${remaining} requests remaining`;
+    }
+
     processOdds(data);
     setStatus('ok');
-    document.getElementById('lastUpdated').textContent = 'Updated '+new Date().toLocaleTimeString();
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
   } catch(e) {
     setStatus('error');
-    showError('API Error: '+e.message);
+    showError('Error fetching odds: ' + e.message);
+    document.getElementById('lastUpdated').textContent = 'Failed to load';
   }
 }
 
 function processOdds(data) {
   gamesData = data;
-  // save line history
   data.forEach(game => {
     const id = game.id;
     if (!lineHistory[id]) lineHistory[id] = { game: game.home_team+' vs '+game.away_team, snapshots:[] };
@@ -822,35 +809,10 @@ function processOdds(data) {
     if (lineHistory[id].snapshots.length > 20) lineHistory[id].snapshots = lineHistory[id].snapshots.slice(-20);
   });
   localStorage.setItem('edge_lines', JSON.stringify(lineHistory));
-
   renderGames();
   renderArb();
   renderLineMovement();
   updateStats();
-}
-
-// ═══════════ DEMO DATA ═══════════
-function loadDemo() {
-  const demo = [
-    {id:'demo1',home_team:'Los Angeles Lakers',away_team:'Golden State Warriors',commence_time:'2025-03-03T00:00:00Z',bookmakers:[
-      {key:'draftkings',title:'DraftKings',markets:[{key:'h2h',outcomes:[{name:'Los Angeles Lakers',price:-150},{name:'Golden State Warriors',price:128}]},{key:'spreads',outcomes:[{name:'Los Angeles Lakers',price:-110,point:-3.5},{name:'Golden State Warriors',price:-110,point:3.5}]}]},
-      {key:'fanduel',title:'FanDuel',markets:[{key:'h2h',outcomes:[{name:'Los Angeles Lakers',price:-145},{name:'Golden State Warriors',price:122}]},{key:'spreads',outcomes:[{name:'Los Angeles Lakers',price:-108,point:-3.5},{name:'Golden State Warriors',price:-112,point:3.5}]}]},
-      {key:'betmgm',title:'BetMGM',markets:[{key:'h2h',outcomes:[{name:'Los Angeles Lakers',price:-155},{name:'Golden State Warriors',price:130}]},{key:'spreads',outcomes:[{name:'Los Angeles Lakers',price:-115,point:-3.5},{name:'Golden State Warriors',price:-105,point:3.5}]}]}
-    ]},
-    {id:'demo2',home_team:'Boston Celtics',away_team:'Miami Heat',commence_time:'2025-03-03T01:00:00Z',bookmakers:[
-      {key:'draftkings',title:'DraftKings',markets:[{key:'h2h',outcomes:[{name:'Boston Celtics',price:-200},{name:'Miami Heat',price:168}]},{key:'spreads',outcomes:[{name:'Boston Celtics',price:-110,point:-5},{name:'Miami Heat',price:-110,point:5}]}]},
-      {key:'fanduel',title:'FanDuel',markets:[{key:'h2h',outcomes:[{name:'Boston Celtics',price:-195},{name:'Miami Heat',price:162}]},{key:'spreads',outcomes:[{name:'Boston Celtics',price:-112,point:-5},{name:'Miami Heat',price:-108,point:5}]}]},
-      {key:'betmgm',title:'BetMGM',markets:[{key:'h2h',outcomes:[{name:'Boston Celtics',price:-190},{name:'Miami Heat',price:170}]},{key:'spreads',outcomes:[{name:'Boston Celtics',price:-105,point:-5},{name:'Miami Heat',price:-115,point:5}]}]}
-    ]},
-    {id:'demo3',home_team:'Phoenix Suns',away_team:'Denver Nuggets',commence_time:'2025-03-03T02:30:00Z',bookmakers:[
-      {key:'draftkings',title:'DraftKings',markets:[{key:'h2h',outcomes:[{name:'Phoenix Suns',price:110},{name:'Denver Nuggets',price:-130}]},{key:'spreads',outcomes:[{name:'Phoenix Suns',price:-110,point:2.5},{name:'Denver Nuggets',price:-110,point:-2.5}]}]},
-      {key:'fanduel',title:'FanDuel',markets:[{key:'h2h',outcomes:[{name:'Phoenix Suns',price:115},{name:'Denver Nuggets',price:-135}]},{key:'spreads',outcomes:[{name:'Phoenix Suns',price:-106,point:2.5},{name:'Denver Nuggets',price:-114,point:-2.5}]}]},
-      {key:'betmgm',title:'BetMGM',markets:[{key:'h2h',outcomes:[{name:'Phoenix Suns',price:105},{name:'Denver Nuggets',price:-125}]},{key:'spreads',outcomes:[{name:'Phoenix Suns',price:-115,point:2.5},{name:'Denver Nuggets',price:-105,point:-2.5}]}]}
-    ]}
-  ];
-  processOdds(demo);
-  setStatus('ok','DEMO MODE');
-  document.getElementById('lastUpdated').textContent = 'Demo data loaded';
 }
 
 // ═══════════ RENDER GAMES ═══════════
@@ -877,7 +839,10 @@ function getBestOdds(oddsMap) {
 
 function renderGames() {
   const el = document.getElementById('gamesList');
-  if (!gamesData.length) { el.innerHTML = '<div class="loading-wrap">No games found.</div>'; return; }
+  if (!gamesData.length) {
+    el.innerHTML = '<div class="loading-wrap">No NBA games found for today.</div>';
+    return;
+  }
 
   document.getElementById('gamesCount').textContent = gamesData.length+' games';
 
@@ -894,8 +859,6 @@ function renderGames() {
     const bestHome = getBestOdds(homeML);
     const bestAway = getBestOdds(awayML);
 
-    // consensus prob
-    let probs = [bestHome.price, bestAway.price].map(impliedProb).filter(x=>!isNaN(x));
     let pHome=0.5, pAway=0.5;
     if (bestHome.price && bestAway.price) {
       [pHome, pAway] = vigFreeProb(bestHome.price, bestAway.price);
@@ -968,7 +931,6 @@ function updateStats() {
       if (eH>0) posEV++;
       if (eA>0) posEV++;
       bestEdge = Math.max(bestEdge, Math.abs(pH-impliedProb(bH.price)), Math.abs(pA-impliedProb(bA.price)));
-      // arb check
       const arbPct = impliedProb(bA.price) + impliedProb(bH.price);
       if (arbPct < 0.97) arbCount++;
     }
@@ -984,7 +946,6 @@ function renderArb() {
   const arbs = [];
   gamesData.forEach(game => {
     const home = game.home_team, away = game.away_team;
-    // check all book combos for h2h
     let bestAway = null, bestHome = null;
     BOOKS.forEach(bk => {
       const b = game.bookmakers?.find(x=>x.key===bk);
@@ -1006,7 +967,10 @@ function renderArb() {
   });
 
   document.getElementById('arbCount').textContent = arbs.length+' found';
-  if (!arbs.length) { el.innerHTML = '<div class="loading-wrap">No arbitrage opportunities found across DK/FD/MGM.<br><br>Load fresh odds data to scan.</div>'; return; }
+  if (!arbs.length) {
+    el.innerHTML = '<div class="loading-wrap">No arbitrage opportunities found across DK/FD/MGM.</div>';
+    return;
+  }
 
   el.innerHTML = arbs.map((a,i) => `<div class="arb-card">
     <div class="arb-header">
@@ -1105,20 +1069,11 @@ function addToParlay(gameId, team, odds, book, modelProb) {
   }
   parlayLegs.push({ gameId, team, odds, book, modelProb });
   renderParlay();
-  // flash
   switchTab('parlay');
-  setTimeout(()=>switchTab('parlay'),10);
 }
 
-function removeLeg(i) {
-  parlayLegs.splice(i,1);
-  renderParlay();
-}
-
-function clearParlay() {
-  parlayLegs = [];
-  renderParlay();
-}
+function removeLeg(i) { parlayLegs.splice(i,1); renderParlay(); }
+function clearParlay() { parlayLegs = []; renderParlay(); }
 
 function renderParlay() {
   const legsEl = document.getElementById('parlayLegs');
@@ -1142,13 +1097,11 @@ function renderParlay() {
     <button class="leg-remove" onclick="removeLeg(${i})">✕</button>
   </div>`).join('');
 
-  // Calc parlay odds
   const combinedDec = parlayLegs.reduce((acc,l)=>acc*toDecimal(l.odds),1);
   const combinedAmer = toAmerican(combinedDec);
   const combinedProb = parlayLegs.reduce((acc,l)=>acc*l.modelProb,1);
   const stake = parseFloat(document.getElementById('parlayStake')?.value)||100;
   const payout = stake * combinedDec;
-  const profit = payout - stake;
   const evVal = ev1u(combinedProb, parseFloat(combinedAmer));
 
   document.getElementById('parlaySum').innerHTML = `
@@ -1187,8 +1140,7 @@ function addBet() {
   const stake = parseFloat(document.getElementById('btStake').value);
   if (!desc || isNaN(odds) || isNaN(stake)) { alert('Fill in description, odds, and stake.'); return; }
   bets.push({
-    id: Date.now(),
-    desc, odds, stake,
+    id: Date.now(), desc, odds, stake,
     book: document.getElementById('btBook').value,
     market: document.getElementById('btMarket').value,
     date: document.getElementById('btDate').value,
@@ -1227,20 +1179,19 @@ function calcPnL(bet) {
 }
 
 function renderTracker() {
-  // Bankroll
   const totalStaked = bets.reduce((s,b)=>s+b.stake,0);
   const settled = bets.filter(b=>b.status!=='pending');
   const totalPnL = settled.reduce((s,b)=>s+calcPnL(b),0);
   const wins = settled.filter(b=>b.status==='win').length;
-  const roi = settled.length ? (totalPnL/bets.filter(b=>b.status!=='pending').reduce((s,b)=>s+b.stake,0))*100 : 0;
+  const roi = settled.length ? (totalPnL/settled.reduce((s,b)=>s+b.stake,0))*100 : 0;
 
   document.getElementById('bankrollCard').innerHTML = `
     <div class="bankroll-main">
-      <div class="bk-item"><div class="bk-label">TOTAL STAKED</div><div class="bk-val white">$${totalStaked.toFixed(0)}</div></div>
-      <div class="bk-item"><div class="bk-label">P&L</div><div class="bk-val ${totalPnL>=0?'green':'red'}">${totalPnL>=0?'+':''}$${Math.abs(totalPnL).toFixed(2)}</div></div>
-      <div class="bk-item"><div class="bk-label">ROI</div><div class="bk-val ${roi>=0?'green':'red'}">${roi>=0?'+':''}${roi.toFixed(1)}%</div></div>
+      <div><div class="bk-label" style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">TOTAL STAKED</div><div style="font-family:var(--display);font-size:1.5rem;line-height:1;color:var(--text)">$${totalStaked.toFixed(0)}</div></div>
+      <div><div class="bk-label" style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">P&L</div><div style="font-family:var(--display);font-size:1.5rem;line-height:1;color:${totalPnL>=0?'var(--green)':'var(--red)'}">${totalPnL>=0?'+':''}$${Math.abs(totalPnL).toFixed(2)}</div></div>
+      <div><div class="bk-label" style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">ROI</div><div style="font-family:var(--display);font-size:1.5rem;line-height:1;color:${roi>=0?'var(--green)':'var(--red)'}">${roi>=0?'+':''}${roi.toFixed(1)}%</div></div>
     </div>
-    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3)">${bets.length} total bets · ${wins}W / ${settled.length-wins}L · ${bets.filter(b=>b.status==='pending').length} pending</div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3)">${bets.length} total · ${wins}W / ${settled.length-wins}L · ${bets.filter(b=>b.status==='pending').length} pending</div>
   `;
 
   const el = document.getElementById('betList');
@@ -1270,7 +1221,6 @@ function calcEV() {
   const odds = parseFloat(document.getElementById('evOdds').value);
   const probPct = parseFloat(document.getElementById('evProb').value);
   const stake = parseFloat(document.getElementById('evStake').value)||100;
-
   if (isNaN(odds)||isNaN(probPct)) { clearEVResults(); return; }
   const p = probPct/100;
   const evVal = ev1u(p, odds);
@@ -1280,19 +1230,14 @@ function calcEV() {
   const profit = stake * profitPerUnit(odds);
   const pnl = evVal * stake;
 
-  const set = (id, val, col) => {
-    const el = document.getElementById(id);
-    el.textContent = val;
-    el.style.color = col;
-  };
+  const set = (id, val, col) => { const el=document.getElementById(id); el.textContent=val; el.style.color=col; };
   const green='var(--green)', red='var(--red)', amber='var(--amber)', grey='var(--text2)';
-
   set('evResEV', (evVal>0?'+':'')+evVal.toFixed(4)+' u/u', evVal>0?green:red);
   set('evResEdge', (edge>0?'+':'')+(edge*100).toFixed(2)+'%', edge>0?green:red);
   set('evResKelly', kelly.toFixed(2)+'%', kelly>3?amber:kelly>0?green:red);
   set('evResBreak', (breakEven*100).toFixed(2)+'%', grey);
-  set('evResProfit', '$'+profit.toFixed(2)+' profit if win', green);
-  set('evResPnL', (pnl>0?'+':'')+'$'+Math.abs(pnl).toFixed(2)+' exp P&L on $'+stake, pnl>0?green:red);
+  set('evResProfit', '$'+profit.toFixed(2)+' if win', green);
+  set('evResPnL', (pnl>0?'+':'')+'$'+Math.abs(pnl).toFixed(2)+' exp on $'+stake, pnl>0?green:red);
 }
 
 function clearEVResults() {
@@ -1306,10 +1251,9 @@ function calcNoVig() {
   const a = parseFloat(document.getElementById('vigA').value);
   const b = parseFloat(document.getElementById('vigB').value);
   if (isNaN(a)||isNaN(b)) return;
-  const pA = impliedProb(a), pB = impliedProb(b);
-  const tot = pA+pB;
-  const vig = (tot-1)*100;
   const [fA,fB] = vigFreeProb(a,b);
+  const tot = impliedProb(a)+impliedProb(b);
+  const vig = (tot-1)*100;
   document.getElementById('vigResA').textContent = (fA*100).toFixed(2)+'%';
   document.getElementById('vigResA').style.color = 'var(--text)';
   document.getElementById('vigResB').textContent = (fB*100).toFixed(2)+'%';
@@ -1329,13 +1273,10 @@ function setStatus(state, msg) {
 function showError(msg) { const el=document.getElementById('oddsError'); el.textContent=msg; el.style.display='block'; }
 function hideError() { document.getElementById('oddsError').style.display='none'; }
 
-// ═══════════ INIT ═══════════
+// ═══════════ INIT — auto-fetch on load ═══════════
 renderTracker();
 renderParlay();
-if (API_KEY_DEFAULT) {
-  document.getElementById('apiKeyInput').value = API_KEY_DEFAULT;
-  fetchOdds();
-}
+fetchOdds();
 </script>
 </body>
 </html>
