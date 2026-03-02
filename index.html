@@ -793,8 +793,8 @@
 <script>
 // ═══════════ CONFIG ═══════════
 const WORKER_URL = "https://odds-proxy.stevenmcgraw89.workers.dev";
-const BOOKS = ['draftkings','fanduel','betmgm'];
-const BOOK_LABELS = {draftkings:'DK',fanduel:'FD',betmgm:'MGM'};
+const BOOKS = ['draftkings','fanduel'];
+const BOOK_LABELS = {draftkings:'DK',fanduel:'FD'};
 
 // ═══════════ STATE ═══════════
 let gamesData = [];
@@ -1375,10 +1375,9 @@ const PROP_MARKETS = [
   { key: 'player_steals',       label: 'Steals'     },
   { key: 'player_points_rebounds_assists', label: 'PRA' },
 ];
-const PROP_BOOKS = ['draftkings','fanduel','betmgm','williamhill_us','pointsbetus','betus','mybookieag'];
+const PROP_BOOKS = ['draftkings','fanduel'];
 const PROP_BOOK_LABELS = {
-  draftkings:'DraftKings', fanduel:'FanDuel', betmgm:'BetMGM',
-  williamhill_us:'Caesars', pointsbetus:'PointsBet', betus:'BetUS', mybookieag:'MyBookie'
+  draftkings:'DraftKings', fanduel:'FanDuel'
 };
 
 let propsData = [];
@@ -1412,7 +1411,7 @@ async function fetchProps() {
 
   const markets = PROP_MARKETS.map(m => m.key).join(',');
   // Use regions=us to get all available books, don't restrict to specific bookmakers
-  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american&regions=us,us2`;
+  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american`;
 
   try {
     const res = await fetch(url);
