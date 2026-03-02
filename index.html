@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -726,7 +727,10 @@
   <div class="panel" id="panel-edge">
     <div class="refresh-bar">
       <span id="edgeUpdated">Load props in the Props tab first, then scan here</span>
-      <button class="btn btn-green" onclick="buildEdgeBoard()">⚡ SCAN PROPS</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-green" id="scanSlateBtn" onclick="scanFullSlate()">⚡ SCAN FULL SLATE</button>
+        <button class="btn btn-ghost" onclick="buildEdgeBoard()" title="Re-rank already loaded data">↻ RE-RANK</button>
+      </div>
     </div>
     <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2)">
       <div style="font-family:var(--display);font-size:1rem;letter-spacing:3px;margin-bottom:4px">TOP PROP EDGES</div>
@@ -1901,6 +1905,83 @@ function getPlayerStats(playerName) {
   return key ? rosterData[key] : null;
 }
 
+
+
+// ═══════════ FULL SLATE SCAN ═══════════
+async function scanFullSlate() {
+  if (!gamesData || !gamesData.length) {
+    document.getElementById('edgeList').innerHTML =
+      '<div class="loading-wrap" style="padding:40px">No games loaded yet — wait for the Odds tab to finish loading first.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('scanSlateBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ SCANNING…';
+
+  const progressEl  = document.getElementById('edgeScanProgress');
+  const barEl       = document.getElementById('edgeScanBar');
+  const statusEl    = document.getElementById('edgeScanStatus');
+  const detailEl    = document.getElementById('edgeScanDetail');
+
+  progressEl.style.display = 'block';
+  document.getElementById('edgeList').innerHTML = '';
+  allPropsData = []; // clear previous
+
+  const markets = PROP_MARKETS.map(m => m.key).join(',');
+  const total = gamesData.length;
+  let loaded = 0, failed = 0;
+
+  for (let i = 0; i < gamesData.length; i++) {
+    const game = gamesData[i];
+    const pct = Math.round((i / total) * 100);
+    barEl.style.width = pct + '%';
+    statusEl.textContent = `Scanning game ${i + 1} of ${total}…`;
+    detailEl.textContent = `${game.away_team} @ ${game.home_team}`;
+
+    try {
+      const url = `${WORKER_URL}?eventId=${game.id}&markets=${markets}&oddsFormat=american`;
+      const res = await fetch(url);
+
+      // Update quota display
+      const remaining = res.headers.get('x-requests-remaining');
+      if (remaining !== null) {
+        try { document.getElementById('propsQuota').textContent = remaining + ' requests remaining'; } catch(e) {}
+      }
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const eventObj = Array.isArray(data) ? data[0] : data;
+
+      allPropsData.push({
+        eventData: eventObj,
+        homeTeam: game.home_team,
+        awayTeam: game.away_team
+      });
+      loaded++;
+    } catch(e) {
+      failed++;
+      console.warn('Failed to load props for', game.home_team, ':', e.message);
+    }
+
+    // Small delay between requests to be kind to the API
+    if (i < gamesData.length - 1) await new Promise(r => setTimeout(r, 300));
+  }
+
+  // Done
+  barEl.style.width = '100%';
+  statusEl.innerHTML = `<span style="color:var(--green)">✓ Scan complete</span> — ${loaded} games loaded${failed ? ', ' + failed + ' failed' : ''}`;
+  detailEl.textContent = `${allPropsData.length} games with props data · ${new Date().toLocaleTimeString()}`;
+
+  document.getElementById('edgeUpdated').textContent =
+    `Full slate · ${loaded} games · Updated ${new Date().toLocaleTimeString()}`;
+
+  btn.disabled = false;
+  btn.textContent = '⚡ SCAN FULL SLATE';
+
+  // Auto-render the edge board
+  buildEdgeBoard();
+}
 
 // ═══════════ EDGE BOARD ═══════════
 const EDGE_CATS = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
