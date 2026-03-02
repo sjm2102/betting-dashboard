@@ -908,11 +908,11 @@ const TEAM_TO_DVP = {
 
 // Grade → badge config
 const GRADE_BADGE = {
-  A: { label:'🔥 STRONG MATCHUP', cls:'dvp-strong'  },
-  B: { label:'✓ FAVORABLE',       cls:'dvp-favorable'},
-  C: { label:'~ NEUTRAL',         cls:'dvp-neutral'  },
-  D: { label:'✗ TOUGH MATCHUP',  cls:'dvp-tough'    },
-  F: { label:'🧱 ELITE DEFENSE',  cls:'dvp-elite'    },
+  A: { label:'🧱 ELITE DEFENSE',  cls:'dvp-elite'    },  // rank 1-6  = toughest D
+  B: { label:'✗ TOUGH MATCHUP',  cls:'dvp-tough'    },  // rank 7-12
+  C: { label:'~ NEUTRAL',         cls:'dvp-neutral'  },  // rank 13-18
+  D: { label:'✓ FAVORABLE',       cls:'dvp-favorable'},  // rank 19-24
+  F: { label:'🔥 WEAK DEFENSE',    cls:'dvp-strong'  },  // rank 25-30 = weakest D
 };
 
 // Get best badge across all positions for a given team+market
@@ -950,7 +950,7 @@ function getDvpBadge(marketKey, opposingTeamFull) {
   if (!rank) return null;
   // Rank 25-30 = weak defense = good for OVER (strong matchup)
   // Rank 1-6   = strong defense = bad for OVER (tough matchup)
-  if (rank >= 25) return { label: '🔥 STRONG MATCHUP', cls: 'dvp-strong', rank };
+  if (rank >= 25) return { label: '🔥 WEAK DEFENSE', cls: 'dvp-strong', rank };
   if (rank >= 18) return { label: '✓ FAVORABLE',       cls: 'dvp-favorable', rank };
   if (rank >= 10) return { label: '~ NEUTRAL',         cls: 'dvp-neutral', rank };
   if (rank >= 4)  return { label: '✗ TOUGH MATCHUP',  cls: 'dvp-tough', rank };
