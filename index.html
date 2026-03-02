@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -957,6 +958,7 @@ function getDvpBadge(marketKey, opposingTeamFull) {
 }
 
 // ═══════════ STATE ═══════════
+let rosterData = {};
 let gamesData = [];
 let parlayLegs = [];
 let bets = JSON.parse(localStorage.getItem('edge_bets') || '[]');
@@ -1720,24 +1722,48 @@ function renderProps() {
       </div>`;
     }).join('');
 
-    // DvP — show one badge per team (all positions shown as pills)
-    const positions = ['PG','SG','SF','PF','C'];
-    function teamBadgeHtml(teamName, label) {
-      const abbr = TEAM_TO_DVP[teamName];
-      if (!abbr) return '';
-      const pills = positions.map(pos => {
-        const rank = DVP[pos + '_rank']?.[abbr];
-        const grade = DVP[pos + '_grade']?.[abbr];
-        if (!rank || !grade) return '';
-        const cfg = GRADE_BADGE[grade];
-        return `<span class="dvp-badge ${cfg.cls}" style="font-size:0.55rem;padding:2px 5px" title="${pos} vs ${abbr}">${pos} ${grade}</span>`;
-      }).join('');
-      return `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:3px">
-        <span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">vs ${abbr}:</span>
-        ${pills}
-      </div>`;
+    // DvP — look up player position from roster, show targeted matchup badge
+    const playerPos = getPlayerPos(prop.player);
+    const playerStats = getPlayerStats(prop.player);
+
+    // Figure out which team the player is on using roster data
+    const playerTeamShort = playerStats?.team?.toLowerCase();
+    const homeShort = homeTeam.split(' ').pop().toLowerCase(); // e.g. "Lakers" -> "lakers"
+    // Match player team abbr (e.g. "Lal") to home/away
+    const homeAbbr = TEAM_TO_DVP[homeTeam];
+    const awayAbbr = TEAM_TO_DVP[awayTeam];
+
+    // Try to determine opposing team from roster team field
+    let opposingTeam = null;
+    if (playerStats?.team) {
+      // Stats use short codes like "Lal", "Bos" — match to TEAM_TO_DVP values
+      const pt = playerStats.team.toLowerCase();
+      const homeMatch = homeAbbr && (homeAbbr.toLowerCase() === pt || homeTeam.toLowerCase().includes(pt));
+      opposingTeam = homeMatch ? awayTeam : homeTeam;
     }
-    const badgeHtml = teamBadgeHtml(homeTeam, 'HOME') + teamBadgeHtml(awayTeam, 'AWAY');
+    // Fallback: show both teams' DvP for player position
+    if (!opposingTeam) opposingTeam = awayTeam;
+
+    const oppAbbr = TEAM_TO_DVP[opposingTeam];
+    let badgeHtml = '';
+
+    if (playerPos && oppAbbr) {
+      const rank = DVP[playerPos + '_rank']?.[oppAbbr];
+      const grade = DVP[playerPos + '_grade']?.[oppAbbr];
+      if (rank && grade) {
+        const cfg = GRADE_BADGE[grade];
+        badgeHtml = `<span class="dvp-badge ${cfg.cls}">${cfg.label}</span><span class="dvp-rank">${playerPos} vs ${oppAbbr} #${rank}</span>`;
+      }
+    } else if (oppAbbr) {
+      // No position known — show all 5 as small pills
+      const pills = ['PG','SG','SF','PF','C'].map(pos => {
+        const rank = DVP[pos+'_rank']?.[oppAbbr];
+        const grade = DVP[pos+'_grade']?.[oppAbbr];
+        if (!rank || !grade) return '';
+        return `<span class="dvp-badge ${GRADE_BADGE[grade].cls}" style="font-size:0.52rem;padding:1px 4px">${pos} ${grade}</span>`;
+      }).join('');
+      badgeHtml = `<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">vs ${oppAbbr}:</span>${pills}`;
+    }
 
     cards.push(`<div class="prop-card">
       <div class="prop-card-header">
@@ -1746,7 +1772,15 @@ function renderProps() {
             <div class="prop-player">${prop.player}</div>
             ${badgeHtml}
           </div>
-          <div class="prop-market">${prop.marketLabel}</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:2px">
+            <div class="prop-market">${prop.marketLabel}</div>
+            ${playerStats ? `<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">
+              ${playerStats.ppg ? playerStats.ppg+'ppg' : ''}
+              ${playerStats.rpg ? '· '+playerStats.rpg+'rpg' : ''}
+              ${playerStats.apg ? '· '+playerStats.apg+'apg' : ''}
+              ${playerStats.mpg ? '· '+playerStats.mpg+'mpg' : ''}
+            </span>` : ''}
+          </div>
         </div>
         <div class="prop-line-badge">${prop.line !== undefined ? prop.line : '—'}</div>
       </div>
@@ -1764,6 +1798,34 @@ function renderProps() {
 }
 
 
+
+
+// ═══════════ ROSTER ═══════════
+async function loadRoster() {
+  try {
+    const res = await fetch('https://sjm2102.github.io/betting-dashboard/roster.json');
+    if (res.ok) rosterData = await res.json();
+    console.log('Roster loaded:', Object.keys(rosterData).length, 'players');
+  } catch(e) {
+    console.warn('Could not load roster.json:', e.message);
+  }
+}
+
+function getPlayerPos(playerName) {
+  // Try exact match first
+  if (rosterData[playerName]) return rosterData[playerName].pos;
+  // Try case-insensitive
+  const lower = playerName.toLowerCase();
+  const key = Object.keys(rosterData).find(k => k.toLowerCase() === lower);
+  return key ? rosterData[key].pos : null;
+}
+
+function getPlayerStats(playerName) {
+  if (rosterData[playerName]) return rosterData[playerName];
+  const lower = playerName.toLowerCase();
+  const key = Object.keys(rosterData).find(k => k.toLowerCase() === lower);
+  return key ? rosterData[key] : null;
+}
 
 // ═══════════ DvP EDITOR ═══════════
 function toggleDvpEditor() {
@@ -1840,6 +1902,7 @@ function loadSavedDvp() {
 
 // ═══════════ INIT — auto-fetch on load ═══════════
 loadSavedDvp();
+loadRoster();
 renderTracker();
 renderParlay();
 fetchOdds();
