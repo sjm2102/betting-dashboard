@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1919,67 +1918,60 @@ async function scanFullSlate() {
   btn.disabled = true;
   btn.textContent = '⏳ SCANNING…';
 
-  const progressEl  = document.getElementById('edgeScanProgress');
-  const barEl       = document.getElementById('edgeScanBar');
-  const statusEl    = document.getElementById('edgeScanStatus');
-  const detailEl    = document.getElementById('edgeScanDetail');
+  const progressEl = document.getElementById('edgeScanProgress');
+  const barEl      = document.getElementById('edgeScanBar');
+  const statusEl   = document.getElementById('edgeScanStatus');
+  const detailEl   = document.getElementById('edgeScanDetail');
 
   progressEl.style.display = 'block';
   document.getElementById('edgeList').innerHTML = '';
-  allPropsData = []; // clear previous
+  allPropsData = [];
 
-  const markets = PROP_MARKETS.map(m => m.key).join(',');
-  const total = gamesData.length;
-  let loaded = 0, failed = 0;
+  // Only fetch the 4 markets we actually score
+  const markets = 'player_points,player_rebounds,player_assists,player_points_rebounds_assists';
+  const eventIds = gamesData.map(g => g.id).join(',');
 
-  for (let i = 0; i < gamesData.length; i++) {
-    const game = gamesData[i];
-    const pct = Math.round((i / total) * 100);
-    barEl.style.width = pct + '%';
-    statusEl.textContent = `Scanning game ${i + 1} of ${total}…`;
-    detailEl.textContent = `${game.away_team} @ ${game.home_team}`;
+  statusEl.textContent = `Fetching props for ${gamesData.length} games in one shot…`;
+  detailEl.textContent = 'Using batch endpoint — 1 request instead of ' + gamesData.length;
+  barEl.style.width = '30%';
 
-    try {
-      const url = `${WORKER_URL}?eventId=${game.id}&markets=${markets}&oddsFormat=american`;
-      const res = await fetch(url);
+  try {
+    const url = `${WORKER_URL}?eventIds=${eventIds}&markets=${markets}&oddsFormat=american`;
+    const res = await fetch(url);
 
-      // Update quota display
-      const remaining = res.headers.get('x-requests-remaining');
-      if (remaining !== null) {
-        try { document.getElementById('propsQuota').textContent = remaining + ' requests remaining'; } catch(e) {}
-      }
+    barEl.style.width = '80%';
 
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      const eventObj = Array.isArray(data) ? data[0] : data;
-
-      allPropsData.push({
-        eventData: eventObj,
-        homeTeam: game.home_team,
-        awayTeam: game.away_team
-      });
-      loaded++;
-    } catch(e) {
-      failed++;
-      console.warn('Failed to load props for', game.home_team, ':', e.message);
+    const remaining = res.headers.get('x-requests-remaining');
+    if (remaining !== null) {
+      try { document.getElementById('propsQuota').textContent = remaining + ' requests remaining'; } catch(e) {}
     }
 
-    // Small delay between requests to be kind to the API
-    if (i < gamesData.length - 1) await new Promise(r => setTimeout(r, 300));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const results = await res.json(); // array of { id, data }
+
+    let loaded = 0, failed = 0;
+    results.forEach(({ id, data }) => {
+      const game = gamesData.find(g => g.id === id);
+      if (!data || !game) { failed++; return; }
+      const eventObj = Array.isArray(data) ? data[0] : data;
+      if (!eventObj?.bookmakers?.length) { failed++; return; }
+      allPropsData.push({ eventData: eventObj, homeTeam: game.home_team, awayTeam: game.away_team });
+      loaded++;
+    });
+
+    barEl.style.width = '100%';
+    statusEl.innerHTML = `<span style="color:var(--green)">✓ Done</span> — ${loaded} games with props${failed ? ', ' + failed + ' no data' : ''}`;
+    detailEl.textContent = `${allPropsData.length} games scanned · ${new Date().toLocaleTimeString()}`;
+    document.getElementById('edgeUpdated').textContent = `Full slate · ${loaded} games · Updated ${new Date().toLocaleTimeString()}`;
+
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:var(--red)">✗ Error: ${e.message}</span>`;
+    detailEl.textContent = 'Check console for details';
+    console.error('Slate scan failed:', e);
   }
-
-  // Done
-  barEl.style.width = '100%';
-  statusEl.innerHTML = `<span style="color:var(--green)">✓ Scan complete</span> — ${loaded} games loaded${failed ? ', ' + failed + ' failed' : ''}`;
-  detailEl.textContent = `${allPropsData.length} games with props data · ${new Date().toLocaleTimeString()}`;
-
-  document.getElementById('edgeUpdated').textContent =
-    `Full slate · ${loaded} games · Updated ${new Date().toLocaleTimeString()}`;
 
   btn.disabled = false;
   btn.textContent = '⚡ SCAN FULL SLATE';
-
-  // Auto-render the edge board
   buildEdgeBoard();
 }
 
