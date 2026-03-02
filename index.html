@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EDGE — NBA Betting Dashboard</title>
+<title>BlueBirdBetting — NBA Betting Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
   :root {
@@ -16,8 +16,8 @@
     --text: #e8e8e8;
     --text2: #888;
     --text3: #555;
-    --green: #00e676;
-    --green-dim: #00e67622;
+    --green: #64b5f6;
+    --green-dim: #64b5f622;
     --red: #ff3d57;
     --red-dim: #ff3d5722;
     --amber: #ffab00;
@@ -498,6 +498,67 @@
     color: var(--red);
   }
 
+  /* ── PROP CARDS ── */
+  .prop-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .prop-card-header {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .prop-player { font-family: var(--display); font-size: 1.1rem; letter-spacing: 1px; }
+  .prop-market { font-family: var(--mono); font-size: 0.62rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+  .prop-line-badge {
+    font-family: var(--mono); font-size: 0.8rem; font-weight: 600;
+    background: var(--bg4); color: var(--text2);
+    padding: 3px 10px; border-radius: 2px;
+  }
+  .prop-books {
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+  .prop-book-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .prop-book-row:last-child { border-bottom: none; }
+  .prop-book-name { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; min-width: 60px; }
+  .prop-outcomes { display: flex; gap: 8px; flex: 1; justify-content: flex-end; }
+  .prop-outcome {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    min-width: 70px;
+  }
+  .prop-outcome-label { font-family: var(--mono); font-size: 0.58rem; color: var(--text3); }
+  .prop-outcome-odds {
+    font-family: var(--mono); font-size: 0.85rem; font-weight: 600;
+    padding: 3px 8px; border-radius: 2px;
+    cursor: pointer; transition: background .15s;
+  }
+  .prop-outcome-odds:hover { background: var(--bg4); }
+  .prop-outcome-odds.odds-pos { color: var(--green); }
+  .prop-outcome-odds.odds-neg { color: var(--text2); }
+  .prop-outcome-odds.odds-best { background: var(--green-dim) !important; color: var(--green) !important; }
+  .prop-ev-row {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 7px 14px;
+    display: flex; gap: 16px;
+  }
+  .market-filter-btn {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 1px;
+    text-transform: uppercase; padding: 5px 10px; border-radius: 2px;
+    cursor: pointer; border: 1px solid var(--border2);
+    background: var(--bg3); color: var(--text3);
+    transition: all .15s;
+  }
+  .market-filter-btn.active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 400px) {
     .stats-strip { grid-template-columns: repeat(2, 1fr); }
@@ -514,7 +575,7 @@
 <body>
 
 <header>
-  <div class="logo">EDG<span>E</span></div>
+  <div class="logo" style="font-size:1.3rem;letter-spacing:2px">BLUEBIRD<span>BETTING</span></div>
   <div class="header-right">
     <span class="pill pill-nba">NBA</span>
     <span class="pill pill-live" id="liveIndicator" style="display:none">● LIVE</span>
@@ -523,6 +584,7 @@
 
 <nav class="tabs">
   <button class="tab active" onclick="switchTab('odds')">ODDS</button>
+  <button class="tab" onclick="switchTab('props')">PROPS</button>
   <button class="tab" onclick="switchTab('ev')">EV CALC</button>
   <button class="tab" onclick="switchTab('arb')">ARB</button>
   <button class="tab" onclick="switchTab('lines')">LINES</button>
@@ -555,6 +617,35 @@
     </div>
     <div id="gamesList" class="game-list">
       <div class="loading-wrap"><div class="spinner"></div>FETCHING LIVE ODDS…</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ PROPS PANEL ═══════════════════ -->
+  <div class="panel" id="panel-props">
+    <div class="refresh-bar">
+      <span id="propsUpdated">Select a game to load props</span>
+      <button class="btn btn-green" id="propsRefreshBtn" onclick="fetchProps()" style="display:none">↻ REFRESH</button>
+    </div>
+    <div class="status-bar">
+      <span id="propsStatusText"><span class="dot dot-amber"></span>WAITING</span>
+      <span id="propsQuota"></span>
+    </div>
+    <div id="propsError" style="display:none" class="error-wrap"></div>
+
+    <!-- Game selector -->
+    <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+      <div class="form-label" style="margin-bottom:6px">SELECT GAME</div>
+      <select class="form-input" id="propsGameSelect" onchange="onPropGameChange()" style="width:100%;max-width:500px">
+        <option value="">— Load odds first (ODDS tab) —</option>
+      </select>
+    </div>
+
+    <!-- Market filter -->
+    <div style="padding:8px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap" id="propMarketFilters"></div>
+
+    <!-- Props list -->
+    <div id="propsList" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+      <div class="loading-wrap">Select a game above to load player props</div>
     </div>
   </div>
 
@@ -714,7 +805,7 @@ let lineHistory = JSON.parse(localStorage.getItem('edge_lines') || '{}');
 // ═══════════ TABS ═══════════
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['odds','ev','arb','lines','parlay','tracker'];
+    const ids = ['odds','props','ev','arb','lines','parlay','tracker'];
     t.classList.toggle('active', ids[i] === id);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -813,6 +904,7 @@ function processOdds(data) {
   renderArb();
   renderLineMovement();
   updateStats();
+  populatePropGameSelect();
 }
 
 // ═══════════ RENDER GAMES ═══════════
@@ -1272,6 +1364,204 @@ function setStatus(state, msg) {
 }
 function showError(msg) { const el=document.getElementById('oddsError'); el.textContent=msg; el.style.display='block'; }
 function hideError() { document.getElementById('oddsError').style.display='none'; }
+
+// ═══════════ PLAYER PROPS ═══════════
+const PROP_MARKETS = [
+  { key: 'player_points',       label: 'Points'     },
+  { key: 'player_rebounds',     label: 'Rebounds'   },
+  { key: 'player_assists',      label: 'Assists'     },
+  { key: 'player_threes',       label: '3-Pointers' },
+  { key: 'player_blocks',       label: 'Blocks'     },
+  { key: 'player_steals',       label: 'Steals'     },
+  { key: 'player_points_rebounds_assists', label: 'PRA' },
+];
+const PROP_BOOKS = ['draftkings','fanduel','betmgm','williamhill_us','pointsbetus','betus','mybookieag'];
+const PROP_BOOK_LABELS = {
+  draftkings:'DraftKings', fanduel:'FanDuel', betmgm:'BetMGM',
+  williamhill_us:'Caesars', pointsbetus:'PointsBet', betus:'BetUS', mybookieag:'MyBookie'
+};
+
+let propsData = [];
+let activeMarketFilter = 'all';
+let selectedPropGameId = '';
+
+// Populate game selector whenever gamesData updates
+function populatePropGameSelect() {
+  const sel = document.getElementById('propsGameSelect');
+  if (!gamesData.length) return;
+  sel.innerHTML = '<option value="">— Select a game —</option>' +
+    gamesData.map(g =>
+      `<option value="${g.id}">${shortName(g.away_team)} @ ${shortName(g.home_team)} — ${new Date(g.commence_time).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</option>`
+    ).join('');
+}
+
+function onPropGameChange() {
+  const sel = document.getElementById('propsGameSelect');
+  selectedPropGameId = sel.value;
+  if (!selectedPropGameId) return;
+  fetchProps();
+}
+
+async function fetchProps() {
+  if (!selectedPropGameId) return;
+  document.getElementById('propsUpdated').textContent = 'Loading props…';
+  document.getElementById('propsStatusText').innerHTML = '<span class="dot" style="background:var(--amber);display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px"></span>LOADING…';
+  document.getElementById('propsError').style.display = 'none';
+  document.getElementById('propsRefreshBtn').style.display = 'inline-block';
+  document.getElementById('propsList').innerHTML = '<div class="loading-wrap"><div class="spinner"></div>FETCHING PLAYER PROPS…</div>';
+
+  const markets = PROP_MARKETS.map(m => m.key).join(',');
+  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american&regions=us`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+
+    const remaining = res.headers.get('x-requests-remaining');
+    if (remaining !== null) document.getElementById('propsQuota').textContent = `${remaining} requests remaining`;
+
+    propsData = data;
+    document.getElementById('propsStatusText').innerHTML = '<span class="dot dot-green"></span>LIVE PROPS';
+    document.getElementById('propsUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    renderProps();
+  } catch(e) {
+    document.getElementById('propsStatusText').innerHTML = '<span class="dot dot-red"></span>ERROR';
+    document.getElementById('propsError').style.display = 'block';
+    document.getElementById('propsError').textContent = 'Error loading props: ' + e.message;
+    document.getElementById('propsList').innerHTML = '<div class="loading-wrap">Failed to load props. Try again.</div>';
+    document.getElementById('propsUpdated').textContent = 'Failed to load';
+  }
+}
+
+function renderPropMarketFilters(availableMarkets) {
+  const el = document.getElementById('propMarketFilters');
+  const all = [{ key: 'all', label: 'All' }, ...PROP_MARKETS.filter(m => availableMarkets.has(m.key))];
+  el.innerHTML = all.map(m =>
+    `<button class="market-filter-btn ${activeMarketFilter === m.key ? 'active' : ''}" onclick="setPropFilter('${m.key}')">${m.label}</button>`
+  ).join('');
+}
+
+function setPropFilter(key) {
+  activeMarketFilter = key;
+  renderProps();
+}
+
+function renderProps() {
+  const el = document.getElementById('propsList');
+
+  // Collect all player props across all bookmakers
+  const playerMap = {}; // key: "playerName|marketKey" => { player, market, books: {bookKey: {over, under}} }
+
+  const availableMarkets = new Set();
+
+  // propsData could be a single event object or array
+  const eventData = Array.isArray(propsData) ? propsData[0] : propsData;
+  if (!eventData || !eventData.bookmakers) {
+    el.innerHTML = '<div class="loading-wrap">No prop data available for this game.</div>';
+    return;
+  }
+
+  eventData.bookmakers.forEach(book => {
+    book.markets?.forEach(market => {
+      availableMarkets.add(market.key);
+      market.outcomes?.forEach(outcome => {
+        const playerName = outcome.description || outcome.name;
+        const mapKey = `${playerName}|${market.key}`;
+        if (!playerMap[mapKey]) {
+          playerMap[mapKey] = {
+            player: playerName,
+            marketKey: market.key,
+            marketLabel: PROP_MARKETS.find(m => m.key === market.key)?.label || market.key,
+            line: outcome.point,
+            books: {}
+          };
+        }
+        if (!playerMap[mapKey].books[book.key]) playerMap[mapKey].books[book.key] = {};
+        const side = outcome.name.toLowerCase().includes('over') ? 'over' : 'under';
+        playerMap[mapKey].books[book.key][side] = outcome.price;
+        if (outcome.point !== undefined) playerMap[mapKey].line = outcome.point;
+      });
+    });
+  });
+
+  renderPropMarketFilters(availableMarkets);
+
+  const entries = Object.values(playerMap)
+    .filter(p => activeMarketFilter === 'all' || p.marketKey === activeMarketFilter)
+    .sort((a, b) => a.player.localeCompare(b.player) || a.marketLabel.localeCompare(b.marketLabel));
+
+  if (!entries.length) {
+    el.innerHTML = '<div class="loading-wrap">No props found for this market filter.</div>';
+    return;
+  }
+
+  el.innerHTML = entries.map(prop => {
+    const booksWithData = Object.keys(prop.books).filter(bk => prop.books[bk].over || prop.books[bk].under);
+
+    // Find best over and best under across books
+    let bestOver = null, bestOverBook = null, bestUnder = null, bestUnderBook = null;
+    booksWithData.forEach(bk => {
+      const o = prop.books[bk].over, u = prop.books[bk].under;
+      if (o !== undefined && (bestOver === null || o > bestOver)) { bestOver = o; bestOverBook = bk; }
+      if (u !== undefined && (bestUnder === null || u > bestUnder)) { bestUnder = u; bestUnderBook = bk; }
+    });
+
+    // EV calc if we have both sides
+    let evOverStr = '—', evUnderStr = '—';
+    if (bestOver !== null && bestUnder !== null) {
+      const [pOver, pUnder] = vigFreeProb(bestOver, bestUnder);
+      const evOver = ev1u(pOver, bestOver);
+      const evUnder = ev1u(pUnder, bestUnder);
+      evOverStr = `<span class="${evOver > 0 ? 'ev-pos' : 'ev-neg'}">${evOver > 0 ? '+' : ''}${evOver.toFixed(3)}u</span>`;
+      evUnderStr = `<span class="${evUnder > 0 ? 'ev-pos' : 'ev-neg'}">${evUnder > 0 ? '+' : ''}${evUnder.toFixed(3)}u</span>`;
+    }
+
+    const bookRows = booksWithData.map(bk => {
+      const o = prop.books[bk].over, u = prop.books[bk].under;
+      const label = PROP_BOOK_LABELS[bk] || bk;
+      return `<div class="prop-book-row">
+        <div class="prop-book-name">${label}</div>
+        <div class="prop-outcomes">
+          <div class="prop-outcome">
+            <div class="prop-outcome-label">OVER</div>
+            <div class="prop-outcome-odds ${o > 0 ? 'odds-pos' : 'odds-neg'} ${bk === bestOverBook ? 'odds-best' : ''}"
+              onclick="addToParlay('prop_${prop.player}_${prop.marketKey}','${prop.player} O${prop.line} ${prop.marketLabel}',${o},'${label}',0.5)">
+              ${o !== undefined ? fmtOdds(o) : '—'}
+            </div>
+          </div>
+          <div class="prop-outcome">
+            <div class="prop-outcome-label">UNDER</div>
+            <div class="prop-outcome-odds ${u > 0 ? 'odds-pos' : 'odds-neg'} ${bk === bestUnderBook ? 'odds-best' : ''}"
+              onclick="addToParlay('prop_${prop.player}_${prop.marketKey}_u','${prop.player} U${prop.line} ${prop.marketLabel}',${u},'${label}',0.5)">
+              ${u !== undefined ? fmtOdds(u) : '—'}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="prop-card">
+      <div class="prop-card-header">
+        <div>
+          <div class="prop-player">${prop.player}</div>
+          <div class="prop-market">${prop.marketLabel}</div>
+        </div>
+        <div class="prop-line-badge">${prop.line !== undefined ? prop.line : '—'}</div>
+      </div>
+      ${bookRows}
+      <div class="prop-ev-row">
+        <div class="ev-item"><div class="ev-label">OVER EV</div><div class="ev-val">${evOverStr}</div></div>
+        <div class="ev-item"><div class="ev-label">UNDER EV</div><div class="ev-val">${evUnderStr}</div></div>
+        <div class="ev-item"><div class="ev-label">BEST OVER</div><div class="ev-val ev-neu">${bestOver !== null ? fmtOdds(bestOver) + ' ' + (PROP_BOOK_LABELS[bestOverBook] || bestOverBook) : '—'}</div></div>
+        <div class="ev-item"><div class="ev-label">BEST UNDER</div><div class="ev-val ev-neu">${bestUnder !== null ? fmtOdds(bestUnder) + ' ' + (PROP_BOOK_LABELS[bestUnderBook] || bestUnderBook) : '—'}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // ═══════════ INIT — auto-fetch on load ═══════════
 renderTracker();
