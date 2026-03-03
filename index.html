@@ -2166,7 +2166,7 @@ function _renderEdgeFromCache(cat) {
   const rankIcon = ['🥇','🥈','🥉'];
   const rankCls  = ['gold','silver','bronze'];
   const BM = {A:{label:'🧱 ELITE DEFENSE',cls:'dvp-elite'},B:{label:'✗ TOUGH MATCHUP',cls:'dvp-tough'},C:{label:'~ NEUTRAL',cls:'dvp-neutral'},D:{label:'✓ FAVORABLE',cls:'dvp-favorable'},F:{label:'🔥 WEAK DEFENSE',cls:'dvp-strong'}};
-  el.innerHTML = '<div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);letter-spacing:1px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">TOP 10 ' + catLabel.toUpperCase() + ' — Score: EV + DvP + Line vs Avg + MPG + Usage</div>'
+  el.innerHTML = ''
     + top10.map((r,i) => {
       const rank = i+1;
       const dvpCfg = r.dvpGrade ? BM[r.dvpGrade] : null;
@@ -2461,9 +2461,6 @@ function renderEdgeBoard() {
   const rankCls  = ['gold','silver','bronze'];
 
   el.innerHTML = `
-    <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);letter-spacing:1px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-      TOP 10 ${catLabel.toUpperCase()} EDGES — Score: EV + DvP + Line vs Avg + MPG + Usage
-    </div>
     ${top10.map((r, i) => {
       const rank = i + 1;
       const rankDisplay = rank <= 3 ? rankIcon[i] : `#${rank}`;
