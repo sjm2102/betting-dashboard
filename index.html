@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1702,7 +1701,7 @@ async function fetchProps() {
 
   // Worker handles ?eventIds= (batch endpoint), not ?eventId= (single) — pass single ID as batch
   const markets = 'player_points,player_rebounds,player_assists,player_points_rebounds_assists';
-  const url = `${WORKER_URL}?eventIds=${selectedPropGameId}&markets=${markets}&oddsFormat=american`;
+  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american`;
 
   try {
     const res = await fetch(url);
