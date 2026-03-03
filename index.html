@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2372,6 +2371,7 @@ function renderEdgeBoard() {
         <div class="edge-score-col">
           <div class="edge-score">${r.score > 0 ? '+' : ''}${r.score.toFixed(3)}</div>
           <div class="edge-score-label">EDGE SCORE</div>
+          <button onclick="event.stopPropagation();quickCopy(buildCopyText(${JSON.stringify(r)}),this)" style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;letter-spacing:1px;background:none;border:1px solid var(--border2);color:var(--text3);padding:2px 8px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s">📋 COPY</button>
         </div>
       </div>`;
     }).join('')}
@@ -2484,7 +2484,10 @@ function renderTop5EdgeBets(results) {
     out += '<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">' + (r.book || '') + '</span>';
     out += '</div><div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:2px">' + (r.game || '') + ' &middot; EV ' + evS + '</div></div>';
     out += '<div style="text-align:right"><div style="font-family:var(--display);font-size:1rem;color:var(--green)">' + scS + '</div>';
-    out += '<div style="font-family:var(--mono);font-size:0.5rem;color:var(--text3);letter-spacing:1px">SCORE</div></div></div>';
+    out += '<div style="font-family:var(--mono);font-size:0.5rem;color:var(--text3);letter-spacing:1px">SCORE</div>';
+    var copyText = buildCopyText(r);
+    out += '<button onclick="event.stopPropagation();quickCopy(\''+copyText+'\',this)" style="margin-top:5px;font-family:var(--mono);font-size:0.48rem;letter-spacing:1px;background:none;border:1px solid var(--border2);color:var(--text3);padding:2px 6px;border-radius:2px;cursor:pointer;display:block;width:100%">&#x1F4CB; COPY</button>';
+    out += '</div></div>';
   }
   el.innerHTML = out;
 }
@@ -2549,6 +2552,30 @@ function _computeAllEdgeResults() {
   });
   activeEdgeCat = prevCat;
   return all.sort((a,b) => b.score - a.score);
+}
+
+
+
+// ═══════════ QUICK COPY ═══════════
+function quickCopy(text, btn) {
+  navigator.clipboard.writeText(text).then(function() {
+    var orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  });
+}
+
+function buildCopyText(r) {
+  var catMap = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'};
+  var cat = catMap[r.market || r.marketKey] || 'PROP';
+  var odds = r.bestOdds > 0 ? '+' + r.bestOdds : '' + r.bestOdds;
+  return r.player + ' ' + r.side + ' ' + r.line + ' ' + cat + '  |  ' + odds + '  |  ' + (r.book || '');
 }
 
 // ═══════════ THEME TOGGLE ═══════════
