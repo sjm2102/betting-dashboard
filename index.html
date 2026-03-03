@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2430,38 +2431,35 @@ function loadSavedDvp() {
 
 // ═══════════ TOP 5 EDGE BETS (ODDS TAB) ═══════════
 function renderTop5EdgeBets(results) {
-  const el = document.getElementById('top5EdgeList');
-  const note = document.getElementById('top5EdgeNote');
+  var el = document.getElementById('top5EdgeList');
+  var note = document.getElementById('top5EdgeNote');
   if (!el) return;
   if (!results || !results.length) {
-    el.innerHTML = '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);padding:10px 0">No edge data yet — run ⚡ SCAN FULL SLATE in the Edge tab</div>';
+    el.innerHTML = '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);padding:10px 0">No edge data yet - run SCAN FULL SLATE in the Edge tab</div>';
     return;
   }
-  const top5 = results.slice(0, 5);
+  var top5 = results.slice(0, 5);
   if (note) note.textContent = 'Updated ' + new Date().toLocaleTimeString();
-  const CAT_LABEL = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'};
-  el.innerHTML = top5.map((r, i) => {
-    const medals = ['🥇','🥈','🥉'];
-    const rankDisplay = i < 3 ? medals[i] : '#' + (i+1);
-    const catLabel = CAT_LABEL[r.market || 'player_points'] || 'PROP';
-    const sideClass = r.side === 'OVER' ? 'edge-side-over' : 'edge-side-under';
-    return \`<div style="display:grid;grid-template-columns:22px 1fr auto;gap:0 10px;align-items:center;padding:7px 10px;background:var(--bg2);border:1px solid \${i<3?'var(--green)':'var(--border)'};border-radius:3px;cursor:pointer"
-      onclick="switchTab('edge')">
-      <div style="font-family:var(--display);font-size:1rem;text-align:center">\${rankDisplay}</div>
-      <div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span style="font-family:var(--display);font-size:0.85rem;letter-spacing:1px">\${r.player}</span>
-          <span class="edge-side-badge \${sideClass}">\${r.side} \${r.line}</span>
-          <span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);letter-spacing:1px">\${catLabel} · \${r.book || ''}</span>
-        </div>
-        <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:2px">\${r.game || ''} · EV \${r.ev > 0 ? '+' : ''}\${(r.ev||0).toFixed(3)}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-family:var(--display);font-size:1rem;color:var(--green)">\${r.score > 0 ? '+' : ''}\${(r.score||0).toFixed(3)}</div>
-        <div style="font-family:var(--mono);font-size:0.5rem;color:var(--text3);letter-spacing:1px">SCORE</div>
-      </div>
-    </div>\`;
-  }).join('');
+  var medals = ['🥇','🥈','🥉'];
+  var out = '';
+  for (var i = 0; i < top5.length; i++) {
+    var r = top5[i];
+    var rank = i < 3 ? medals[i] : '#' + (i + 1);
+    var sc = r.side === 'OVER' ? 'edge-side-over' : 'edge-side-under';
+    var bc = i < 3 ? 'var(--green)' : 'var(--border)';
+    var evS = (r.ev > 0 ? '+' : '') + ((r.ev || 0).toFixed(3));
+    var scS = (r.score > 0 ? '+' : '') + ((r.score || 0).toFixed(3));
+    out += '<div style="display:grid;grid-template-columns:24px 1fr auto;gap:0 10px;align-items:center;padding:8px 10px;background:var(--bg2);border:1px solid ' + bc + ';border-radius:3px;cursor:pointer" onclick="switchTab(\'edge\')">';
+    out += '<div style="font-family:var(--display);font-size:1rem;text-align:center">' + rank + '</div>';
+    out += '<div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
+    out += '<span style="font-family:var(--display);font-size:0.85rem;letter-spacing:1px">' + r.player + '</span>';
+    out += '<span class="edge-side-badge ' + sc + '">' + r.side + ' ' + r.line + '</span>';
+    out += '<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">' + (r.book || '') + '</span>';
+    out += '</div><div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:2px">' + (r.game || '') + ' &middot; EV ' + evS + '</div></div>';
+    out += '<div style="text-align:right"><div style="font-family:var(--display);font-size:1rem;color:var(--green)">' + scS + '</div>';
+    out += '<div style="font-family:var(--mono);font-size:0.5rem;color:var(--text3);letter-spacing:1px">SCORE</div></div></div>';
+  }
+  el.innerHTML = out;
 }
 
 
