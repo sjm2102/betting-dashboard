@@ -1907,16 +1907,15 @@ function renderProps() {
         <div style="display:flex;flex-direction:column;gap:4px">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <div class="prop-player">${prop.player}</div>
+            ${playerStats?.team ? `<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">(${playerStats.team.toUpperCase()})</span>` : (homeAbbr && awayAbbr ? `<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">(${awayAbbr} @ ${homeAbbr})</span>` : '')}
             ${badgeHtml}
           </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:2px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px">
             <div class="prop-market">${prop.marketLabel}</div>
-            ${playerStats ? `<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">
-              ${playerStats.ppg ? playerStats.ppg+'ppg' : ''}
-              ${playerStats.rpg ? '· '+playerStats.rpg+'rpg' : ''}
-              ${playerStats.apg ? '· '+playerStats.apg+'apg' : ''}
-              ${playerStats.mpg ? '· '+playerStats.mpg+'mpg' : ''}
-            </span>` : ''}
+            ${playerStats?.ppg ? `<span style="font-family:var(--mono);font-size:0.56rem;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 6px;border-radius:2px;letter-spacing:0.5px">${playerStats.ppg} PPG</span>` : ''}
+            ${playerStats?.rpg ? `<span style="font-family:var(--mono);font-size:0.56rem;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 6px;border-radius:2px;letter-spacing:0.5px">${playerStats.rpg} RPG</span>` : ''}
+            ${playerStats?.apg ? `<span style="font-family:var(--mono);font-size:0.56rem;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 6px;border-radius:2px;letter-spacing:0.5px">${playerStats.apg} APG</span>` : ''}
+            ${playerStats?.mpg ? `<span style="font-family:var(--mono);font-size:0.56rem;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 6px;border-radius:2px;letter-spacing:0.5px">${playerStats.mpg} MPG</span>` : ''}
           </div>
         </div>
         <div class="prop-line-badge">${prop.line !== undefined ? prop.line : '—'}</div>
