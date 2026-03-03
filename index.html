@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1095,7 +1096,7 @@ let lineHistory = JSON.parse(localStorage.getItem('edge_lines') || '{}');
 // ═══════════ TABS ═══════════
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['odds','props','ev','arb','lines','parlay','tracker'];
+    const ids = ['odds','props','edge','ev','arb','lines','parlay','tracker'];
     t.classList.toggle('active', ids[i] === id);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -2472,11 +2473,14 @@ function renderTop5EdgeBets(results) {
     var bc = i < 3 ? 'var(--green)' : 'var(--border)';
     var evS = (r.ev > 0 ? '+' : '') + ((r.ev || 0).toFixed(3));
     var scS = (r.score > 0 ? '+' : '') + ((r.score || 0).toFixed(3));
+    var catMap = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'};
+    var catLabel = catMap[r.market || r.marketKey] || 'PROP';
     out += '<div style="display:grid;grid-template-columns:24px 1fr auto;gap:0 10px;align-items:center;padding:8px 10px;background:var(--bg2);border:1px solid ' + bc + ';border-radius:3px;cursor:pointer" onclick="switchTab(\'edge\')">';
     out += '<div style="font-family:var(--display);font-size:1rem;text-align:center">' + rank + '</div>';
     out += '<div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
     out += '<span style="font-family:var(--display);font-size:0.85rem;letter-spacing:1px">' + r.player + '</span>';
     out += '<span class="edge-side-badge ' + sc + '">' + r.side + ' ' + r.line + '</span>';
+    out += '<span style="font-family:var(--mono);font-size:0.58rem;letter-spacing:1px;background:var(--bg4);border:1px solid var(--border2);padding:1px 5px;border-radius:2px;color:var(--text2)">' + catLabel + '</span>';
     out += '<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">' + (r.book || '') + '</span>';
     out += '</div><div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:2px">' + (r.game || '') + ' &middot; EV ' + evS + '</div></div>';
     out += '<div style="text-align:right"><div style="font-family:var(--display);font-size:1rem;color:var(--green)">' + scS + '</div>';
