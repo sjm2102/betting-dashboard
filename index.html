@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -832,13 +831,8 @@
 
   <!-- ═══════════════════ ODDS PANEL ═══════════════════ -->
   <div class="panel active" id="panel-odds">
-    <div class="refresh-bar">
-      <span id="lastUpdated">Loading odds…</span>
-      <button class="btn btn-green" onclick="fetchOdds()">↻ REFRESH</button>
-    </div>
     <div class="status-bar">
       <span id="statusText"><span class="dot dot-amber"></span>LOADING…</span>
-      <span id="quotaInfo"></span>
     </div>
     <div id="oddsError" style="display:none" class="error-wrap"></div>
     <div class="stats-strip">
@@ -913,15 +907,8 @@
 
   <!-- ═══════════════════ EDGE PANEL ═══════════════════ -->
   <div class="panel" id="panel-edge">
-    <div class="refresh-bar">
-      <span id="edgeUpdated">Load props in the Props tab first, then scan here</span>
-      <span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">AUTO-UPDATED 4× DAILY</span>
-    </div>
     <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2)">
-      <div style="font-family:var(--display);font-size:1rem;letter-spacing:3px;margin-bottom:4px">TOP PROP EDGES</div>
-      <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3)">
-        Combined score = EV + DvP matchup + line vs season avg + MPG + usage. Equal weight.
-      </div>
+      <div style="font-family:var(--display);font-size:1rem;letter-spacing:3px">TOP PROP EDGES</div>
     </div>
     <!-- Category tabs -->
     <div style="display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2)" id="edgeCatTabs">
@@ -1286,7 +1273,7 @@ function fmtUSD(v) { return isNaN(v)?'—':'$'+Math.abs(v).toFixed(2); }
 async function fetchOdds() {
   setStatus('loading');
   hideError();
-  document.getElementById('lastUpdated').textContent = 'Refreshing…';
+    // (display element removed)
 
   try {
     const url = `${WORKER_URL}?regions=us&markets=h2h,spreads&oddsFormat=american&bookmakers=${BOOKS.join(',')}`;
@@ -1303,16 +1290,16 @@ async function fetchOdds() {
     const remaining = res.headers.get('x-requests-remaining');
     const used = res.headers.get('x-requests-used');
     if (remaining !== null) {
-      document.getElementById('quotaInfo').textContent = `${remaining} requests remaining`;
+    // (display element removed)
     }
 
     processOdds(data);
     setStatus('ok');
-    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    // (display element removed)
   } catch(e) {
     setStatus('error');
     showError('Error fetching odds: ' + e.message);
-    document.getElementById('lastUpdated').textContent = 'Failed to load';
+    // (display element removed)
   }
 }
 
@@ -1847,7 +1834,7 @@ async function fetchProps() {
     const data = await res.json();
 
     const remaining = res.headers.get('x-requests-remaining');
-    if (remaining !== null) document.getElementById('propsQuota').textContent = `${remaining} requests remaining`;
+    // (display element removed)
 
     // Normalise: batch endpoint returns [{id, data}, ...], single returns object or array
     let eventObj = null;
@@ -2138,15 +2125,15 @@ async function loadCachedData() {
       const age = json.odds.timestamp ? Math.round((Date.now() - json.odds.timestamp) / 60000) : null;
       processOdds(gamesData);
       document.getElementById('statusText').innerHTML = '<span class="dot dot-green"></span>LIVE';
-      document.getElementById('lastUpdated').textContent = age !== null ? 'Cached · ' + age + 'm ago' : 'Cached data loaded';
+    // (display element removed)
     } else {
       document.getElementById('statusText').innerHTML = '<span class="dot dot-amber"></span>NO DATA';
-      document.getElementById('lastUpdated').textContent = 'No data yet — next scan at 12pm ET';
+    // (display element removed)
     }
 
     if (json.edge && json.edge.results) {
       cachedEdgeData = json.edge;
-      const el = document.getElementById('edgeUpdated');
+    // (display element removed)
       if (el) el.textContent = 'Last scan: ' + (json.edge.scannedAt || 'unknown') + ' · ' + (json.edge.requestsRemaining || '?') + ' API credits remaining';
       _renderEdgeFromCache(activeEdgeCat);
       // Populate top5 on odds tab from cache
@@ -2159,7 +2146,7 @@ async function loadCachedData() {
   } catch(e) {
     console.error('loadCachedData failed:', e);
     document.getElementById('statusText').innerHTML = '<span class="dot dot-red"></span>ERROR';
-    document.getElementById('lastUpdated').textContent = 'Failed to load: ' + e.message;
+    // (display element removed)
   }
 }
 
@@ -2185,6 +2172,7 @@ function _renderEdgeFromCache(cat) {
         + '<div>'
           + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
             + '<span class="edge-player-name">' + r.player + '</span>'
+            + (function(){ var s=getPlayerStats(r.player); return s&&s.team?'<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">('+s.team.toUpperCase()+')</span>':''; }())
             + '<span class="edge-side-badge ' + (r.side==='OVER'?'edge-side-over':'edge-side-under') + '">' + r.side + ' ' + r.line + '</span>'
             + dvpBadge
           + '</div>'
@@ -2244,7 +2232,7 @@ async function scanFullSlate() {
       statusEl.textContent = 'Processing results…';
 
       const remaining = batchRes.headers.get('x-requests-remaining');
-      if (remaining) try { document.getElementById('propsQuota').textContent = remaining + ' requests remaining'; } catch(e) {}
+    // (display element removed)
 
       batchJson.forEach(({ id, data }) => {
         const game = gamesData.find(g => g.id === id);
@@ -2268,7 +2256,7 @@ async function scanFullSlate() {
         try {
           const res = await fetch(`${WORKER_URL}?eventId=${game.id}&markets=${markets}&oddsFormat=american`);
           const remaining = res.headers.get('x-requests-remaining');
-          if (remaining) try { document.getElementById('propsQuota').textContent = remaining + ' requests remaining'; } catch(e) {}
+    // (display element removed)
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const data = await res.json();
           const eventObj = Array.isArray(data) ? data[0] : data;
@@ -2293,7 +2281,7 @@ async function scanFullSlate() {
   barEl.style.width = '100%';
   statusEl.innerHTML = `<span style="color:var(--green)">✓ Done</span> — ${loaded} games loaded${failed ? ', ' + failed + ' skipped' : ''}`;
   detailEl.textContent = `${allPropsData.length} games with prop data · ${new Date().toLocaleTimeString()}`;
-  document.getElementById('edgeUpdated').textContent = `Full slate · ${loaded} games · Updated ${new Date().toLocaleTimeString()}`;
+    // (display element removed)
 
   btn.disabled = false;
   btn.textContent = '⚡ SCAN FULL SLATE';
@@ -2320,10 +2308,10 @@ function buildEdgeBoard() {
   if (!allPropsData || !allPropsData.length) {
     document.getElementById('edgeList').innerHTML =
       '<div class="loading-wrap" style="padding:40px">No props loaded yet — go to PROPS tab, load a game, then come back.</div>';
-    document.getElementById('edgeUpdated').textContent = 'No data loaded';
+    // (display element removed)
     return;
   }
-  document.getElementById('edgeUpdated').textContent = `Scanned ${allPropsData.length} game(s) · Updated ${new Date().toLocaleTimeString()}`;
+    // (display element removed)
   renderEdgeBoard();
   // Also update top5 on odds tab
   if (typeof allPropsData !== 'undefined') { const _r = _computeAllEdgeResults(); renderTop5EdgeBets(_r); }
