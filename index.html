@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Pick &amp; Roll — NBA Betting Dashboard</title>
+<title>The Edge — NBA Betting Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
   :root {
@@ -625,13 +625,59 @@
     .form-grid { grid-template-columns: 1fr; }
     .bankroll-main { grid-template-columns: 1fr 1fr; }
   }
+
+  /* ── LIGHT MODE ── */
+  body.light {
+    --bg: #f4f4f4;
+    --bg2: #ffffff;
+    --bg3: #eaeaea;
+    --bg4: #dedede;
+    --border: #d0d0d0;
+    --border2: #bbbbbb;
+    --text: #111111;
+    --text2: #444444;
+    --text3: #777777;
+    --green: #00a550;
+    --green-dim: rgba(0,165,80,0.12);
+    --red: #d32f2f;
+    --red-dim: rgba(211,47,47,0.12);
+    --amber: #c65d00;
+    --amber-dim: rgba(198,93,0,0.12);
+    --blue: #1565c0;
+    --blue-dim: rgba(21,101,192,0.1);
+  }
+  body.light header { background: rgba(244,244,244,0.93); }
+
+  /* ── DARK MODE: brighten grey text to white ── */
+  :root {
+    --text2: #cccccc;
+    --text3: #999999;
+  }
+
+  /* ── THEME TOGGLE BUTTON ── */
+  .theme-toggle {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover { border-color: var(--green); color: var(--green); }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">PICK &amp; <span>ROLL</span></div>
+  <div class="logo">THE <span>EDGE</span></div>
   <div class="header-right">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ LIGHT</button>
     <span class="pill pill-nba">NBA</span>
     <span class="pill pill-live" id="liveIndicator" style="display:none">● LIVE</span>
   </div>
@@ -2365,6 +2411,21 @@ function loadSavedDvp() {
   } catch(e) {}
 }
 
+
+// ═══════════ THEME TOGGLE ═══════════
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = isLight ? '☾ DARK' : '☀ LIGHT';
+  localStorage.setItem('the_edge_theme', isLight ? 'light' : 'dark');
+}
+(function() {
+  if (localStorage.getItem('the_edge_theme') === 'light') {
+    document.body.classList.add('light');
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = '☾ DARK';
+  }
+})();
 // ═══════════ INIT — load cached data on page load ═══════════
 loadSavedDvp();
 loadRoster();
