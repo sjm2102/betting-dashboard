@@ -828,7 +828,7 @@
 
     /* More drawer */
     .more-drawer {
-      display: block;
+      display: none;
       position: fixed;
       bottom: calc(50px + env(safe-area-inset-bottom, 0px));
       left: 0; right: 0;
@@ -841,7 +841,10 @@
       transform: translateY(100%);
       transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .more-drawer.open { transform: translateY(0); }
+    .more-drawer.open {
+      display: block;
+      transform: translateY(0);
+    }
     .more-drawer-handle {
       width: 32px; height: 3px;
       background: var(--border2);
