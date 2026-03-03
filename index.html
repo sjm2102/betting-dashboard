@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2350,6 +2351,7 @@ function renderEdgeBoard() {
         <div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <span class="edge-player-name">${r.player}</span>
+            ${(()=>{ const s=getPlayerStats(r.player); return s?.team ? `<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">(${s.team.toUpperCase()})</span>` : ''; })()}
             <span class="edge-side-badge ${r.side === 'OVER' ? 'edge-side-over' : 'edge-side-under'}">${r.side} ${r.line}</span>
             ${dvpBadge}
           </div>
@@ -2479,6 +2481,8 @@ function renderTop5EdgeBets(results) {
     out += '<div style="font-family:var(--display);font-size:1rem;text-align:center">' + rank + '</div>';
     out += '<div><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">';
     out += '<span style="font-family:var(--display);font-size:0.85rem;letter-spacing:1px">' + r.player + '</span>';
+    var pStats = getPlayerStats(r.player);
+    if (pStats && pStats.team) out += '<span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">(' + pStats.team.toUpperCase() + ')</span>';
     out += '<span class="edge-side-badge ' + sc + '">' + r.side + ' ' + r.line + '</span>';
     out += '<span style="font-family:var(--mono);font-size:0.58rem;letter-spacing:1px;background:var(--bg4);border:1px solid var(--border2);padding:1px 5px;border-radius:2px;color:var(--text2)">' + catLabel + '</span>';
     out += '<span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">' + (r.book || '') + '</span>';
