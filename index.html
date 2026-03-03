@@ -769,49 +769,44 @@
     /* Hide top tab bar on mobile */
     .tabs { display: none; }
 
+    /* Use dvh to avoid URL bar overlap */
+    html { height: -webkit-fill-available; }
+    body { min-height: -webkit-fill-available; }
+
     /* Bottom nav bar */
     .bottom-nav {
       display: flex;
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      height: 58px;
+      height: 50px;
       background: var(--bg2);
       border-top: 1px solid var(--border);
       z-index: 100;
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     .bottom-nav-btn {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
       background: none;
       border: none;
+      border-top: 2px solid transparent;
       cursor: pointer;
-      padding: 6px 0;
       color: var(--text3);
-      transition: color 0.15s;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 1px;
+      transition: color 0.15s, border-color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .bottom-nav-btn.active { color: var(--green); }
-    .bottom-nav-btn.active .bottom-nav-icon { transform: scale(1.15); }
-    .bottom-nav-icon {
-      font-size: 1.25rem;
-      line-height: 1;
-      transition: transform 0.15s;
-      display: block;
-    }
-    .bottom-nav-label {
-      font-family: var(--mono);
-      font-size: 0.48rem;
-      letter-spacing: 0.5px;
-      line-height: 1;
+    .bottom-nav-btn.active {
+      color: var(--green);
+      border-top-color: var(--green);
     }
 
-    /* Add padding to main so content isn't hidden behind bottom nav */
-    main { padding-bottom: calc(58px + env(safe-area-inset-bottom)); }
+    /* Padding so content clears the bottom nav */
+    main { padding-bottom: calc(50px + env(safe-area-inset-bottom, 0px) + 8px); }
 
     /* More drawer overlay */
     .more-drawer-overlay {
@@ -827,23 +822,23 @@
     .more-drawer {
       display: block;
       position: fixed;
-      bottom: calc(58px + env(safe-area-inset-bottom));
+      bottom: calc(50px + env(safe-area-inset-bottom, 0px));
       left: 0; right: 0;
       background: var(--bg2);
       border: 1px solid var(--border);
       border-bottom: none;
-      border-radius: 12px 12px 0 0;
+      border-radius: 10px 10px 0 0;
       z-index: 120;
-      padding: 12px 16px 16px;
+      padding: 10px 16px 16px;
       transform: translateY(100%);
-      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .more-drawer.open { transform: translateY(0); }
     .more-drawer-handle {
-      width: 36px; height: 4px;
+      width: 32px; height: 3px;
       background: var(--border2);
       border-radius: 2px;
-      margin: 0 auto 14px;
+      margin: 0 auto 12px;
     }
     .more-drawer-grid {
       display: grid;
@@ -852,23 +847,22 @@
     }
     .more-drawer-btn {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       background: var(--bg3);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 12px 6px;
       cursor: pointer;
       color: var(--text2);
       font-family: var(--mono);
-      font-size: 0.55rem;
-      letter-spacing: 0.5px;
-      transition: border-color 0.15s, color 0.15s;
+      font-size: 0.58rem;
+      letter-spacing: 1px;
       -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, border-color 0.15s;
     }
-    .more-drawer-btn:active { border-color: var(--green); color: var(--green); }
-    .more-drawer-icon { font-size: 1.4rem; line-height: 1; }
+    .more-drawer-btn:active,
+    .more-drawer-btn.active { border-color: var(--green); color: var(--green); }
   }
 
   /* ── LIGHT MODE ── */
@@ -941,26 +935,11 @@
 
 <!-- ═══ MOBILE BOTTOM NAV ═══ -->
 <nav class="bottom-nav" id="bottomNav">
-  <button class="bottom-nav-btn active" id="bnOdds" onclick="switchTabMobile('odds')">
-    <span class="bottom-nav-icon">🏀</span>
-    <span class="bottom-nav-label">ODDS</span>
-  </button>
-  <button class="bottom-nav-btn" id="bnProps" onclick="switchTabMobile('props')">
-    <span class="bottom-nav-icon">📊</span>
-    <span class="bottom-nav-label">PROPS</span>
-  </button>
-  <button class="bottom-nav-btn" id="bnEdge" onclick="switchTabMobile('edge')">
-    <span class="bottom-nav-icon">🏆</span>
-    <span class="bottom-nav-label">EDGE</span>
-  </button>
-  <button class="bottom-nav-btn" id="bnParlay" onclick="switchTabMobile('parlay')">
-    <span class="bottom-nav-icon">🎯</span>
-    <span class="bottom-nav-label">PARLAY</span>
-  </button>
-  <button class="bottom-nav-btn" id="bnMore" onclick="toggleMoreDrawer()">
-    <span class="bottom-nav-icon">• • •</span>
-    <span class="bottom-nav-label">MORE</span>
-  </button>
+  <button class="bottom-nav-btn active" id="bnOdds" onclick="switchTabMobile('odds')">ODDS</button>
+  <button class="bottom-nav-btn" id="bnProps" onclick="switchTabMobile('props')">PROPS</button>
+  <button class="bottom-nav-btn" id="bnEdge" onclick="switchTabMobile('edge')">EDGE</button>
+  <button class="bottom-nav-btn" id="bnParlay" onclick="switchTabMobile('parlay')">PARLAY</button>
+  <button class="bottom-nav-btn" id="bnMore" onclick="toggleMoreDrawer()">MORE</button>
 </nav>
 
 <!-- ═══ MOBILE MORE DRAWER ═══ -->
@@ -968,22 +947,10 @@
 <div class="more-drawer" id="moreDrawer">
   <div class="more-drawer-handle"></div>
   <div class="more-drawer-grid">
-    <button class="more-drawer-btn" onclick="switchTabMobile('ev')">
-      <span class="more-drawer-icon">🧮</span>
-      <span>EV CALC</span>
-    </button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('arb')">
-      <span class="more-drawer-icon">⚖️</span>
-      <span>ARB</span>
-    </button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('lines')">
-      <span class="more-drawer-icon">📈</span>
-      <span>LINES</span>
-    </button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('tracker')">
-      <span class="more-drawer-icon">📋</span>
-      <span>TRACKER</span>
-    </button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('ev')">EV CALC</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('arb')">ARB</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('lines')">LINES</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('tracker')">TRACKER</button>
   </div>
 </div>
 
@@ -2866,17 +2833,19 @@ function buildCopyText(r) {
 
 // ═══════════ MOBILE BOTTOM NAV ═══════════
 const BOTTOM_NAV_IDS = { odds:'bnOdds', props:'bnProps', edge:'bnEdge', parlay:'bnParlay' };
+const MORE_TAB_IDS = ['ev','arb','lines','tracker'];
 
 function switchTabMobile(id) {
-  // Close drawer if open
   closeMoreDrawer();
-  // Switch the panel (reuse existing logic)
   switchTab(id);
   // Update bottom nav active state
   document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById(BOTTOM_NAV_IDS[id]);
-  if (btn) btn.classList.add('active');
-  // Scroll to top so user sees the panel
+  if (BOTTOM_NAV_IDS[id]) {
+    document.getElementById(BOTTOM_NAV_IDS[id])?.classList.add('active');
+  } else {
+    // It's a MORE tab — keep MORE button lit
+    document.getElementById('bnMore')?.classList.add('active');
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2895,25 +2864,15 @@ function toggleMoreDrawer() {
 }
 
 function closeMoreDrawer() {
-  document.getElementById('moreDrawer').classList.remove('open');
-  document.getElementById('moreDrawerOverlay').classList.remove('open');
-  document.getElementById('bnMore').classList.remove('active');
-}
-
-// Keep bottom nav in sync when desktop tabs are clicked
-const _origSwitchTab = switchTab;
-switchTab = function(id) {
-  _origSwitchTab(id);
-  // Sync bottom nav
-  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
-  const mapped = BOTTOM_NAV_IDS[id];
-  if (mapped) {
-    document.getElementById(mapped)?.classList.add('active');
-  } else {
-    // 'more' tabs — highlight the more button
-    document.getElementById('bnMore')?.classList.add('active');
+  document.getElementById('moreDrawer')?.classList.remove('open');
+  document.getElementById('moreDrawerOverlay')?.classList.remove('open');
+  // Only remove active from MORE btn if a MORE tab isn't currently selected
+  const activePanel = document.querySelector('.panel.active');
+  const activePanelId = activePanel?.id?.replace('panel-', '');
+  if (!MORE_TAB_IDS.includes(activePanelId)) {
+    document.getElementById('bnMore')?.classList.remove('active');
   }
-};
+}
 
 // ═══════════ THEME TOGGLE ═══════════
 function toggleTheme() {
