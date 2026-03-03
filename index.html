@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -213,7 +212,7 @@
     align-items: center;
   }
   .team-block { display: flex; flex-direction: column; gap: 3px; }
-  .team-block.away { text-align: right; align-items: flex-end; }
+  .team-block.home { text-align: right; align-items: flex-end; }
   .team-name { font-family: var(--display); font-size: 1.2rem; letter-spacing: 1px; line-height: 1; }
   .team-record { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); }
   .team-prob {
@@ -227,7 +226,7 @@
 
   .odds-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     border-top: 1px solid var(--border);
   }
   .odds-book {
@@ -712,6 +711,14 @@
       <div class="stat-card"><div class="stat-label">+EV BETS</div><div class="stat-value green" id="statEV">—</div></div>
       <div class="stat-card"><div class="stat-label">BEST EDGE</div><div class="stat-value amber" id="statEdge">—</div></div>
       <div class="stat-card"><div class="stat-label">ARB OPP</div><div class="stat-value amber" id="statArb">—</div></div>
+    </div>
+    <!-- ═══ TOP 5 EDGE BETS ═══ -->
+    <div style="padding:10px 16px 4px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">
+      <span style="font-family:var(--mono);font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--text2)">⚡ TOP 5 PROP EDGES TODAY</span>
+      <span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3)" id="top5EdgeNote">From cached scan</span>
+    </div>
+    <div id="top5EdgeList" style="padding:10px 16px;border-bottom:2px solid var(--border);display:flex;flex-direction:column;gap:6px">
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);padding:10px 0">Load props &amp; run ⚡ SCAN FULL SLATE in the Edge tab to populate</div>
     </div>
     <div class="section-header">
       <span class="section-title">TODAY'S GAMES</span>
@@ -1256,7 +1263,7 @@ function renderGames() {
           <div class="team-prob ${pAway>0.5?'prob-high':'prob-low'}">${fmtPct(pAway)}</div>
         </div>
         <div class="vs-block"><div class="vs-text">@</div></div>
-        <div class="team-block away">
+        <div class="team-block home">
           <div class="team-name">${homeShort}</div>
           <div class="team-prob ${pHome>0.5?'prob-high':'prob-low'}">${fmtPct(pHome)}</div>
         </div>
@@ -1983,6 +1990,12 @@ async function loadCachedData() {
       const el = document.getElementById('edgeUpdated');
       if (el) el.textContent = 'Last scan: ' + (json.edge.scannedAt || 'unknown') + ' · ' + (json.edge.requestsRemaining || '?') + ' API credits remaining';
       _renderEdgeFromCache(activeEdgeCat);
+      // Populate top5 on odds tab from cache
+      const _allCats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
+      const _merged = [];
+      _allCats.forEach(c => { const res = cachedEdgeData.results[c] || []; res.forEach(r => _merged.push({...r, market: c})); });
+      _merged.sort((a,b) => b.score - a.score);
+      renderTop5EdgeBets(_merged);
     }
   } catch(e) {
     console.error('loadCachedData failed:', e);
@@ -2153,6 +2166,8 @@ function buildEdgeBoard() {
   }
   document.getElementById('edgeUpdated').textContent = `Scanned ${allPropsData.length} game(s) · Updated ${new Date().toLocaleTimeString()}`;
   renderEdgeBoard();
+  // Also update top5 on odds tab
+  if (typeof allPropsData !== 'undefined') { const _r = _computeAllEdgeResults(); renderTop5EdgeBets(_r); }
 }
 
 function renderEdgeBoard() {
@@ -2411,6 +2426,105 @@ function loadSavedDvp() {
   } catch(e) {}
 }
 
+
+
+// ═══════════ TOP 5 EDGE BETS (ODDS TAB) ═══════════
+function renderTop5EdgeBets(results) {
+  const el = document.getElementById('top5EdgeList');
+  const note = document.getElementById('top5EdgeNote');
+  if (!el) return;
+  if (!results || !results.length) {
+    el.innerHTML = '<div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);padding:10px 0">No edge data yet — run ⚡ SCAN FULL SLATE in the Edge tab</div>';
+    return;
+  }
+  const top5 = results.slice(0, 5);
+  if (note) note.textContent = 'Updated ' + new Date().toLocaleTimeString();
+  const CAT_LABEL = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'};
+  el.innerHTML = top5.map((r, i) => {
+    const medals = ['🥇','🥈','🥉'];
+    const rankDisplay = i < 3 ? medals[i] : '#' + (i+1);
+    const catLabel = CAT_LABEL[r.market || 'player_points'] || 'PROP';
+    const sideClass = r.side === 'OVER' ? 'edge-side-over' : 'edge-side-under';
+    return \`<div style="display:grid;grid-template-columns:22px 1fr auto;gap:0 10px;align-items:center;padding:7px 10px;background:var(--bg2);border:1px solid \${i<3?'var(--green)':'var(--border)'};border-radius:3px;cursor:pointer"
+      onclick="switchTab('edge')">
+      <div style="font-family:var(--display);font-size:1rem;text-align:center">\${rankDisplay}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-family:var(--display);font-size:0.85rem;letter-spacing:1px">\${r.player}</span>
+          <span class="edge-side-badge \${sideClass}">\${r.side} \${r.line}</span>
+          <span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);letter-spacing:1px">\${catLabel} · \${r.book || ''}</span>
+        </div>
+        <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:2px">\${r.game || ''} · EV \${r.ev > 0 ? '+' : ''}\${(r.ev||0).toFixed(3)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--display);font-size:1rem;color:var(--green)">\${r.score > 0 ? '+' : ''}\${(r.score||0).toFixed(3)}</div>
+        <div style="font-family:var(--mono);font-size:0.5rem;color:var(--text3);letter-spacing:1px">SCORE</div>
+      </div>
+    </div>\`;
+  }).join('');
+}
+
+
+// Helper: compute edge results across all cats for top5 panel
+function _computeAllEdgeResults() {
+  const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
+  const all = [];
+  const prevCat = activeEdgeCat;
+  cats.forEach(cat => {
+    activeEdgeCat = cat;
+    // Re-run the scoring logic inline by calling a scoped version
+    if (!allPropsData || !allPropsData.length) return;
+    allPropsData.forEach(({ eventData, homeTeam, awayTeam }) => {
+      if (!eventData?.bookmakers) return;
+      const playerMap = {};
+      eventData.bookmakers.forEach(book => {
+        book.markets?.forEach(market => {
+          if (market.key !== cat) return;
+          market.outcomes?.forEach(outcome => {
+            const nameLC = (outcome.name || '').toLowerCase();
+            const side = nameLC === 'over' ? 'over' : nameLC === 'under' ? 'under' : null;
+            if (!side) return;
+            const playerName = (outcome.description || '').trim();
+            if (!playerName) return;
+            if (!playerMap[playerName]) playerMap[playerName] = { player: playerName, line: outcome.point, books: {}, homeTeam, awayTeam };
+            if (!playerMap[playerName].books[book.key]) playerMap[playerName].books[book.key] = {};
+            playerMap[playerName].books[book.key][side] = outcome.price;
+          });
+        });
+      });
+      Object.values(playerMap).forEach(prop => {
+        const booksWithData = Object.keys(prop.books).filter(bk => prop.books[bk].over !== undefined || prop.books[bk].under !== undefined);
+        let bestOver = null, bestOverBook = null, bestUnder = null, bestUnderBook = null;
+        booksWithData.forEach(bk => {
+          const o = prop.books[bk].over, u = prop.books[bk].under;
+          if (o !== undefined && (bestOver === null || o > bestOver)) { bestOver = o; bestOverBook = bk; }
+          if (u !== undefined && (bestUnder === null || u > bestUnder)) { bestUnder = u; bestUnderBook = bk; }
+        });
+        if (bestOver === null || bestUnder === null) return;
+        const [pOver, pUnder] = vigFreeProb(bestOver, bestUnder);
+        const evOver = ev1u(pOver, bestOver);
+        const evUnder = ev1u(pUnder, bestUnder);
+        const playerPos = getPlayerPos(prop.player);
+        const playerStats = getPlayerStats(prop.player);
+        const homeAbbr = TEAM_TO_DVP[prop.homeTeam], awayAbbr = TEAM_TO_DVP[prop.awayTeam];
+        let oppAbbr = awayAbbr;
+        if (playerStats?.team && homeAbbr) {
+          const pt = playerStats.team.toLowerCase();
+          const homeMatch = prop.homeTeam.toLowerCase().includes(pt) || homeAbbr.toLowerCase() === pt;
+          oppAbbr = homeMatch ? awayAbbr : homeAbbr;
+        }
+        const dvpGrade = playerPos && oppAbbr ? DVP[playerPos+'_grade']?.[oppAbbr] : null;
+        const dvpBonus = DVP_BONUS[dvpGrade] || 0;
+        const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}`;
+        const catLabel = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'}[cat]||cat;
+        if (evOver > 0) all.push({ player: prop.player, line: prop.line, side: 'OVER', ev: evOver, score: evOver + dvpBonus, book: PROP_BOOK_LABELS[bestOverBook]||bestOverBook, game: gameLabel, market: cat });
+        if (evUnder > 0) all.push({ player: prop.player, line: prop.line, side: 'UNDER', ev: evUnder, score: evUnder - dvpBonus, book: PROP_BOOK_LABELS[bestUnderBook]||bestUnderBook, game: gameLabel, market: cat });
+      });
+    });
+  });
+  activeEdgeCat = prevCat;
+  return all.sort((a,b) => b.score - a.score);
+}
 
 // ═══════════ THEME TOGGLE ═══════════
 function toggleTheme() {
