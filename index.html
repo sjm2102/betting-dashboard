@@ -1700,9 +1700,9 @@ async function fetchProps() {
   document.getElementById('propsRefreshBtn').style.display = 'inline-block';
   document.getElementById('propsList').innerHTML = '<div class="loading-wrap"><div class="spinner"></div>FETCHING PLAYER PROPS…</div>';
 
-  const markets = PROP_MARKETS.map(m => m.key).join(',');
-  // Use regions=us to get all available books, don't restrict to specific bookmakers
-  const url = `${WORKER_URL}?eventId=${selectedPropGameId}&markets=${markets}&oddsFormat=american`;
+  // Worker handles ?eventIds= (batch endpoint), not ?eventId= (single) — pass single ID as batch
+  const markets = 'player_points,player_rebounds,player_assists,player_points_rebounds_assists';
+  const url = `${WORKER_URL}?eventIds=${selectedPropGameId}&markets=${markets}&oddsFormat=american`;
 
   try {
     const res = await fetch(url);
@@ -1715,15 +1715,25 @@ async function fetchProps() {
     const remaining = res.headers.get('x-requests-remaining');
     if (remaining !== null) document.getElementById('propsQuota').textContent = `${remaining} requests remaining`;
 
-    // Normalise: worker may return a single object, an array, or {data: [...]}
+    // Normalise: batch endpoint returns [{id, data}, ...], single returns object or array
     let eventObj = null;
-    if (Array.isArray(data))                       eventObj = data[0] || null;
-    else if (data && Array.isArray(data.data))     eventObj = data.data[0] || null;
-    else if (data && data.bookmakers)              eventObj = data;
-    else if (data && data.id)                      eventObj = data;
+    if (Array.isArray(data) && data[0]?.id && data[0]?.data) {
+      // Batch format: [{id, data}, ...]
+      const match = data.find(x => x.id === selectedPropGameId) || data[0];
+      const inner = match?.data;
+      eventObj = Array.isArray(inner) ? inner[0] : inner;
+    } else if (Array.isArray(data)) {
+      eventObj = data[0] || null;
+    } else if (data && Array.isArray(data.data)) {
+      eventObj = data.data[0] || null;
+    } else if (data && data.bookmakers) {
+      eventObj = data;
+    } else if (data && data.id) {
+      eventObj = data;
+    }
 
-    // Log the shape for debugging
-    console.log('[Props] shape:', typeof data, Array.isArray(data)?'array['+data.length+']':'', 'keys:', data?Object.keys(data).slice(0,6).join(','):'none', '| bookmakers:', eventObj?.bookmakers?.length ?? 'none');
+    // Log shape for debugging
+    console.log('[Props] shape:', Array.isArray(data)?'array['+data.length+']':typeof data, '| eventObj keys:', eventObj?Object.keys(eventObj).slice(0,6).join(','):'null', '| bookmakers:', eventObj?.bookmakers?.length??0);
 
     propsData = eventObj ? [eventObj] : [];
 
