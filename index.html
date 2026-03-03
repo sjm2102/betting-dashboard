@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -726,10 +727,7 @@
   <div class="panel" id="panel-edge">
     <div class="refresh-bar">
       <span id="edgeUpdated">Load props in the Props tab first, then scan here</span>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn btn-green" id="scanSlateBtn" onclick="scanFullSlate()">⚡ SCAN FULL SLATE</button>
-        <button class="btn btn-ghost" onclick="buildEdgeBoard()" title="Re-rank already loaded data">↻ RE-RANK</button>
-      </div>
+      <span style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">AUTO-UPDATED 4× DAILY</span>
     </div>
     <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2)">
       <div style="font-family:var(--display);font-size:1rem;letter-spacing:3px;margin-bottom:4px">TOP PROP EDGES</div>
@@ -1914,6 +1912,77 @@ function getPlayerStats(playerName) {
 
 
 
+// ═══════════ CACHED DATA LOADER ═══════════
+let cachedEdgeData = null;
+
+async function loadCachedData() {
+  try {
+    document.getElementById('statusText').innerHTML = '<span class="dot" style="background:var(--amber);display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px"></span>LOADING...';
+    const res  = await fetch(WORKER_URL + '?type=all');
+    const json = await res.json();
+
+    if (json.odds && json.odds.games && json.odds.games.length) {
+      gamesData = json.odds.games;
+      const age = json.odds.timestamp ? Math.round((Date.now() - json.odds.timestamp) / 60000) : null;
+      processOdds(gamesData);
+      document.getElementById('statusText').innerHTML = '<span class="dot dot-green"></span>LIVE';
+      document.getElementById('lastUpdated').textContent = age !== null ? 'Cached · ' + age + 'm ago' : 'Cached data loaded';
+    } else {
+      document.getElementById('statusText').innerHTML = '<span class="dot dot-amber"></span>NO DATA';
+      document.getElementById('lastUpdated').textContent = 'No data yet — next scan at 12pm ET';
+    }
+
+    if (json.edge && json.edge.results) {
+      cachedEdgeData = json.edge;
+      const el = document.getElementById('edgeUpdated');
+      if (el) el.textContent = 'Last scan: ' + (json.edge.scannedAt || 'unknown') + ' · ' + (json.edge.requestsRemaining || '?') + ' API credits remaining';
+      _renderEdgeFromCache(activeEdgeCat);
+    }
+  } catch(e) {
+    console.error('loadCachedData failed:', e);
+    document.getElementById('statusText').innerHTML = '<span class="dot dot-red"></span>ERROR';
+    document.getElementById('lastUpdated').textContent = 'Failed to load: ' + e.message;
+  }
+}
+
+function _renderEdgeFromCache(cat) {
+  const el = document.getElementById('edgeList');
+  if (!el || !cachedEdgeData) return;
+  const top10 = (cachedEdgeData.results[cat] || []).slice(0, 10);
+  if (!top10.length) {
+    el.innerHTML = '<div class="loading-wrap" style="padding:40px">No cached data for this category yet.</div>';
+    return;
+  }
+  const catLabel = {player_points:'Points',player_rebounds:'Rebounds',player_assists:'Assists',player_points_rebounds_assists:'PRA'}[cat] || cat;
+  const rankIcon = ['🥇','🥈','🥉'];
+  const rankCls  = ['gold','silver','bronze'];
+  const BM = {A:{label:'🧱 ELITE DEFENSE',cls:'dvp-elite'},B:{label:'✗ TOUGH MATCHUP',cls:'dvp-tough'},C:{label:'~ NEUTRAL',cls:'dvp-neutral'},D:{label:'✓ FAVORABLE',cls:'dvp-favorable'},F:{label:'🔥 WEAK DEFENSE',cls:'dvp-strong'}};
+  el.innerHTML = '<div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);letter-spacing:1px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">TOP 10 ' + catLabel.toUpperCase() + ' — Score: EV + DvP + Line vs Avg + MPG + Usage</div>'
+    + top10.map((r,i) => {
+      const rank = i+1;
+      const dvpCfg = r.dvpGrade ? BM[r.dvpGrade] : null;
+      const dvpBadge = dvpCfg ? '<span class="dvp-badge ' + dvpCfg.cls + '" style="font-size:0.52rem;padding:1px 5px">' + dvpCfg.label + '</span>' : '';
+      return '<div class="edge-row ' + (rank<=3?'edge-top':'') + '">'
+        + '<div class="edge-rank ' + (rank<=3?rankCls[i]:'') + '">' + (rank<=3?rankIcon[i]:('#'+rank)) + '</div>'
+        + '<div>'
+          + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+            + '<span class="edge-player-name">' + r.player + '</span>'
+            + '<span class="edge-side-badge ' + (r.side==='OVER'?'edge-side-over':'edge-side-under') + '">' + r.side + ' ' + r.line + '</span>'
+            + dvpBadge
+          + '</div>'
+          + '<div class="edge-meta">'
+            + '<span>' + r.book + '</span><span>' + r.game + '</span>'
+            + (r.pos ? '<span>' + r.pos + '</span>' : '')
+            + (r.dvpRank ? '<span>Def #' + r.dvpRank + '</span>' : '')
+            + (r.seasonAvg ? '<span>Avg ' + r.seasonAvg.toFixed(1) + ' vs Line ' + r.line + (r.lineVsAvgPct !== null ? ' (' + (r.lineVsAvgPct>=0?'+':'') + r.lineVsAvgPct + '%)' : '') + '</span>' : '')
+            + '<span style="color:var(--text2)">EV: ' + (r.ev>=0?'+':'') + r.ev + ' · DvP: ' + (r.dvpBonus>=0?'+':'') + r.dvpBonus + (r.mpg?' · '+r.mpg+'mpg':'') + (r.usg?' · '+r.usg+'% usg':'') + '</span>'
+          + '</div>'
+        + '</div>'
+        + '<div class="edge-score-col"><div class="edge-score">' + (r.score>=0?'+':'') + r.score + '</div><div class="edge-score-label">EDGE SCORE</div></div>'
+      + '</div>';
+    }).join('');
+}
+
 // ═══════════ FULL SLATE SCAN ═══════════
 async function scanFullSlate() {
   if (!gamesData || !gamesData.length) {
@@ -2024,7 +2093,8 @@ function setEdgeCat(cat) {
   activeEdgeCat = cat;
   document.querySelectorAll('.edge-cat-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
-  renderEdgeBoard();
+  if (cachedEdgeData && cachedEdgeData.results) _renderEdgeFromCache(cat);
+  else renderEdgeBoard();
 }
 
 function buildEdgeBoard() {
@@ -2295,12 +2365,12 @@ function loadSavedDvp() {
   } catch(e) {}
 }
 
-// ═══════════ INIT — auto-fetch on load ═══════════
+// ═══════════ INIT — load cached data on page load ═══════════
 loadSavedDvp();
 loadRoster();
 renderTracker();
 renderParlay();
-fetchOdds();
+loadCachedData();
 </script>
 </body>
 </html>
