@@ -2133,8 +2133,6 @@ async function loadCachedData() {
 
     if (json.edge && json.edge.results) {
       cachedEdgeData = json.edge;
-    // (display element removed)
-      if (el) el.textContent = 'Last scan: ' + (json.edge.scannedAt || 'unknown') + ' · ' + (json.edge.requestsRemaining || '?') + ' API credits remaining';
       _renderEdgeFromCache(activeEdgeCat);
       // Populate top5 on odds tab from cache
       const _allCats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
