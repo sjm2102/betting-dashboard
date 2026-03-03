@@ -614,16 +614,150 @@
   }
   .market-filter-btn.active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 400px) {
+
+  /* ══════════════════════════════════════════
+     MOBILE LAYOUT — kicks in at 768px and below
+     Desktop layout is completely untouched
+  ══════════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    /* ── Header ── */
+    .header { padding: 0 12px; height: 44px; }
+    .logo { font-size: 1.3rem; }
+    .header-right { gap: 6px; }
+    .header-right button { font-size: 0.55rem; padding: 4px 8px; }
+
+    /* ── Tab bar: horizontally scrollable, no wrapping ── */
+    .tabs {
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      display: flex;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 0 8px;
+    }
+    .tab {
+      font-size: 0.6rem;
+      padding: 0 12px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ── Top bar (status / refresh) ── */
+    .top-bar { padding: 6px 12px; flex-wrap: wrap; gap: 6px; }
+    .top-bar .btn { font-size: 0.55rem; padding: 5px 10px; }
+    #quotaInfo, #propsQuota { font-size: 0.52rem; }
+
+    /* ── Stats strip: 2x2 grid ── */
     .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    .stat-card { padding: 10px 12px; }
     .stat-card:nth-child(2) { border-right: none; }
     .stat-card:nth-child(3) { border-top: 1px solid var(--border); }
     .stat-card:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
+    .stat-label { font-size: 0.52rem; }
+    .stat-value { font-size: 1.4rem; }
+
+    /* ── Top 5 panel ── */
+    #top5EdgeList { padding: 8px 10px; gap: 8px; }
+
+    /* ── Section headers ── */
+    .section-header { padding: 8px 12px; }
+    .section-title { font-size: 0.65rem; }
+
+    /* ── Game cards ── */
+    .game-card { padding: 10px 12px; }
+    .game-time { font-size: 0.55rem; padding: 6px 12px; }
+    .team-name { font-size: 1rem; }
+    .team-prob { font-size: 0.62rem; }
     .odds-grid { grid-template-columns: 1fr; }
-    .odds-book { border-right: none; border-bottom: 1px solid var(--border); }
+    .odds-book { border-right: none; border-bottom: 1px solid var(--border); padding: 6px 10px; }
+    .odds-book:last-child { border-bottom: none; }
+    .book-label { font-size: 0.55rem; }
+    .market-label { font-size: 0.55rem; }
+
+    /* ── Prop cards ── */
+    .prop-card { padding: 10px 12px; }
+    .prop-card-header { flex-wrap: wrap; gap: 8px; }
+    .prop-player { font-size: 0.9rem; }
+    .prop-line-badge { font-size: 1.1rem; min-width: 44px; }
+    .prop-market { font-size: 0.55rem; }
+    .prop-book-row { padding: 5px 0; }
+    .prop-book-label { font-size: 0.6rem; }
+    .prop-odds { font-size: 0.75rem; }
+    .prop-ev-row { flex-wrap: wrap; gap: 6px; padding: 6px 0 0; }
+
+    /* ── Market filter buttons ── */
+    #propMarketFilters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+    .market-filter-btn { font-size: 0.55rem; padding: 4px 10px; flex-shrink: 0; }
+
+    /* ── Edge board ── */
+    .edge-row { grid-template-columns: 28px 1fr; padding: 8px 10px; }
+    .edge-score-col { 
+      grid-column: 2;
+      display: flex; 
+      flex-direction: row; 
+      align-items: center; 
+      justify-content: space-between;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    .edge-score { font-size: 1rem; }
+    .edge-score-label { font-size: 0.48rem; }
+    .edge-player-name { font-size: 0.85rem; }
+    .edge-meta { font-size: 0.58rem; flex-wrap: wrap; gap: 4px; }
+    .edge-meta span { font-size: 0.55rem; }
+    .dvp-badge { font-size: 0.5rem; }
+    .dvp-rank { font-size: 0.5rem; }
+    .edge-cat-btn { font-size: 0.55rem; padding: 4px 10px; }
+
+    /* ── EV Calc ── */
+    .ev-grid { grid-template-columns: 1fr 1fr; }
+    .ev-inputs { flex-direction: column; }
+
+    /* ── ARB cards ── */
+    .arb-card { padding: 10px 12px; }
+    .arb-header { flex-wrap: wrap; gap: 6px; }
+    .arb-title { font-size: 0.68rem; }
+    .arb-calc { grid-template-columns: 1fr 1fr; }
+
+    /* ── Lines tab ── */
+    .line-card { padding: 10px 12px; }
+
+    /* ── Parlay builder ── */
+    .parlay-builder { padding: 10px 12px; }
+    .parlay-leg { padding: 8px 10px; }
+
+    /* ── Tracker ── */
+    .tracker-controls { padding: 10px 12px; gap: 8px; }
+    .form-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .bankroll-card { padding: 12px; }
+    .bankroll-main { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── Bet list rows ── */
+    .bet-row { flex-wrap: wrap; gap: 4px; padding: 8px 12px; }
+    .bet-desc { font-size: 0.7rem; }
+    .bet-meta { font-size: 0.58rem; }
+
+    /* ── Buttons ── */
+    .btn { font-size: 0.6rem; padding: 6px 12px; }
+    .btn-green { padding: 7px 14px; }
+
+    /* ── Game select dropdown ── */
+    #propsGameSelect { font-size: 0.7rem; padding: 8px 10px; }
+
+    /* ── DVP editor ── */
+    #dvpEditor { padding: 10px 12px; }
+  }
+
+  /* ── Extra small phones (iPhone SE etc) ── */
+  @media (max-width: 390px) {
+    .tab { font-size: 0.55rem; padding: 0 9px; }
+    .team-name { font-size: 0.9rem; }
+    .edge-row { padding: 7px 8px; }
     .form-grid { grid-template-columns: 1fr; }
-    .bankroll-main { grid-template-columns: 1fr 1fr; }
   }
 
   /* ── LIGHT MODE ── */
