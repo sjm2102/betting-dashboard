@@ -1715,10 +1715,19 @@ async function fetchProps() {
     const remaining = res.headers.get('x-requests-remaining');
     if (remaining !== null) document.getElementById('propsQuota').textContent = `${remaining} requests remaining`;
 
-    propsData = data;
+    // Normalise: worker may return a single object, an array, or {data: [...]}
+    let eventObj = null;
+    if (Array.isArray(data))                       eventObj = data[0] || null;
+    else if (data && Array.isArray(data.data))     eventObj = data.data[0] || null;
+    else if (data && data.bookmakers)              eventObj = data;
+    else if (data && data.id)                      eventObj = data;
+
+    // Log the shape for debugging
+    console.log('[Props] shape:', typeof data, Array.isArray(data)?'array['+data.length+']':'', 'keys:', data?Object.keys(data).slice(0,6).join(','):'none', '| bookmakers:', eventObj?.bookmakers?.length ?? 'none');
+
+    propsData = eventObj ? [eventObj] : [];
 
     // Store in allPropsData for Edge board (keyed by eventId to avoid dupes)
-    const eventObj = Array.isArray(data) ? data[0] : data;
     const existingIdx = allPropsData.findIndex(x => x.eventData?.id === eventObj?.id);
     const _game = gamesData.find(g => g.id === selectedPropGameId);
     const gameEntry = { eventData: eventObj, homeTeam: _game?.home_team || '', awayTeam: _game?.away_team || '' };
@@ -1758,7 +1767,13 @@ function renderProps() {
 
   const eventData = Array.isArray(propsData) ? propsData[0] : propsData;
   if (!eventData || !eventData.bookmakers) {
-    el.innerHTML = '<div class="loading-wrap">No prop data available for this game.</div>';
+    const keys = eventData ? Object.keys(eventData).slice(0,8).join(', ') : 'null';
+    const bm = eventData ? (eventData.bookmakers?.length ?? 'missing') : 'n/a';
+    el.innerHTML = '<div class="loading-wrap" style="flex-direction:column;gap:8px;text-align:center">'
+      + '<div>No prop data available for this game.</div>'
+      + '<div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3)">Response keys: ' + keys + ' | bookmakers: ' + bm + '</div>'
+      + '<div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3)">Open DevTools \u2192 Console for full response</div>'
+      + '</div>';
     return;
   }
 
