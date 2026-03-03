@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1304,8 +1305,13 @@ async function fetchOdds() {
 }
 
 function processOdds(data) {
-  gamesData = data;
-  data.forEach(game => {
+  // Filter to today's games only (Eastern Time)
+  const todayET = new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+  gamesData = data.filter(game => {
+    const gameDateET = new Date(game.commence_time).toLocaleDateString('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+    return gameDateET === todayET;
+  });
+  gamesData.forEach(game => {
     const id = game.id;
     if (!lineHistory[id]) lineHistory[id] = { game: game.home_team+' vs '+game.away_team, snapshots:[] };
     lineHistory[id].snapshots.push({ ts: Date.now(), bookmakers: game.bookmakers });
