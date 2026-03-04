@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -994,15 +995,14 @@
 </div>
 
 <!-- ═══════════════════ PRO LOCK SCREEN ═══════════════════ -->
-<div id="proLockScreen" style="display:none;position:absolute;inset:0;background:rgba(10,10,10,0.92);z-index:50;align-items:center;justify-content:center;min-height:300px">
+<div id="proLockScreen" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.95);z-index:200;align-items:center;justify-content:center">
   <div style="text-align:center;padding:32px">
     <div style="font-size:2rem;margin-bottom:12px">🔒</div>
     <div style="font-family:var(--display);font-size:1.4rem;letter-spacing:3px;margin-bottom:8px">PRO FEATURE</div>
     <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-bottom:20px;line-height:1.7">Upgrade to THE EDGE Pro to unlock<br>Props, Edge Board, EV Calc, Arb & more.</div>
-    <button onclick="alert('Subscription coming soon!')" style="padding:12px 28px;background:var(--green);color:#000;font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer">UPGRADE TO PRO</button>
-    <div style="margin-top:14px">
-      <button onclick="handleSignOut()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:0.58rem;cursor:pointer;letter-spacing:1px">SIGN OUT</button>
-    </div>
+    <button onclick="alert('Subscription coming soon!')" style="padding:12px 28px;background:var(--green);color:#000;font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">UPGRADE TO PRO</button>
+    <button onclick="switchTab('odds');document.getElementById('proLockScreen').style.display='none'" style="padding:10px 28px;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">← BACK TO ODDS</button>
+    <button onclick="handleSignOut()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:0.58rem;cursor:pointer;letter-spacing:1px;text-decoration:underline">SIGN OUT</button>
   </div>
 </div>
 
@@ -3127,26 +3127,21 @@ function checkProGate(id) {
   if (!SUPABASE_URL) return true; // dev mode — no gate
   if (!PRO_TABS.includes(id)) return true; // odds is always free
   if (isPro) return true;
-  // Show lock overlay on the panel
-  const panel = document.getElementById('panel-' + id);
-  if (panel) {
-    const lock = document.getElementById('proLockScreen');
-    lock.style.display = 'flex';
-    panel.style.position = 'relative';
-    panel.appendChild(lock);
-  }
+  // Show full screen lock overlay
+  document.getElementById('proLockScreen').style.display = 'flex';
   return false;
+}
+
+// Hide lock when switching to free tab
+function hideLock() {
+  document.getElementById('proLockScreen').style.display = 'none';
 }
 
 // Patch switchTab to enforce pro gate
 const _origSwitchTabAuth = switchTab;
 switchTab = function(id) {
   _origSwitchTabAuth(id);
-  // Remove lock from previous panels
-  document.querySelectorAll('.panel').forEach(p => {
-    const lock = p.querySelector('#proLockScreen');
-    if (lock) { lock.style.display = 'none'; document.body.appendChild(lock); }
-  });
+  hideLock();
   checkProGate(id);
 };
 
