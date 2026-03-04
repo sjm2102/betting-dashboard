@@ -626,6 +626,8 @@
     .logo { font-size: 1.3rem; }
     .header-right { gap: 6px; }
     .header-right button { font-size: 0.55rem; padding: 4px 8px; }
+    #userBadge { display: none !important; }
+    #signOutBtn { display: none !important; }
 
     /* ── Tab bar: horizontally scrollable, no wrapping ── */
     .tabs {
@@ -1010,7 +1012,7 @@
   <div class="logo">THE <span>EDGE</span></div>
   <div class="header-right">
     <span id="userBadge" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--text3);letter-spacing:1px"></span>
-    <button id="signOutBtn" onclick="handleSignOut()" style="display:none;font-family:var(--mono);font-size:0.55rem;letter-spacing:1px;background:none;border:1px solid var(--border);color:var(--text3);padding:4px 10px;border-radius:2px;cursor:pointer" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">SIGN OUT</button>
+    <button id="signOutBtn" onclick="handleSignOut()" style="display:none;font-family:var(--mono);font-size:0.6rem;letter-spacing:1px;background:none;border:1px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:2px;cursor:pointer;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">SIGN OUT</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ LIGHT</button>
     <span class="pill pill-nba">NBA</span>
     <span class="pill pill-live" id="liveIndicator" style="display:none">● LIVE</span>
@@ -3021,7 +3023,7 @@ function updateUserBadge() {
   const signOutBtn = document.getElementById('signOutBtn');
   if (currentUser) {
     const email = currentUser.email || currentUser.user_metadata?.full_name || '';
-    const short = email.length > 20 ? email.slice(0,18)+'…' : email;
+    const short = email.length > 22 ? email.slice(0,20)+'…' : email;
     badge.textContent = (isPro ? '⚡ PRO · ' : 'FREE · ') + short;
     badge.style.display = 'inline';
     signOutBtn.style.display = 'inline-block';
