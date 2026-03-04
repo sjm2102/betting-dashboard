@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3015,13 +3016,24 @@ function initSupabase() {
 async function checkProStatus() {
   if (!_supabase || !currentUser) return;
   try {
-    const { data } = await _supabase
+    const { data, error } = await _supabase
       .from('profiles')
       .select('is_pro')
       .eq('id', currentUser.id)
       .single();
-    isPro = data?.is_pro || false;
+    if (error) {
+      console.warn('[Auth] checkProStatus error:', error.message);
+      // If profile row missing, create it
+      if (error.code === 'PGRST116') {
+        await _supabase.from('profiles').insert({ id: currentUser.id, email: currentUser.email, is_pro: false });
+      }
+      isPro = false;
+    } else {
+      isPro = data?.is_pro === true;
+      console.log('[Auth] isPro:', isPro);
+    }
   } catch(e) {
+    console.error('[Auth] checkProStatus exception:', e);
     isPro = false;
   }
 }
@@ -3029,15 +3041,16 @@ async function checkProStatus() {
 function updateUserBadge() {
   const badge = document.getElementById('userBadge');
   const signOutBtn = document.getElementById('signOutBtn');
+  if (!badge || !signOutBtn) return;
   if (currentUser) {
     const email = currentUser.email || currentUser.user_metadata?.full_name || '';
     const short = email.length > 22 ? email.slice(0,20)+'…' : email;
     badge.textContent = (isPro ? '⚡ PRO · ' : 'FREE · ') + short;
-    badge.style.display = 'inline';
-    signOutBtn.style.display = 'inline-block';
+    badge.setAttribute('style', 'display:inline!important;font-family:var(--mono);font-size:0.55rem;color:var(--text3);letter-spacing:1px');
+    signOutBtn.setAttribute('style', 'display:inline-block!important;font-family:var(--mono);font-size:0.6rem;letter-spacing:1px;background:none;border:1px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:2px;cursor:pointer;transition:border-color 0.15s,color 0.15s');
   } else {
-    badge.style.display = 'none';
-    signOutBtn.style.display = 'none';
+    badge.setAttribute('style', 'display:none!important');
+    signOutBtn.setAttribute('style', 'display:none!important');
   }
 }
 
