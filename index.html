@@ -3129,9 +3129,19 @@ async function handleSignOut() {
   if (_supabase) {
     await _supabase.auth.signOut({ scope: 'local' });
   }
+  // Clear all Supabase session keys from storage
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('sb-') || key.includes('supabase')) {
+      localStorage.removeItem(key);
+    }
+  });
+  Object.keys(sessionStorage).forEach(key => {
+    if (key.startsWith('sb-') || key.includes('supabase')) {
+      sessionStorage.removeItem(key);
+    }
+  });
   updateUserBadge();
   hideLock();
-  // Small delay to let Supabase clear session before showing login
   setTimeout(() => showLoginScreen(), 100);
 }
 
