@@ -627,7 +627,6 @@
     .header-right { gap: 6px; }
     .header-right button { font-size: 0.55rem; padding: 4px 8px; }
     #userBadge { display: none !important; }
-    #signOutBtn { display: none !important; }
 
     /* ── Tab bar: horizontally scrollable, no wrapping ── */
     .tabs {
@@ -3035,10 +3034,12 @@ function updateUserBadge() {
 
 function showLoginScreen() {
   document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('proLockScreen').style.display = 'none';
 }
 
 function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
+  updateUserBadge();
 }
 
 function setAuthTab(tab) {
