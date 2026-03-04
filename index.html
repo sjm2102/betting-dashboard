@@ -2984,33 +2984,60 @@ let _supabase = null;
 
 function initSupabase() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    // Keys not set yet — skip auth, show app directly (dev mode)
     showApp();
     return;
   }
+
+  // Show login by default until we confirm a valid session
+  showLoginScreen();
+
   _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Handle all future auth state changes
   _supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('[Auth] event:', event, '| user:', session?.user?.email || 'none');
     if (event === 'SIGNED_OUT') {
       currentUser = null;
       isPro = false;
       updateUserBadge();
+      hideLock();
       showLoginScreen();
       return;
     }
     if (session?.user) {
       currentUser = session.user;
       await checkProStatus();
+      hideLock();
       showApp();
       updateUserBadge();
+      // Re-check current tab gate
+      const activePanel = document.querySelector('.panel.active');
+      if (activePanel) {
+        const tabId = activePanel.id.replace('panel-', '');
+        checkProGate(tabId);
+      }
     } else {
       currentUser = null;
       isPro = false;
+      updateUserBadge();
+      hideLock();
       showLoginScreen();
     }
   });
 
-  _supabase.auth.getSession();
+  // Check for existing session on load
+  _supabase.auth.getSession().then(async ({ data: { session } }) => {
+    console.log('[Auth] initial session:', session?.user?.email || 'none');
+    if (session?.user) {
+      currentUser = session.user;
+      await checkProStatus();
+      hideLock();
+      showApp();
+      updateUserBadge();
+    } else {
+      showLoginScreen();
+    }
+  });
 }
 
 async function checkProStatus() {
