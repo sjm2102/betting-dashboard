@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -57,6 +58,8 @@
   }
   .logo span { color: var(--green); }
   .header-right { display: flex; align-items: center; gap: 10px; }
+  #userBadge { display: none; }
+  #signOutBtn { display: none; }
   .pill {
     font-family: var(--mono);
     font-size: 0.65rem;
@@ -625,6 +628,8 @@
     .logo { font-size: 1.3rem; }
     .header-right { gap: 6px; }
     .header-right button { font-size: 0.55rem; padding: 4px 8px; }
+    #userBadge { display: none !important; }
+    #signOutBtn { display: none !important; }
 
     /* ── Tab bar: horizontally scrollable, no wrapping ── */
     .tabs {
@@ -759,6 +764,122 @@
     .form-grid { grid-template-columns: 1fr; }
   }
 
+  /* ── BOTTOM NAV & MORE DRAWER (mobile only) ── */
+  .bottom-nav { display: none; }
+  .more-drawer { display: none; }
+  .more-drawer-overlay { display: none; }
+
+  @media (max-width: 768px) {
+    /* Hide top tab bar on mobile */
+    .tabs { display: none; }
+
+    /* Use dvh to avoid URL bar overlap */
+    html { height: -webkit-fill-available; }
+    body { min-height: -webkit-fill-available; }
+
+    /* Bottom nav bar */
+    .bottom-nav {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 50px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .bottom-nav::-webkit-scrollbar { display: none; }
+    .bottom-nav-btn {
+      flex: 0 0 auto;
+      min-width: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-top: 2px solid transparent;
+      cursor: pointer;
+      color: var(--text3);
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 1px;
+      padding: 0 16px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bottom-nav-btn.active {
+      color: var(--green);
+      border-top-color: var(--green);
+    }
+
+    /* Padding so content clears the bottom nav */
+    main { padding-bottom: calc(50px + env(safe-area-inset-bottom, 0px) + 8px); }
+
+    /* More drawer overlay */
+    .more-drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 110;
+    }
+    .more-drawer-overlay.open { display: block; }
+
+    /* More drawer */
+    .more-drawer {
+      display: none;
+      position: fixed;
+      bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+      left: 0; right: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 10px 10px 0 0;
+      z-index: 120;
+      padding: 10px 16px 16px;
+      transform: translateY(100%);
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .more-drawer.open {
+      display: block;
+      transform: translateY(0);
+    }
+    .more-drawer-handle {
+      width: 32px; height: 3px;
+      background: var(--border2);
+      border-radius: 2px;
+      margin: 0 auto 12px;
+    }
+    .more-drawer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .more-drawer-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 6px;
+      cursor: pointer;
+      color: var(--text2);
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 1px;
+      -webkit-tap-highlight-color: transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .more-drawer-btn:active,
+    .more-drawer-btn.active { border-color: var(--green); color: var(--green); }
+  }
+
   /* ── LIGHT MODE ── */
   body.light {
     --bg: #f4f4f4;
@@ -804,12 +925,96 @@
   }
   .theme-toggle:hover { border-color: var(--green); color: var(--green); }
 </style>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
+<div id="loginScreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:999;overflow-y:auto">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="font-family:var(--display);font-size:2.8rem;letter-spacing:4px">THE <span style="color:var(--green)">EDGE</span></div>
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);letter-spacing:3px;margin-top:6px">NBA BETTING INTELLIGENCE</div>
+    </div>
+
+    <!-- Card -->
+    <div style="width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:28px">
+
+      <!-- Tabs: Sign In / Sign Up -->
+      <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:24px">
+        <button id="loginTabBtn" onclick="setAuthTab('login')" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--green);color:var(--green);font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;cursor:pointer">SIGN IN</button>
+        <button id="signupTabBtn" onclick="setAuthTab('signup')" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-family:var(--mono);font-size:0.7rem;letter-spacing:1px;cursor:pointer">CREATE ACCOUNT</button>
+      </div>
+
+      <!-- Error message -->
+      <div id="authError" style="display:none;font-family:var(--mono);font-size:0.65rem;color:#ff4444;background:#ff444411;border:1px solid #ff444433;border-radius:4px;padding:10px 12px;margin-bottom:16px"></div>
+
+      <!-- Success message -->
+      <div id="authSuccess" style="display:none;font-family:var(--mono);font-size:0.65rem;color:var(--green);background:var(--green-dim);border:1px solid var(--green);border-radius:4px;padding:10px 12px;margin-bottom:16px"></div>
+
+      <!-- Email field -->
+      <div style="margin-bottom:14px">
+        <label style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;display:block;margin-bottom:6px">EMAIL</label>
+        <input id="authEmail" type="email" placeholder="you@example.com" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:0.8rem;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"/>
+      </div>
+
+      <!-- Password field -->
+      <div style="margin-bottom:20px">
+        <label style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;display:block;margin-bottom:6px">PASSWORD</label>
+        <input id="authPassword" type="password" placeholder="••••••••" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:0.8rem;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')handleEmailAuth()"/>
+      </div>
+
+      <!-- Email auth button -->
+      <button id="authSubmitBtn" onclick="handleEmailAuth()" style="width:100%;padding:12px;background:var(--green);color:#000;font-family:var(--mono);font-size:0.75rem;font-weight:600;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;margin-bottom:16px">SIGN IN</button>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-family:var(--mono);font-size:0.58rem;color:var(--text3)">OR</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <!-- Google -->
+      <button onclick="handleGoogleAuth()" style="width:100%;padding:11px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:0.68rem;letter-spacing:1px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        CONTINUE WITH GOOGLE
+      </button>
+
+      <!-- Apple -->
+      <button onclick="handleAppleAuth()" style="width:100%;padding:11px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--mono);font-size:0.68rem;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        CONTINUE WITH APPLE
+      </button>
+
+    </div>
+
+    <!-- Footer note -->
+    <div style="margin-top:20px;font-family:var(--mono);font-size:0.55rem;color:var(--text3);text-align:center;max-width:340px;line-height:1.6">
+      Free tier includes today's odds.<br>Upgrade to Pro for full Edge board, Props & more.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PRO LOCK SCREEN ═══════════════════ -->
+<div id="proLockScreen" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.95);z-index:200;align-items:center;justify-content:center">
+  <div style="text-align:center;padding:32px">
+    <div style="font-size:2rem;margin-bottom:12px">🔒</div>
+    <div style="font-family:var(--display);font-size:1.4rem;letter-spacing:3px;margin-bottom:8px">PRO FEATURE</div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-bottom:20px;line-height:1.7">Upgrade to THE EDGE Pro to unlock<br>Props, Edge Board, EV Calc, Arb & more.</div>
+    <button onclick="alert('Subscription coming soon!')" style="padding:12px 28px;background:var(--green);color:#000;font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">UPGRADE TO PRO</button>
+    <button onclick="switchTab('odds');document.getElementById('proLockScreen').style.display='none'" style="padding:10px 28px;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">← BACK TO ODDS</button>
+    <button onclick="handleSignOut()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:0.58rem;cursor:pointer;letter-spacing:1px;text-decoration:underline">SIGN OUT</button>
+  </div>
+</div>
 
 <header>
   <div class="logo">THE <span>EDGE</span></div>
   <div class="header-right">
+    <span id="userBadge" style="display:none;font-family:var(--mono);font-size:0.55rem;color:var(--text3);letter-spacing:1px"></span>
+    <button id="signOutBtn" onclick="handleSignOut()" style="display:none;font-family:var(--mono);font-size:0.6rem;letter-spacing:1px;background:none;border:1px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:2px;cursor:pointer;transition:border-color 0.15s,color 0.15s" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">SIGN OUT</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀ LIGHT</button>
     <span class="pill pill-nba">NBA</span>
     <span class="pill pill-live" id="liveIndicator" style="display:none">● LIVE</span>
@@ -826,6 +1031,27 @@
   <button class="tab" onclick="switchTab('parlay')">PARLAY</button>
   <button class="tab" onclick="switchTab('tracker')">TRACKER</button>
 </nav>
+
+<!-- ═══ MOBILE BOTTOM NAV ═══ -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bottom-nav-btn active" id="bnOdds" onclick="switchTabMobile('odds')">ODDS</button>
+  <button class="bottom-nav-btn" id="bnProps" onclick="switchTabMobile('props')">PROPS</button>
+  <button class="bottom-nav-btn" id="bnEdge" onclick="switchTabMobile('edge')">EDGE</button>
+  <button class="bottom-nav-btn" id="bnParlay" onclick="switchTabMobile('parlay')">PARLAY</button>
+  <button class="bottom-nav-btn" id="bnMore" onclick="toggleMoreDrawer()">MORE</button>
+</nav>
+
+<!-- ═══ MOBILE MORE DRAWER ═══ -->
+<div class="more-drawer-overlay" id="moreDrawerOverlay" onclick="toggleMoreDrawer()"></div>
+<div class="more-drawer" id="moreDrawer">
+  <div class="more-drawer-handle"></div>
+  <div class="more-drawer-grid">
+    <button class="more-drawer-btn" onclick="switchTabMobile('ev')">EV CALC</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('arb')">ARB</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('lines')">LINES</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('tracker')">TRACKER</button>
+  </div>
+</div>
 
 <main>
 
@@ -2704,6 +2930,250 @@ function buildCopyText(r) {
   return r.player + ' ' + r.side + ' ' + r.line + ' ' + cat + '  |  ' + odds + '  |  ' + (r.book || '');
 }
 
+// ═══════════ MOBILE BOTTOM NAV ═══════════
+const BOTTOM_NAV_IDS = { odds:'bnOdds', props:'bnProps', edge:'bnEdge', parlay:'bnParlay' };
+const MORE_TAB_IDS = ['ev','arb','lines','tracker'];
+
+function switchTabMobile(id) {
+  closeMoreDrawer();
+  switchTab(id);
+  // Update bottom nav active state
+  document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+  if (BOTTOM_NAV_IDS[id]) {
+    document.getElementById(BOTTOM_NAV_IDS[id])?.classList.add('active');
+  } else {
+    // It's a MORE tab — keep MORE button lit
+    document.getElementById('bnMore')?.classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleMoreDrawer() {
+  const drawer = document.getElementById('moreDrawer');
+  const overlay = document.getElementById('moreDrawerOverlay');
+  const moreBtn = document.getElementById('bnMore');
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    closeMoreDrawer();
+  } else {
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    moreBtn.classList.add('active');
+  }
+}
+
+function closeMoreDrawer() {
+  document.getElementById('moreDrawer')?.classList.remove('open');
+  document.getElementById('moreDrawerOverlay')?.classList.remove('open');
+  // Only remove active from MORE btn if a MORE tab isn't currently selected
+  const activePanel = document.querySelector('.panel.active');
+  const activePanelId = activePanel?.id?.replace('panel-', '');
+  if (!MORE_TAB_IDS.includes(activePanelId)) {
+    document.getElementById('bnMore')?.classList.remove('active');
+  }
+}
+
+// ═══════════ SUPABASE AUTH ═══════════
+const SUPABASE_URL = 'https://vytelzvzopovvdlycyam.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dGVsenZ6b3BvdnZkbHljeWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQ2NjQsImV4cCI6MjA4ODIzMDY2NH0.5LbRaLewc7xBWuDCLTWAogwulBAEA9HTg6RFu8YDQys';
+
+const PRO_TABS = ['props','edge','ev','arb','lines','parlay','tracker'];
+let currentUser = null;
+let isPro = false;
+let _supabase = null;
+
+function initSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    showApp();
+    return;
+  }
+
+  // Default to login screen until session confirmed
+  showLoginScreen();
+
+  _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // onAuthStateChange fires for INITIAL_SESSION on load AND all future changes
+  // Do NOT call getSession() separately — it causes a race condition
+  _supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_OUT' || !session?.user) {
+      currentUser = null;
+      isPro = false;
+      updateUserBadge();
+      hideLock();
+      showLoginScreen();
+      return;
+    }
+    // INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED
+    currentUser = session.user;
+    await checkProStatus();
+    hideLock();
+    showApp();
+    updateUserBadge();
+  });
+}
+
+async function checkProStatus() {
+  if (!_supabase || !currentUser) return;
+  try {
+    const { data, error } = await _supabase
+      .from('profiles')
+      .select('is_pro')
+      .eq('id', currentUser.id)
+      .single();
+    if (error) {
+      console.warn('[Auth] checkProStatus error:', error.message);
+      // If profile row missing, create it
+      if (error.code === 'PGRST116') {
+        await _supabase.from('profiles').insert({ id: currentUser.id, email: currentUser.email, is_pro: false });
+      }
+      isPro = false;
+    } else {
+      isPro = data?.is_pro === true;
+      console.log('[Auth] isPro:', isPro);
+    }
+  } catch(e) {
+    console.error('[Auth] checkProStatus exception:', e);
+    isPro = false;
+  }
+}
+
+function updateUserBadge() {
+  const badge = document.getElementById('userBadge');
+  const signOutBtn = document.getElementById('signOutBtn');
+  if (!badge || !signOutBtn) return;
+  if (currentUser) {
+    const email = currentUser.email || currentUser.user_metadata?.full_name || '';
+    const short = email.length > 22 ? email.slice(0,20)+'…' : email;
+    badge.textContent = (isPro ? '⚡ PRO · ' : 'FREE · ') + short;
+    badge.setAttribute('style', 'display:inline!important;font-family:var(--mono);font-size:0.55rem;color:var(--text3);letter-spacing:1px');
+    signOutBtn.setAttribute('style', 'display:inline-block!important;font-family:var(--mono);font-size:0.6rem;letter-spacing:1px;background:none;border:1px solid var(--border);color:var(--text3);padding:5px 12px;border-radius:2px;cursor:pointer;transition:border-color 0.15s,color 0.15s');
+  } else {
+    badge.setAttribute('style', 'display:none!important');
+    signOutBtn.setAttribute('style', 'display:none!important');
+  }
+}
+
+function showLoginScreen() {
+  document.getElementById('loginScreen').style.display = 'block';
+  document.getElementById('proLockScreen').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  updateUserBadge();
+}
+
+function setAuthTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('loginTabBtn').style.borderBottomColor = isLogin ? 'var(--green)' : 'transparent';
+  document.getElementById('loginTabBtn').style.color = isLogin ? 'var(--green)' : 'var(--text3)';
+  document.getElementById('signupTabBtn').style.borderBottomColor = !isLogin ? 'var(--green)' : 'transparent';
+  document.getElementById('signupTabBtn').style.color = !isLogin ? 'var(--green)' : 'var(--text3)';
+  document.getElementById('authSubmitBtn').textContent = isLogin ? 'SIGN IN' : 'CREATE ACCOUNT';
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
+  document.getElementById('loginTabBtn')._mode = tab;
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+
+function showAuthSuccess(msg) {
+  const el = document.getElementById('authSuccess');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function handleEmailAuth() {
+  if (!_supabase) return;
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmitBtn');
+  const isSignup = btn.textContent === 'CREATE ACCOUNT';
+
+  if (!email || !password) { showAuthError('Please enter email and password.'); return; }
+  if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+
+  btn.textContent = 'LOADING…';
+  btn.disabled = true;
+
+  try {
+    if (isSignup) {
+      const { error } = await _supabase.auth.signUp({ email, password });
+      if (error) throw error;
+      showAuthSuccess('Account created! Check your email to confirm, then sign in.');
+      setAuthTab('login');
+    } else {
+      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+  } catch(e) {
+    showAuthError(e.message || 'Authentication failed.');
+  } finally {
+    btn.textContent = isSignup ? 'CREATE ACCOUNT' : 'SIGN IN';
+    btn.disabled = false;
+  }
+}
+
+async function handleGoogleAuth() {
+  if (!_supabase) return;
+  const { error } = await _supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) showAuthError(error.message);
+}
+
+async function handleAppleAuth() {
+  if (!_supabase) return;
+  const { error } = await _supabase.auth.signInWithOAuth({
+    provider: 'apple',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) showAuthError(error.message);
+}
+
+async function handleSignOut() {
+  // Clear storage first
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('sb-') || key.includes('supabase')) localStorage.removeItem(key);
+  });
+  Object.keys(sessionStorage).forEach(key => {
+    if (key.startsWith('sb-') || key.includes('supabase')) sessionStorage.removeItem(key);
+  });
+  // Sign out — onAuthStateChange will fire SIGNED_OUT and show login screen
+  if (_supabase) await _supabase.auth.signOut({ scope: 'local' });
+}
+
+// Gate pro tabs — show lock screen if not pro
+function checkProGate(id) {
+  if (!SUPABASE_URL) return true; // dev mode — no gate
+  if (!PRO_TABS.includes(id)) return true; // odds is always free
+  if (isPro) return true;
+  // Show full screen lock overlay
+  document.getElementById('proLockScreen').style.display = 'flex';
+  return false;
+}
+
+// Hide lock when switching to free tab
+function hideLock() {
+  document.getElementById('proLockScreen').style.display = 'none';
+}
+
+// Patch switchTab to enforce pro gate
+const _origSwitchTabAuth = switchTab;
+switchTab = function(id) {
+  _origSwitchTabAuth(id);
+  hideLock();
+  checkProGate(id);
+};
+
 // ═══════════ THEME TOGGLE ═══════════
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
@@ -2723,6 +3193,8 @@ loadSavedDvp();
 loadRoster();
 renderTracker();
 renderParlay();
+// Init — Supabase handles auth then loads data
+initSupabase();
 loadCachedData();
 </script>
 </body>
