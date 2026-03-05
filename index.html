@@ -3140,15 +3140,17 @@ async function handleAppleAuth() {
 }
 
 async function handleSignOut() {
-  // Clear storage first
+  // Clear all Supabase session keys from storage
   Object.keys(localStorage).forEach(key => {
     if (key.startsWith('sb-') || key.includes('supabase')) localStorage.removeItem(key);
   });
   Object.keys(sessionStorage).forEach(key => {
     if (key.startsWith('sb-') || key.includes('supabase')) sessionStorage.removeItem(key);
   });
-  // Sign out — onAuthStateChange will fire SIGNED_OUT and show login screen
+  // Sign out from Supabase
   if (_supabase) await _supabase.auth.signOut({ scope: 'local' });
+  // Force full page reload so OAuth flow starts completely clean
+  window.location.reload();
 }
 
 // Gate pro tabs — show lock screen if not pro
