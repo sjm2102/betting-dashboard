@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3347,12 +3346,14 @@ function renderBPList(elId, parlays) {
     const legsHtml = p.legs.map(r => {
       const stats = getPlayerStats(r.player);
       const team = stats?.team ? `<span style="font-family:var(--mono);font-size:0.55rem;color:var(--text3)">(${stats.team.toUpperCase()})</span>` : '';
+      const avg = r.seasonAvg ? `<span style="font-family:var(--mono);font-size:0.55rem;color:var(--text3)">Avg ${r.seasonAvg.toFixed(1)}</span>` : '';
       const sideClass = r.side === 'OVER' ? 'edge-side-over' : 'edge-side-under';
       const dvp = r.dvpGrade && GRADE[r.dvpGrade] ? `<span class="dvp-badge ${GRADE[r.dvpGrade].cls}" style="font-size:0.5rem;padding:1px 5px">${GRADE[r.dvpGrade].label}</span>` : '';
       return `
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid var(--border)">
           <span style="font-family:var(--display);font-size:0.82rem;letter-spacing:1px">${r.player}</span>
           ${team}
+          ${avg}
           <span class="edge-side-badge ${sideClass}">${r.side} ${r.line}</span>
           <span style="font-family:var(--mono);font-size:0.58rem;background:var(--bg4);border:1px solid var(--border2);padding:1px 6px;border-radius:2px">${r.catLabel}</span>
           ${dvp}
