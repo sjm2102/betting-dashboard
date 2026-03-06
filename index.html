@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2448,7 +2449,7 @@ function _renderEdgeFromCache(cat) {
             + (r.pos ? '<span>' + r.pos + '</span>' : '')
             + (r.dvpRank ? '<span>Def #' + r.dvpRank + '</span>' : '')
             + (r.seasonAvg ? '<span>Avg ' + r.seasonAvg.toFixed(1) + ' vs Line ' + r.line + (r.lineVsAvgPct !== null ? ' (' + (r.lineVsAvgPct>=0?'+':'') + r.lineVsAvgPct + '%)' : '') + '</span>' : '')
-            + '<span style="color:var(--text2)">EV: ' + (r.ev>=0?'+':'') + r.ev + ' · DvP: ' + (r.dvpBonus>=0?'+':'') + r.dvpBonus + (r.mpg?' · '+r.mpg+'mpg':'') + (r.usg?' · '+r.usg+'% usg':'') + '</span>'
+            + '<span style="color:var(--text2)">EV: ' + (r.ev>=0?'+':'') + r.ev + ' · DvP: ' + (r.dvpBonus>=0?'+':'') + r.dvpBonus + (r.mpg?' · '+r.mpg+'mpg':'') + '</span>'
           + '</div>'
         + '</div>'
         + '<div class="edge-score-col"><div class="edge-score">' + (r.score>=0?'+':'') + r.score + '</div><div class="edge-score-label">EDGE SCORE</div></div>'
@@ -2674,15 +2675,10 @@ function renderEdgeBoard() {
       const mpg = playerStats?.mpg || 0;
       const mpgBonus = Math.max(0, Math.min(0.06, (mpg - 20) / 16 * 0.06));
 
-      // 3. Usage% bonus: 0 at 15%, max 0.06 at 30%+
-      // Stats CSV has USG% — stored as usg in roster if available
-      const usg = playerStats?.usg || 0;
-      const usgBonus = Math.max(0, Math.min(0.06, (usg - 15) / 15 * 0.06));
-
-      // Final combined score — 4 equal components:
-      // EV (~0.00–0.10) + DvP (~0–0.10) + LineVsAvg (~0–0.15) + MPG+USG (~0–0.12)
-      const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus;
-      const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus;
+      // Final combined score — 3 components:
+      // EV (~0.00–0.10) + DvP (~0–0.10) + LineVsAvg (~0–0.15) + MPG (~0–0.06)
+      const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus;
+      const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus;
 
       const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}`;
 
@@ -2690,8 +2686,8 @@ function renderEdgeBoard() {
         results.push({
           player: prop.player, line: prop.line, side: 'OVER',
           ev: evOver, dvpGrade, dvpRank, dvpBonus, pos: playerPos,
-          lineAvgBonus: lineAvgBonusOver, seasonAvg, mpgBonus, usgBonus,
-          lineVsAvgPct, mpg, usg,
+          lineAvgBonus: lineAvgBonusOver, seasonAvg, mpgBonus,
+          lineVsAvgPct, mpg,
           score: overScore, bestOdds: bestOver,
           book: PROP_BOOK_LABELS[bestOverBook] || bestOverBook,
           game: gameLabel, ppg: playerStats?.ppg
@@ -2701,8 +2697,8 @@ function renderEdgeBoard() {
         results.push({
           player: prop.player, line: prop.line, side: 'UNDER',
           ev: evUnder, dvpGrade, dvpRank, dvpBonus: -dvpBonus, pos: playerPos,
-          lineAvgBonus: lineAvgBonusUnder, seasonAvg, mpgBonus, usgBonus,
-          lineVsAvgPct: lineVsAvgPct !== null ? -lineVsAvgPct : null, mpg, usg,
+          lineAvgBonus: lineAvgBonusUnder, seasonAvg, mpgBonus,
+          lineVsAvgPct: lineVsAvgPct !== null ? -lineVsAvgPct : null, mpg,
           score: underScore, bestOdds: bestUnder,
           book: PROP_BOOK_LABELS[bestUnderBook] || bestUnderBook,
           game: gameLabel, ppg: playerStats?.ppg
@@ -2752,7 +2748,7 @@ function renderEdgeBoard() {
               · DvP: ${r.dvpBonus >= 0 ? '+' : ''}${r.dvpBonus.toFixed(3)}
               · ${r.seasonAvg ? 'Avg ' + r.seasonAvg.toFixed(1) + ' vs Line ' + r.line + ' (' + (r.lineVsAvgPct >= 0 ? '+' : '') + (r.lineVsAvgPct*100).toFixed(1) + '%)' : 'No avg data'}
               · ${r.mpg ? r.mpg + 'mpg' : '?mpg'}
-              ${r.usg ? '· ' + r.usg + '% usg' : ''}
+              ${r.mpg ? '· ' + r.mpg + 'mpg' : ''}
             </span>
           </div>
         </div>
