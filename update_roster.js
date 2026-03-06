@@ -1,4 +1,4 @@
-// update_roster.js — with full debug output
+// update_roster.js — divides totals by games to get per-game averages
 const fs = require('fs');
 
 async function fetchJSON(url) {
@@ -8,62 +8,56 @@ async function fetchJSON(url) {
 }
 
 async function main() {
-  // First, fetch just 1 player to see the exact structure
-  console.log('Testing API structure...');
-  const test = await fetchJSON(
-    'https://api.server.nbaapi.com/api/playertotals?page=1&pageSize=3&season=2025&isPlayoff=false&sortBy=points&ascending=false'
-  );
-  console.log('Raw sample:', JSON.stringify(test.data?.[0], null, 2));
-  console.log('Pagination:', JSON.stringify(test.pagination));
-
   const roster = {};
   let page = 1;
-  let totalPages = test.pagination?.pages || 1;
+  let totalPages = 1;
 
-  // Process first page already fetched
-  for (const p of (test.data || [])) {
-    if (!p.playerName || (p.games || 0) < 3) continue;
-    roster[p.playerName] = {
-      team: p.team || '',
-      pos: p.position || '',
-      ppg: +parseFloat(p.points || 0).toFixed(1),
-      rpg: +parseFloat(p.totalRb || 0).toFixed(1),
-      apg: +parseFloat(p.assists || 0).toFixed(1),
-      mpg: +parseFloat(p.minutesPg || 0).toFixed(1),
-      usg: 0,
-      gp: p.games || 0
-    };
-  }
+  console.log('Fetching NBA player stats...');
 
-  // Fetch remaining pages
-  for (page = 2; page <= totalPages; page++) {
+  while (page <= totalPages) {
     const url = `https://api.server.nbaapi.com/api/playertotals?page=${page}&pageSize=100&season=2025&isPlayoff=false`;
     const data = await fetchJSON(url);
+    totalPages = data.pagination?.pages || 1;
+
     for (const p of (data.data || [])) {
-      if (!p.playerName || (p.games || 0) < 3) continue;
+      if (!p.playerName) continue;
+      const gp = parseInt(p.games) || 0;
+      if (gp < 3) continue;
+
+      // API returns season totals — divide by games for per-game averages
+      const ppg = gp > 0 ? parseFloat(p.points) / gp : 0;
+      const rpg = gp > 0 ? parseFloat(p.totalRb) / gp : 0;
+      const apg = gp > 0 ? parseFloat(p.assists) / gp : 0;
+      // minutesPg appears to already be per-game based on field name
+      const mpg = parseFloat(p.minutesPg) || 0;
+
       roster[p.playerName] = {
         team: p.team || '',
         pos: p.position || '',
-        ppg: +parseFloat(p.points || 0).toFixed(1),
-        rpg: +parseFloat(p.totalRb || 0).toFixed(1),
-        apg: +parseFloat(p.assists || 0).toFixed(1),
-        mpg: +parseFloat(p.minutesPg || 0).toFixed(1),
+        ppg: +ppg.toFixed(1),
+        rpg: +rpg.toFixed(1),
+        apg: +apg.toFixed(1),
+        mpg: +mpg.toFixed(1),
         usg: 0,
-        gp: p.games || 0
+        gp
       };
     }
-    console.log(`Page ${page}/${totalPages} done`);
+    console.log(`Page ${page}/${totalPages}`);
+    page++;
   }
 
   const count = Object.keys(roster).length;
-  console.log(`\nBuilt ${count} players`);
-  const sample = Object.entries(roster).find(([,v]) => v.ppg > 15);
-  if (sample) console.log('Top scorer sample:', sample[0], JSON.stringify(sample[1]));
-  else console.warn('⚠️ No player has ppg > 15 — check raw sample above');
+  console.log(`Built ${count} players`);
+
+  // Log top scorers as sanity check
+  const top3 = Object.entries(roster)
+    .sort((a,b) => b[1].ppg - a[1].ppg)
+    .slice(0,3);
+  console.log('Top 3 scorers:', top3.map(([n,v]) => `${n}: ${v.ppg}ppg`).join(', '));
 
   if (count < 50) throw new Error(`Only ${count} players — aborting`);
   fs.writeFileSync('roster.json', JSON.stringify(roster, null, 2));
-  console.log('✅ Done!');
+  console.log('✅ Done!', count, 'players written');
 }
 
 main().catch(e => { console.error('❌', e.message); process.exit(1); });
