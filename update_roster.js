@@ -1,90 +1,69 @@
-// update_roster.js — ESPN NBA, correct athlete stats endpoint
+// update_roster.js — with full debug output
 const fs = require('fs');
 
 async function fetchJSON(url) {
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.json();
 }
 
 async function main() {
-  console.log('Fetching NBA teams...');
-  const teamsData = await fetchJSON(
-    'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams?limit=32'
+  // First, fetch just 1 player to see the exact structure
+  console.log('Testing API structure...');
+  const test = await fetchJSON(
+    'https://api.server.nbaapi.com/api/playertotals?page=1&pageSize=3&season=2025&isPlayoff=false&sortBy=points&ascending=false'
   );
-  const teams = teamsData.sports[0].leagues[0].teams.map(t => t.team);
-  console.log(`Got ${teams.length} teams`);
+  console.log('Raw sample:', JSON.stringify(test.data?.[0], null, 2));
+  console.log('Pagination:', JSON.stringify(test.pagination));
 
   const roster = {};
-  let totalPlayers = 0;
+  let page = 1;
+  let totalPages = test.pagination?.pages || 1;
 
-  for (const team of teams) {
-    try {
-      const rosterData = await fetchJSON(
-        `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${team.id}/roster`
-      );
-
-      // Athletes come back as flat array or grouped — handle both
-      let athletes = rosterData.athletes || [];
-      // If grouped (guards/forwards/centers), flatten
-      if (athletes.length > 0 && athletes[0].items) {
-        athletes = athletes.flatMap(g => g.items || []);
-      }
-
-      for (const athlete of athletes) {
-        const id = athlete.id;
-        const name = athlete.fullName || athlete.displayName;
-        if (!id || !name) continue;
-
-        let ppg=0, rpg=0, apg=0, mpg=0, gp=0;
-        try {
-          const statsData = await fetchJSON(
-            `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}/stats`
-          );
-          // Find the "splits" for current regular season
-          const categories = statsData?.splits?.categories || [];
-          for (const cat of categories) {
-            const names = cat.names || [];
-            const values = cat.values || [];
-            names.forEach((n, i) => {
-              const v = parseFloat(values[i]) || 0;
-              if (n === 'avgPoints')    ppg = v;
-              if (n === 'avgRebounds')  rpg = v;
-              if (n === 'avgAssists')   apg = v;
-              if (n === 'avgMinutes')   mpg = v;
-              if (n === 'gamesPlayed')  gp  = parseInt(values[i]) || 0;
-            });
-          }
-        } catch(_) { /* player has no stats yet */ }
-
-        roster[name] = {
-          team: team.abbreviation,
-          pos: athlete.position?.abbreviation || '',
-          ppg: +ppg.toFixed(1),
-          rpg: +rpg.toFixed(1),
-          apg: +apg.toFixed(1),
-          mpg: +mpg.toFixed(1),
-          usg: 0,
-          gp
-        };
-        totalPlayers++;
-      }
-      console.log(`✓ ${team.abbreviation} (${athletes.length})`);
-    } catch(e) {
-      console.warn(`Skipped ${team.abbreviation}: ${e.message}`);
-    }
+  // Process first page already fetched
+  for (const p of (test.data || [])) {
+    if (!p.playerName || (p.games || 0) < 3) continue;
+    roster[p.playerName] = {
+      team: p.team || '',
+      pos: p.position || '',
+      ppg: +parseFloat(p.points || 0).toFixed(1),
+      rpg: +parseFloat(p.totalRb || 0).toFixed(1),
+      apg: +parseFloat(p.assists || 0).toFixed(1),
+      mpg: +parseFloat(p.minutesPg || 0).toFixed(1),
+      usg: 0,
+      gp: p.games || 0
+    };
   }
 
-  console.log(`\nBuilt ${totalPlayers} players`);
-  const sample = Object.entries(roster).find(([,v]) => v.ppg > 0);
-  if (sample) console.log('Sample:', sample[0], JSON.stringify(sample[1]));
-  else console.warn('⚠️ No players had ppg > 0 — stats may not be parsing correctly');
+  // Fetch remaining pages
+  for (page = 2; page <= totalPages; page++) {
+    const url = `https://api.server.nbaapi.com/api/playertotals?page=${page}&pageSize=100&season=2025&isPlayoff=false`;
+    const data = await fetchJSON(url);
+    for (const p of (data.data || [])) {
+      if (!p.playerName || (p.games || 0) < 3) continue;
+      roster[p.playerName] = {
+        team: p.team || '',
+        pos: p.position || '',
+        ppg: +parseFloat(p.points || 0).toFixed(1),
+        rpg: +parseFloat(p.totalRb || 0).toFixed(1),
+        apg: +parseFloat(p.assists || 0).toFixed(1),
+        mpg: +parseFloat(p.minutesPg || 0).toFixed(1),
+        usg: 0,
+        gp: p.games || 0
+      };
+    }
+    console.log(`Page ${page}/${totalPages} done`);
+  }
 
-  if (totalPlayers < 50) throw new Error(`Only ${totalPlayers} — aborting`);
+  const count = Object.keys(roster).length;
+  console.log(`\nBuilt ${count} players`);
+  const sample = Object.entries(roster).find(([,v]) => v.ppg > 15);
+  if (sample) console.log('Top scorer sample:', sample[0], JSON.stringify(sample[1]));
+  else console.warn('⚠️ No player has ppg > 15 — check raw sample above');
+
+  if (count < 50) throw new Error(`Only ${count} players — aborting`);
   fs.writeFileSync('roster.json', JSON.stringify(roster, null, 2));
-  console.log('✅ Done!', totalPlayers, 'players written');
+  console.log('✅ Done!');
 }
 
 main().catch(e => { console.error('❌', e.message); process.exit(1); });
