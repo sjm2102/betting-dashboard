@@ -3,21 +3,23 @@ const fs = require('fs');
 
 const API_KEY = process.env.BALLDONTLIE_API_KEY || '';
 if (!API_KEY) { console.error('❌ Missing BALLDONTLIE_API_KEY'); process.exit(1); }
-
 console.log('API key found, length:', API_KEY.length);
 
 const HEADERS = { 'Authorization': API_KEY };
-const BASE = 'https://api.balldontlie.io/nba/v1'; // ← correct NBA base URL
 
-async function fetchAll(url) {
+async function get(url) {
+  console.log('  GET', url);
+  const res = await fetch(url, { headers: HEADERS });
+  console.log('  Status:', res.status);
+  if (!res.ok) { const t = await res.text(); throw new Error(`HTTP ${res.status}: ${t}`); }
+  return res.json();
+}
+
+async function fetchAll(baseUrl) {
   let all = [], cursor = null;
   while (true) {
-    const fullUrl = cursor ? `${url}&cursor=${cursor}` : url;
-    console.log('  GET', fullUrl);
-    const res = await fetch(fullUrl, { headers: HEADERS });
-    console.log('  Status:', res.status);
-    if (!res.ok) { const t = await res.text(); throw new Error(`HTTP ${res.status}: ${t}`); }
-    const json = await res.json();
+    const url = cursor ? `${baseUrl}&cursor=${cursor}` : baseUrl;
+    const json = await get(url);
     all = all.concat(json.data || []);
     if (!json.meta?.next_cursor) break;
     cursor = json.meta.next_cursor;
@@ -26,15 +28,15 @@ async function fetchAll(url) {
 }
 
 async function main() {
-  console.log('Fetching season averages...');
-  const avgs = await fetchAll(`${BASE}/season_averages?season=2024&per_page=100`);
+  // 2025 = the 2025-26 NBA season
+  console.log('Fetching season averages for 2025...');
+  const avgs = await fetchAll('https://api.balldontlie.io/nba/v1/season_averages?seasons[]=2025&per_page=100');
   console.log(`Got ${avgs.length} averages`);
-
   const avgMap = {};
   avgs.forEach(a => avgMap[a.player_id] = a);
 
-  console.log('Fetching players...');
-  const players = await fetchAll(`${BASE}/players?per_page=100`);
+  console.log('Fetching active players...');
+  const players = await fetchAll('https://api.balldontlie.io/nba/v1/players/active?per_page=100');
   console.log(`Got ${players.length} players`);
 
   const roster = {};
