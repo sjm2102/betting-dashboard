@@ -1,4 +1,4 @@
-// update_roster.js — divides totals by games to get per-game averages
+// update_roster.js — uses playerPerGameStats endpoint for true per-game averages
 const fs = require('fs');
 
 async function fetchJSON(url) {
@@ -12,32 +12,30 @@ async function main() {
   let page = 1;
   let totalPages = 1;
 
-  console.log('Fetching NBA player stats...');
+  console.log('Fetching NBA per-game stats...');
 
   while (page <= totalPages) {
-    const url = `https://api.server.nbaapi.com/api/playertotals?page=${page}&pageSize=100&season=2025&isPlayoff=false`;
+    const url = `https://api.server.nbaapi.com/api/playerperGameStats?page=${page}&pageSize=100&season=2025`;
     const data = await fetchJSON(url);
     totalPages = data.pagination?.pages || 1;
+
+    // Log first player raw to verify field names
+    if (page === 1 && data.data?.[0]) {
+      console.log('Sample raw:', JSON.stringify(data.data[0], null, 2));
+    }
 
     for (const p of (data.data || [])) {
       if (!p.playerName) continue;
       const gp = parseInt(p.games) || 0;
       if (gp < 3) continue;
 
-      // API returns season totals — divide by games for per-game averages
-      const ppg = gp > 0 ? parseFloat(p.points) / gp : 0;
-      const rpg = gp > 0 ? parseFloat(p.totalRb) / gp : 0;
-      const apg = gp > 0 ? parseFloat(p.assists) / gp : 0;
-      // minutesPg appears to already be per-game based on field name
-      const mpg = parseFloat(p.minutesPg) || 0;
-
       roster[p.playerName] = {
         team: p.team || '',
         pos: p.position || '',
-        ppg: +ppg.toFixed(1),
-        rpg: +rpg.toFixed(1),
-        apg: +apg.toFixed(1),
-        mpg: +mpg.toFixed(1),
+        ppg: +parseFloat(p.points || 0).toFixed(1),
+        rpg: +parseFloat(p.totalRb || 0).toFixed(1),
+        apg: +parseFloat(p.assists || 0).toFixed(1),
+        mpg: +parseFloat(p.minutesPg || 0).toFixed(1),
         usg: 0,
         gp
       };
@@ -47,13 +45,12 @@ async function main() {
   }
 
   const count = Object.keys(roster).length;
-  console.log(`Built ${count} players`);
+  console.log(`\nBuilt ${count} players`);
 
-  // Log top scorers as sanity check
   const top3 = Object.entries(roster)
     .sort((a,b) => b[1].ppg - a[1].ppg)
     .slice(0,3);
-  console.log('Top 3 scorers:', top3.map(([n,v]) => `${n}: ${v.ppg}ppg`).join(', '));
+  console.log('Top 3:', top3.map(([n,v]) => `${n}: ${v.ppg}ppg ${v.rpg}rpg ${v.apg}apg`).join(' | '));
 
   if (count < 50) throw new Error(`Only ${count} players — aborting`);
   fs.writeFileSync('roster.json', JSON.stringify(roster, null, 2));
