@@ -1,62 +1,75 @@
 // update_roster.js
+// Uses NBA Stats API — completely free, no API key needed
 const fs = require('fs');
 
-const API_KEY = process.env.BALLDONTLIE_API_KEY || '';
-if (!API_KEY) { console.error('❌ Missing BALLDONTLIE_API_KEY'); process.exit(1); }
-console.log('API key found, length:', API_KEY.length);
+const TEAM_MAP = {
+  1610612737:"ATL",1610612738:"BOS",1610612751:"BKN",1610612766:"CHA",
+  1610612741:"CHI",1610612739:"CLE",1610612742:"DAL",1610612743:"DEN",
+  1610612765:"DET",1610612744:"GS",1610612745:"HOU",1610612754:"IND",
+  1610612746:"LAC",1610612747:"LAL",1610612763:"MEM",1610612748:"MIA",
+  1610612749:"MIL",1610612750:"MIN",1610612740:"NO",1610612752:"NY",
+  1610612760:"OKC",1610612753:"ORL",1610612755:"PHI",1610612756:"PHO",
+  1610612757:"POR",1610612758:"SAC",1610612759:"SA",1610612761:"TOR",
+  1610612762:"UTA",1610612764:"WAS"
+};
 
-const HEADERS = { 'Authorization': API_KEY };
+async function fetchNBAStats() {
+  const url = 'https://stats.nba.com/stats/leaguedashplayerstats?' +
+    'College=&Conference=&Country=&DateFrom=&DateTo=&Division=&' +
+    'DraftPick=&DraftYear=&GameScope=&GameSegment=&Height=&ISTRound=&' +
+    'LastNGames=0&LeagueID=00&Location=&MeasureType=Base&Month=0&' +
+    'OpponentTeamID=0&Outcome=&PORound=0&PaceAdjust=N&PerMode=PerGame&' +
+    'Period=0&PlayerExperience=&PlayerPosition=&PlusMinus=N&Rank=N&' +
+    'Season=2025-26&SeasonSegment=&SeasonType=Regular+Season&' +
+    'ShotClockRange=&StarterBench=&TeamID=0&TwoWay=0&' +
+    'VsConference=&VsDivision=&Weight=';
 
-async function get(url) {
-  console.log('  GET', url);
-  const res = await fetch(url, { headers: HEADERS });
-  console.log('  Status:', res.status);
-  if (!res.ok) { const t = await res.text(); throw new Error(`HTTP ${res.status}: ${t}`); }
+  console.log('Fetching NBA Stats...');
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Referer': 'https://www.nba.com/',
+      'Origin': 'https://www.nba.com',
+      'Accept': 'application/json',
+      'x-nba-stats-origin': 'stats',
+      'x-nba-stats-token': 'true'
+    }
+  });
+
+  console.log('Status:', res.status);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-async function fetchAll(baseUrl) {
-  let all = [], cursor = null;
-  while (true) {
-    const url = cursor ? `${baseUrl}&cursor=${cursor}` : baseUrl;
-    const json = await get(url);
-    all = all.concat(json.data || []);
-    if (!json.meta?.next_cursor) break;
-    cursor = json.meta.next_cursor;
-  }
-  return all;
-}
-
 async function main() {
-  // 2025 = the 2025-26 NBA season
-  console.log('Fetching season averages for 2025...');
-  const avgs = await fetchAll('https://api.balldontlie.io/nba/v1/season_averages?seasons[]=2025&per_page=100');
-  console.log(`Got ${avgs.length} averages`);
-  const avgMap = {};
-  avgs.forEach(a => avgMap[a.player_id] = a);
+  const data = await fetchNBAStats();
+  const headers = data.resultSets[0].headers;
+  const rows = data.resultSets[0].rowSet;
 
-  console.log('Fetching active players...');
-  const players = await fetchAll('https://api.balldontlie.io/nba/v1/players/active?per_page=100');
-  console.log(`Got ${players.length} players`);
+  const idx = (name) => headers.indexOf(name);
+  const iName = idx('PLAYER_NAME');
+  const iTeam = idx('TEAM_ABBREVIATION');
+  const iPts  = idx('PTS');
+  const iReb  = idx('REB');
+  const iAst  = idx('AST');
+  const iMin  = idx('MIN');
+  const iGP   = idx('GP');
+
+  console.log(`Got ${rows.length} players`);
 
   const roster = {};
-  for (const p of players) {
-    const avg = avgMap[p.id];
-    if (!avg || avg.games_played < 3) continue;
-    const name = `${p.first_name} ${p.last_name}`;
-    const team = p.team?.abbreviation || '';
-    let mpg = 0;
-    if (avg.min) {
-      const parts = String(avg.min).split(':');
-      mpg = parseFloat(parts[0]) + (parts[1] ? parseFloat(parts[1]) / 60 : 0);
-    }
+  for (const row of rows) {
+    if ((row[iGP] || 0) < 3) continue;
+    const name = row[iName];
     roster[name] = {
-      team, pos: p.position || '',
-      ppg: +parseFloat(avg.pts||0).toFixed(1),
-      rpg: +parseFloat(avg.reb||0).toFixed(1),
-      apg: +parseFloat(avg.ast||0).toFixed(1),
-      mpg: +parseFloat(mpg).toFixed(1),
-      usg: 0, gp: avg.games_played || 0
+      team: row[iTeam] || '',
+      pos: '',
+      ppg: +parseFloat(row[iPts]||0).toFixed(1),
+      rpg: +parseFloat(row[iReb]||0).toFixed(1),
+      apg: +parseFloat(row[iAst]||0).toFixed(1),
+      mpg: +parseFloat(row[iMin]||0).toFixed(1),
+      usg: 0,
+      gp: row[iGP] || 0
     };
   }
 
