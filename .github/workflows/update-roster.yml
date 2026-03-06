@@ -2,7 +2,7 @@ name: Update NBA Roster Stats
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # Every day at 8AM ET
+    - cron: '0 13 * * *'
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Debug secret exists
+        run: |
+          if [ -z "${{ secrets.BALLDONTLIE_API_KEY }}" ]; then
+            echo "❌ Secret BALLDONTLIE_API_KEY is EMPTY or NOT SET"
+            exit 1
+          else
+            echo "✅ Secret exists, length: ${#BALLDONTLIE_API_KEY}"
+          fi
+        env:
+          BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
 
       - name: Run roster updater
         env:
