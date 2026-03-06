@@ -2,7 +2,7 @@ name: Update NBA Roster Stats
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # Every day at 8AM ET
+    - cron: '0 13 * * *'
   workflow_dispatch:
 
 jobs:
@@ -18,6 +18,8 @@ jobs:
           node-version: '20'
 
       - name: Run roster updater
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
         run: node update_roster.js
 
       - name: Commit and push if changed
