@@ -1,43 +1,43 @@
-// update_roster.js
-// Fetches NBA stats from ESPN's public API — no key, no CORS issues
+// update_roster.js — uses ESPN scoreboard/athlete stats API
 const fs = require('fs');
-
-const TEAM_IDS = [
-  1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
-  16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
-];
 
 async function fetchJSON(url) {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'Node.js roster-updater' }
+    headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.json();
 }
 
 async function main() {
-  console.log('Fetching NBA stats from ESPN...');
+  console.log('Fetching NBA teams...');
+  const teamsData = await fetchJSON(
+    'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams?limit=32'
+  );
+  const teams = teamsData.sports[0].leagues[0].teams.map(t => t.team);
+  console.log(`Got ${teams.length} teams`);
+
   const roster = {};
   let totalPlayers = 0;
 
-  for (const teamId of TEAM_IDS) {
+  for (const team of teams) {
     try {
-      const url = `https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${teamId}/roster?enable=stats`;
+      const url = `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/${team.id}/roster`;
       const data = await fetchJSON(url);
-      const team = data.team?.abbreviation || '';
+      const abbr = team.abbreviation;
+
       const athletes = data.athletes || [];
+      for (const athlete of athletes) {
+        const name = athlete.displayName;
+        if (!name) continue;
 
-      for (const group of athletes) {
-        const items = group.items || (group.athlete ? [group] : []);
-        for (const item of items) {
-          const athlete = item.athlete || item;
-          const stats = item.statistics?.splits?.categories || [];
-          const name = athlete.displayName || `${athlete.firstName} ${athlete.lastName}`;
-          if (!name) continue;
-
-          // Find general stats category
-          let ppg = 0, rpg = 0, apg = 0, mpg = 0, gp = 0;
-          for (const cat of stats) {
+        // Pull season stats from athlete detail
+        const statsUrl = `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${athlete.id}/stats`;
+        try {
+          const statsData = await fetchJSON(statsUrl);
+          const splits = statsData.splits?.categories || [];
+          let ppg=0, rpg=0, apg=0, mpg=0, gp=0;
+          for (const cat of splits) {
             const names = cat.names || [];
             const values = cat.values || [];
             names.forEach((n, i) => {
@@ -49,28 +49,30 @@ async function main() {
               if (n === 'gamesPlayed') gp = v;
             });
           }
-
           roster[name] = {
-            team,
-            pos: athlete.position?.abbreviation || '',
-            ppg: +ppg.toFixed(1),
-            rpg: +rpg.toFixed(1),
-            apg: +apg.toFixed(1),
-            mpg: +mpg.toFixed(1),
-            usg: 0,
-            gp
+            team: abbr, pos: athlete.position?.abbreviation || '',
+            ppg: +ppg.toFixed(1), rpg: +rpg.toFixed(1),
+            apg: +apg.toFixed(1), mpg: +mpg.toFixed(1),
+            usg: 0, gp
+          };
+          totalPlayers++;
+        } catch(e) {
+          // Player has no stats yet — still add to roster with zeros
+          roster[name] = {
+            team: abbr, pos: athlete.position?.abbreviation || '',
+            ppg: 0, rpg: 0, apg: 0, mpg: 0, usg: 0, gp: 0
           };
           totalPlayers++;
         }
       }
-      process.stdout.write('.');
-    } catch (e) {
-      console.warn(`\nSkipped team ${teamId}: ${e.message}`);
+      console.log(`✓ ${abbr} (${athletes.length} players)`);
+    } catch(e) {
+      console.warn(`Skipped ${team.abbreviation}: ${e.message}`);
     }
   }
 
   console.log(`\nBuilt ${totalPlayers} players`);
-  if (totalPlayers < 50) throw new Error(`Only ${totalPlayers} players — aborting`);
+  if (totalPlayers < 50) throw new Error(`Only ${totalPlayers} — aborting`);
   fs.writeFileSync('roster.json', JSON.stringify(roster, null, 2));
   console.log('✅ Done!');
 }
