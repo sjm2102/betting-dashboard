@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1024,6 +1025,7 @@
   <button class="tab active" onclick="switchTab('odds')">ODDS</button>
   <button class="tab" onclick="switchTab('props')">PROPS</button>
   <button class="tab" onclick="switchTab('edge')">🏆 EDGE</button>
+  <button class="tab" onclick="switchTab('bestparlays')">⚡ BEST PARLAYS</button>
   <button class="tab" onclick="switchTab('ev')">EV CALC</button>
   <button class="tab" onclick="switchTab('arb')">ARB</button>
   <button class="tab" onclick="switchTab('lines')">LINES</button>
@@ -1045,6 +1047,7 @@
 <div class="more-drawer" id="moreDrawer">
   <div class="more-drawer-handle"></div>
   <div class="more-drawer-grid">
+    <button class="more-drawer-btn" onclick="switchTabMobile('bestparlays')">BEST PARLAYS</button>
     <button class="more-drawer-btn" onclick="switchTabMobile('ev')">EV CALC</button>
     <button class="more-drawer-btn" onclick="switchTabMobile('arb')">ARB</button>
     <button class="more-drawer-btn" onclick="switchTabMobile('lines')">LINES</button>
@@ -1230,6 +1233,41 @@
     <div id="lineList" class="line-list">
       <div class="loading-wrap">Load odds data first (ODDS tab)</div>
     </div>
+  </div>
+
+  <!-- ═══════════════════ BEST PARLAYS PANEL ═══════════════════ -->
+  <div class="panel" id="panel-bestparlays">
+
+    <!-- Header -->
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:var(--display);font-size:1rem;letter-spacing:3px">⚡ BEST PARLAYS</div>
+        <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:3px">Highest edge combinations from today's top prop bets</div>
+      </div>
+      <button onclick="buildBestParlays()" style="font-family:var(--mono);font-size:0.62rem;letter-spacing:1px;background:var(--green);color:#000;border:none;padding:8px 16px;border-radius:3px;cursor:pointer;font-weight:600">↻ REFRESH</button>
+    </div>
+
+    <!-- 2-leg / 3-leg tabs -->
+    <div style="display:flex;border-bottom:1px solid var(--border);background:var(--bg2)">
+      <button id="bp2Btn" onclick="setBPTab(2)" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--green);color:var(--green);font-family:var(--mono);font-size:0.68rem;letter-spacing:2px;cursor:pointer">2-LEG PARLAYS</button>
+      <button id="bp3Btn" onclick="setBPTab(3)" style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-family:var(--mono);font-size:0.68rem;letter-spacing:2px;cursor:pointer">3-LEG PARLAYS</button>
+    </div>
+
+    <!-- Payout note -->
+    <div style="padding:8px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:0.58rem;color:var(--text3)">
+      Parlays ranked by combined Edge Score · Legs from different games only · Estimated payout on $10 shown
+    </div>
+
+    <!-- 2-leg list -->
+    <div id="bp2List" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+      <div class="loading-wrap">Loading best parlays…</div>
+    </div>
+
+    <!-- 3-leg list -->
+    <div id="bp3List" style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;display:none">
+      <div class="loading-wrap">Loading best parlays…</div>
+    </div>
+
   </div>
 
   <!-- ═══════════════════ PARLAY BUILDER ═══════════════════ -->
@@ -1442,11 +1480,13 @@ let lineHistory = JSON.parse(localStorage.getItem('edge_lines') || '{}');
 // ═══════════ TABS ═══════════
 function switchTab(id) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['odds','props','edge','ev','arb','lines','parlay','tracker'];
+    const ids = ['odds','props','edge','bestparlays','ev','arb','lines','parlay','tracker'];
     t.classList.toggle('active', ids[i] === id);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
+  // Auto-build parlays when switching to that tab
+  if (id === 'bestparlays') buildBestParlays();
 }
 
 // ═══════════ MATH ═══════════
@@ -2976,7 +3016,7 @@ function closeMoreDrawer() {
 const SUPABASE_URL = 'https://vytelzvzopovvdlycyam.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dGVsenZ6b3BvdnZkbHljeWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQ2NjQsImV4cCI6MjA4ODIzMDY2NH0.5LbRaLewc7xBWuDCLTWAogwulBAEA9HTg6RFu8YDQys';
 
-const PRO_TABS = ['props','edge','ev','arb','lines','parlay','tracker'];
+const PRO_TABS = ['props','edge','bestparlays','ev','arb','lines','parlay','tracker'];
 let currentUser = null;
 let isPro = false;
 let _supabase = null;
@@ -3197,6 +3237,163 @@ switchTab = function(id) {
   hideLock();
   checkProGate(id);
 };
+
+// ═══════════ BEST PARLAYS ═══════════
+let activeBPTab = 2;
+
+function setBPTab(n) {
+  activeBPTab = n;
+  document.getElementById('bp2Btn').style.borderBottomColor = n===2 ? 'var(--green)' : 'transparent';
+  document.getElementById('bp2Btn').style.color = n===2 ? 'var(--green)' : 'var(--text3)';
+  document.getElementById('bp3Btn').style.borderBottomColor = n===3 ? 'var(--green)' : 'transparent';
+  document.getElementById('bp3Btn').style.color = n===3 ? 'var(--green)' : 'var(--text3)';
+  document.getElementById('bp2List').style.display = n===2 ? 'flex' : 'none';
+  document.getElementById('bp3List').style.display = n===3 ? 'flex' : 'none';
+}
+
+function americanToDecimal(odds) {
+  if (odds > 0) return (odds / 100) + 1;
+  return (100 / Math.abs(odds)) + 1;
+}
+
+function decimalToAmerican(dec) {
+  if (dec >= 2) return '+' + Math.round((dec - 1) * 100);
+  return Math.round(-100 / (dec - 1)).toString();
+}
+
+function buildBestParlays() {
+  if (!cachedEdgeData) {
+    document.getElementById('bp2List').innerHTML = '<div class="loading-wrap">No edge data yet — load Props and scan the Edge tab first.</div>';
+    document.getElementById('bp3List').innerHTML = '<div class="loading-wrap">No edge data yet — load Props and scan the Edge tab first.</div>';
+    return;
+  }
+
+  // Gather ALL edge results across all categories, dedupe by player
+  const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
+  const catLabel = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'};
+  const seen = new Set();
+  const allEdges = [];
+
+  cats.forEach(cat => {
+    const results = cachedEdgeData.results[cat] || [];
+    results.forEach(r => {
+      const key = r.player + '_' + cat;
+      if (!seen.has(key) && r.bestOdds && r.score > 0) {
+        seen.add(key);
+        allEdges.push({ ...r, cat, catLabel: catLabel[cat] });
+      }
+    });
+  });
+
+  if (!allEdges.length) {
+    document.getElementById('bp2List').innerHTML = '<div class="loading-wrap">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
+    document.getElementById('bp3List').innerHTML = '<div class="loading-wrap">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
+    return;
+  }
+
+  // Sort by score descending
+  allEdges.sort((a, b) => b.score - a.score);
+
+  // Build 2-leg combos — legs must be from different games
+  const twos = [];
+  for (let i = 0; i < allEdges.length; i++) {
+    for (let j = i + 1; j < allEdges.length; j++) {
+      const a = allEdges[i], b = allEdges[j];
+      if (a.game === b.game) continue; // same game — skip
+      const combinedScore = a.score + b.score;
+      const decOdds = americanToDecimal(a.bestOdds) * americanToDecimal(b.bestOdds);
+      const parlayOdds = decimalToAmerican(decOdds);
+      const payout10 = ((decOdds - 1) * 10).toFixed(2);
+      twos.push({ legs: [a, b], combinedScore, parlayOdds, payout10 });
+    }
+  }
+  twos.sort((a, b) => b.combinedScore - a.combinedScore);
+
+  // Build 3-leg combos
+  const threes = [];
+  for (let i = 0; i < allEdges.length; i++) {
+    for (let j = i + 1; j < allEdges.length; j++) {
+      for (let k = j + 1; k < allEdges.length; k++) {
+        const a = allEdges[i], b = allEdges[j], c = allEdges[k];
+        const games = new Set([a.game, b.game, c.game]);
+        if (games.size < 2) continue; // at least 2 different games
+        const combinedScore = a.score + b.score + c.score;
+        const decOdds = americanToDecimal(a.bestOdds) * americanToDecimal(b.bestOdds) * americanToDecimal(c.bestOdds);
+        const parlayOdds = decimalToAmerican(decOdds);
+        const payout10 = ((decOdds - 1) * 10).toFixed(2);
+        threes.push({ legs: [a, b, c], combinedScore, parlayOdds, payout10 });
+      }
+    }
+  }
+  threes.sort((a, b) => b.combinedScore - a.combinedScore);
+
+  renderBPList('bp2List', twos.slice(0, 10));
+  renderBPList('bp3List', threes.slice(0, 10));
+}
+
+function renderBPList(elId, parlays) {
+  const el = document.getElementById(elId);
+  if (!parlays.length) {
+    el.innerHTML = '<div class="loading-wrap">Not enough edge data to build parlays yet.</div>';
+    return;
+  }
+
+  const GRADE = {A:{label:'🧱 ELITE',cls:'dvp-elite'},B:{label:'✗ TOUGH',cls:'dvp-tough'},C:{label:'~ NEUTRAL',cls:'dvp-neutral'},D:{label:'✓ FAVORABLE',cls:'dvp-favorable'},F:{label:'🔥 WEAK DEF',cls:'dvp-strong'}};
+
+  el.innerHTML = parlays.map((p, idx) => {
+    const rank = idx + 1;
+    const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '#' + rank;
+
+    const legsHtml = p.legs.map(r => {
+      const stats = getPlayerStats(r.player);
+      const team = stats?.team ? `<span style="font-family:var(--mono);font-size:0.55rem;color:var(--text3)">(${stats.team.toUpperCase()})</span>` : '';
+      const sideClass = r.side === 'OVER' ? 'edge-side-over' : 'edge-side-under';
+      const dvp = r.dvpGrade && GRADE[r.dvpGrade] ? `<span class="dvp-badge ${GRADE[r.dvpGrade].cls}" style="font-size:0.5rem;padding:1px 5px">${GRADE[r.dvpGrade].label}</span>` : '';
+      return `
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-family:var(--display);font-size:0.82rem;letter-spacing:1px">${r.player}</span>
+          ${team}
+          <span class="edge-side-badge ${sideClass}">${r.side} ${r.line}</span>
+          <span style="font-family:var(--mono);font-size:0.58rem;background:var(--bg4);border:1px solid var(--border2);padding:1px 6px;border-radius:2px">${r.catLabel}</span>
+          ${dvp}
+          <span style="font-family:var(--mono);font-size:0.55rem;color:var(--text3);margin-left:auto">${r.book} · ${r.game}</span>
+        </div>`;
+    }).join('');
+
+    const copyText = p.legs.map(r => `${r.player} ${r.side} ${r.line} ${r.catLabel} (${r.book})`).join(' + ');
+
+    return `
+      <div style="background:var(--bg2);border:1px solid ${rank<=3?'var(--green)':'var(--border)'};border-radius:4px;padding:12px 14px;${rank<=3?'background:var(--bg3)':''}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-family:var(--display);font-size:1.1rem;${rank<=3?'color:var(--green)':''}">${rankIcon}</span>
+            <div>
+              <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">COMBINED EDGE</div>
+              <div style="font-family:var(--display);font-size:1.1rem;color:var(--green)">+${p.combinedScore.toFixed(3)}</div>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);letter-spacing:1px">PARLAY ODDS</div>
+            <div style="font-family:var(--display);font-size:1rem;color:var(--text)">${p.parlayOdds}</div>
+            <div style="font-family:var(--mono);font-size:0.55rem;color:var(--green)">$10 → $${p.payout10}</div>
+          </div>
+        </div>
+        ${legsHtml}
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button onclick="quickCopyParlay('${copyText.replace(/'/g,"\\'")}', this)" style="font-family:var(--mono);font-size:0.55rem;letter-spacing:1px;background:var(--bg4);border:1px solid var(--border2);color:var(--text3);padding:4px 10px;border-radius:2px;cursor:pointer">📋 COPY</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function quickCopyParlay(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ COPIED';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = 'var(--text3)'; }, 1500);
+  });
+}
 
 // ═══════════ THEME TOGGLE ═══════════
 function toggleTheme() {
