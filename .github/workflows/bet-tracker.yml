@@ -1,0 +1,69 @@
+name: Edge Bet Tracker
+
+on:
+  schedule:
+    # Log bets at each odds deploy time (ET = UTC-5 in winter, UTC-4 in summer)
+    # Using EST (UTC-5):
+    - cron: '0 17 * * *'   # 12:00PM ET
+    - cron: '30 19 * * *'  # 2:30PM ET
+    - cron: '30 21 * * *'  # 4:30PM ET
+    - cron: '30 23 * * *'  # 6:30PM ET
+    # Resolve bets + generate Excel: 5AM ET (all games finished)
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run'
+        required: true
+        default: 'log'
+        type: choice
+        options: [log, resolve, both]
+
+jobs:
+  log-bets:
+    name: Log Today's Edge Bets
+    runs-on: ubuntu-latest
+    # Runs at all 4 odds deploy times — skips the 5AM resolve cron
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule != '0 10 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'log' || github.event.inputs.job == 'both'))
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Log edge bets to bets.json
+        run: node log_bets.js
+      - name: Commit bets.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet bets.json || (git add bets.json && git commit -m "Log edge bets $(date -u '+%Y-%m-%d %H:%M')" && git push)
+
+  resolve-bets:
+    name: Resolve Bets + Generate Excel
+    runs-on: ubuntu-latest
+    # Only runs at 5AM ET cron OR when manually triggered with resolve/both
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 10 * * *') ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'resolve' || github.event.inputs.job == 'both'))
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install openpyxl
+        run: pip install openpyxl
+      - name: Resolve bets via ESPN box scores
+        run: node resolve_bets.js
+      - name: Generate Excel report
+        run: python generate_excel.py
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add bets.json edge_bets.xlsx
+          git diff --staged --quiet || (git commit -m "Resolve bets + update Excel $(date -u '+%Y-%m-%d')" && git push)
