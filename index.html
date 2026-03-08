@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1004,7 +1005,7 @@
     <div style="font-family:var(--display);font-size:1.4rem;letter-spacing:3px;margin-bottom:8px">PRO FEATURE</div>
     <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-bottom:20px;line-height:1.7">Upgrade to THE EDGE Pro to unlock<br>Props, Edge Board, EV Calc, Arb & more.</div>
     <button onclick="alert('Subscription coming soon!')" style="padding:12px 28px;background:var(--green);color:#000;font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">UPGRADE TO PRO</button>
-    <button onclick="switchTab('odds');document.getElementById('proLockScreen').style.display='none'" style="padding:10px 28px;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">← BACK TO ODDS</button>
+    <button onclick="document.getElementById('proLockScreen').style.display='none';switchTab('odds')" style="padding:10px 28px;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">← BACK TO ODDS</button>
     <button onclick="handleSignOut()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:0.58rem;cursor:pointer;letter-spacing:1px;text-decoration:underline">SIGN OUT</button>
   </div>
 </div>
@@ -1293,6 +1294,8 @@
     <div class="bankroll-card" id="bankrollCard"></div>
     <div class="tracker-controls">
       <button class="btn btn-green" onclick="toggleAddForm()">+ ADD BET</button>
+      <button class="btn btn-ghost" id="autoResolveBtn" onclick="autoResolveBets()">🔄 AUTO-RESOLVE</button>
+      <button class="btn btn-ghost" onclick="exportToCSV()">📊 EXPORT CSV</button>
       <button class="btn btn-ghost" onclick="clearTracker()">CLEAR ALL</button>
     </div>
     <div class="add-bet-form" id="addBetForm">
@@ -1478,6 +1481,12 @@ let lineHistory = JSON.parse(localStorage.getItem('edge_lines') || '{}');
 
 // ═══════════ TABS ═══════════
 function switchTab(id) {
+  // Pro gate — block free users from accessing pro tabs
+  if (PRO_TABS.includes(id) && !isPro) {
+    document.getElementById('proLockScreen').style.display = 'flex';
+    return;
+  }
+  document.getElementById('proLockScreen').style.display = 'none';
   document.querySelectorAll('.tab').forEach((t,i) => {
     const ids = ['odds','props','edge','bestparlays','ev','arb','lines','parlay','tracker'];
     t.classList.toggle('active', ids[i] === id);
@@ -1971,15 +1980,26 @@ function renderTracker() {
   if (!bets.length) { el.innerHTML = '<div class="loading-wrap">No bets tracked yet. Add a bet above.</div>'; return; }
   el.innerHTML = [...bets].reverse().map(bet => {
     const pnl = calcPnL(bet);
+    const isProp = bet.propPlayer && bet.propLine !== undefined;
+    const resultLabel = bet.status === 'pending'
+      ? (bet.actualStat !== undefined ? `<span style="color:var(--amber);font-size:0.6rem">STAT: ${bet.actualStat} · RESOLVING...</span>` : 'PENDING')
+      : bet.status === 'win'
+        ? `<span style="color:var(--green);font-weight:700">✅ TRUE</span>`
+        : `<span style="color:var(--red);font-weight:700">❌ FALSE</span>`;
+    const propDetail = isProp
+      ? `<span style="color:var(--blue);font-size:0.6rem;font-family:var(--mono)">${bet.propPlayer} ${bet.propSide} ${bet.propLine} ${bet.propMarket}</span> · `
+      : '';
     return `<div class="bet-row ${bet.status}">
-      <div>
+      <div style="flex:1;min-width:0">
         <div class="bet-desc">${bet.desc}</div>
-        <div class="bet-meta">${bet.market} · ${fmtOdds(bet.odds)} · ${bet.book} · $${bet.stake} · ${bet.date}</div>
+        <div class="bet-meta">${propDetail}${bet.market} · ${fmtOdds(bet.odds)} · ${bet.book} · $${bet.stake} · ${bet.date}</div>
       </div>
       <div class="bet-result">
         <div class="bet-pnl ${bet.status==='win'?'pnl-pos':bet.status==='loss'?'pnl-neg':'pnl-pen'}">
-          ${pnl!==null?(pnl>=0?'+':'')+('$'+Math.abs(pnl).toFixed(2)):'PENDING'}
+          ${resultLabel}
         </div>
+        <div style="font-family:var(--mono);font-size:0.55rem;color:var(--text3);text-align:right;margin-top:2px">
+          ${pnl!==null?(pnl>=0?'+':'')+('$'+Math.abs(pnl).toFixed(2)):''}</div>
         <div class="bet-actions">
           ${bet.status==='pending'?`<button class="mini-btn mini-win" onclick="setBetStatus(${bet.id},'win')">WIN</button><button class="mini-btn mini-loss" onclick="setBetStatus(${bet.id},'loss')">LOSS</button>`:''}
           <button class="mini-btn mini-del" onclick="deleteBet(${bet.id})">DEL</button>
@@ -1988,6 +2008,110 @@ function renderTracker() {
     </div>`;
   }).join('');
 }
+
+// ═══════════ LOG EDGE BET ═══════════
+function logEdgeBet(r, cat, btn) {
+  const CAT_LABEL = {
+    player_points: 'PTS', player_rebounds: 'REB', player_assists: 'AST',
+    player_points_rebounds_assists: 'PRA', player_steals: 'STL', player_blocks: 'BLK'
+  };
+  const market = CAT_LABEL[cat] || cat;
+  const desc = `${r.player} ${r.side} ${r.line} ${market}`;
+  const today = new Date().toISOString().slice(0,10);
+  const existing = bets.find(b => b.desc === desc && b.date === today);
+  if (existing) { btn.textContent = '✓ LOGGED'; btn.style.color='var(--text3)'; return; }
+  bets.push({
+    id: Date.now(), desc, odds: r.bestOdds, stake: 10, book: r.book || 'Unknown',
+    market: 'Prop', date: today, status: 'pending',
+    propPlayer: r.player, propLine: r.line, propSide: r.side,
+    propMarket: market, propCat: cat,
+    edgeScore: r.score, seasonAvg: r.seasonAvg, dvpGrade: r.dvpGrade
+  });
+  saveBets(); renderTracker();
+  btn.textContent = '✓ LOGGED';
+  btn.style.color = 'var(--text3)';
+  btn.style.borderColor = 'var(--text3)';
+}
+
+// ═══════════ AUTO-RESOLVE BETS ═══════════
+async function autoResolveBets() {
+  const btn = document.getElementById('autoResolveBtn');
+  const pending = bets.filter(b => b.status === 'pending' && b.propPlayer);
+  if (!pending.length) { alert('No pending prop bets to resolve.'); return; }
+  btn.textContent = '⏳ RESOLVING...'; btn.disabled = true;
+  let resolved = 0, failed = 0;
+  for (const bet of pending) {
+    try {
+      const stat = await fetchPlayerStatForDate(bet.propPlayer, bet.propCat, bet.date);
+      if (stat === null) { failed++; continue; }
+      bet.actualStat = stat;
+      bet.status = (bet.propSide === 'OVER' ? stat > bet.propLine : stat < bet.propLine) ? 'win' : 'loss';
+      resolved++;
+    } catch(e) { console.warn('Auto-resolve failed:', bet.propPlayer, e); failed++; }
+  }
+  saveBets(); renderTracker();
+  btn.textContent = '🔄 AUTO-RESOLVE'; btn.disabled = false;
+  alert(`Resolved ${resolved} bets. ${failed} not found yet (game may not be final).`);
+}
+
+async function fetchPlayerStatForDate(playerName, cat, date) {
+  const d = date.replace(/-/g,'');
+  const sbRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${d}&limit=20`);
+  if (!sbRes.ok) return null;
+  const sb = await sbRes.json();
+  for (const event of (sb.events || [])) {
+    try {
+      const boxRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${event.id}`);
+      if (!boxRes.ok) continue;
+      const box = await boxRes.json();
+      for (const team of (box.boxscore?.players || [])) {
+        for (const grp of (team.statistics || [])) {
+          for (const ath of (grp.athletes || [])) {
+            if (!nameFuzzyMatch(ath.athlete?.displayName || '', playerName)) continue;
+            const labels = grp.labels || [], stats = ath.stats || [];
+            if (cat === 'player_points_rebounds_assists') {
+              const get = l => { const i=labels.indexOf(l); return i>=0?parseFloat(stats[i])||0:0; };
+              return get('PTS') + get('REB') + get('AST');
+            }
+            const lmap = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_steals:'STL',player_blocks:'BLK'};
+            const i = labels.indexOf(lmap[cat]);
+            return i >= 0 ? parseFloat(stats[i]) || 0 : null;
+          }
+        }
+      }
+    } catch(e) { continue; }
+  }
+  return null;
+}
+
+function nameFuzzyMatch(a, b) {
+  const c = s => s.toLowerCase().replace(/[^a-z]/g,'');
+  return c(a) === c(b) || c(a).includes(c(b)) || c(b).includes(c(a));
+}
+
+// ═══════════ EXPORT TO CSV ═══════════
+function exportToCSV() {
+  if (!bets.length) { alert('No bets to export.'); return; }
+  const headers = ['Date','Player','Side','Line','Market','Actual Stat','Result','Edge Score','Season Avg','DVP Grade','Odds','Book','Stake','P&L'];
+  const rows = [...bets].reverse().map(b => {
+    const pnl = calcPnL(b);
+    return [
+      b.date, b.propPlayer || b.desc, b.propSide||'', b.propLine!==undefined?b.propLine:'',
+      b.propMarket||b.market, b.actualStat!==undefined?b.actualStat:'',
+      b.status==='win'?'TRUE':b.status==='loss'?'FALSE':'PENDING',
+      b.edgeScore!==undefined?b.edgeScore.toFixed(3):'',
+      b.seasonAvg!==undefined?b.seasonAvg.toFixed(1):'',
+      b.dvpGrade||'', b.odds, b.book, b.stake,
+      pnl!==null?pnl.toFixed(2):''
+    ];
+  });
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = `edge-bets-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
 
 // ═══════════ EV CALCULATOR ═══════════
 function calcEV() {
@@ -2670,17 +2794,27 @@ function renderEdgeBoard() {
         lineAvgBonusUnder = Math.max(-0.15, Math.min(0.15, -diff * 0.5));
       }
 
-      // 2. MPG reliability bonus: 0 at 20mpg, max 0.06 at 36+mpg
+      // 2. MPG reliability bonus — adjusted for role consistency
+      // A player with high MPG but few games played is likely an injury beneficiary,
+      // not a trusted starter. We scale the bonus by a GP consistency multiplier:
+      // - 55+ GP = full bonus (established starter all season)
+      // - 30–54 GP = partial bonus (some missed time, moderate trust)
+      // - <30 GP = low bonus (small sample, possibly injury fill-in)
       const mpg = playerStats?.mpg || 0;
-      const mpgBonus = Math.max(0, Math.min(0.06, (mpg - 20) / 16 * 0.06));
+      const gp  = playerStats?.gp  || 0;
+      const gpReliability = Math.min(1.0, Math.max(0.2, (gp - 10) / 45)); // 0.2 at 10gp → 1.0 at 55gp
+      const rawMpgBonus = Math.max(0, Math.min(0.06, (mpg - 20) / 16 * 0.06));
+      const mpgBonus = rawMpgBonus * gpReliability;
 
       // 3. USG% bonus: high usage = more likely to hit counting stat lines
-      // 0 at 15% USG, max 0.06 at 35%+ USG
+      // Also scaled by GP reliability — injury fill-ins with inflated USG% get less credit
       const usg = playerStats?.usg || 0;
-      const usgBonus = Math.max(0, Math.min(0.06, (usg - 15) / 20 * 0.06));
+      const rawUsgBonus = Math.max(0, Math.min(0.06, (usg - 15) / 20 * 0.06));
+      const usgBonus = rawUsgBonus * gpReliability;
 
       // Final combined score — 4 components:
       // EV (~0.00–0.10) + DvP (~0–0.10) + LineVsAvg (~0–0.15) + MPG (~0–0.06) + USG (~0–0.06)
+      // MPG and USG are both scaled by GP reliability to penalize injury fill-ins
       const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus;
       const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus;
 
@@ -2751,7 +2885,7 @@ function renderEdgeBoard() {
               EV: ${r.ev > 0 ? '+' : ''}${r.ev.toFixed(3)}
               · DvP: ${r.dvpBonus >= 0 ? '+' : ''}${r.dvpBonus.toFixed(3)}
               · ${r.seasonAvg ? 'Avg ' + r.seasonAvg.toFixed(1) + ' vs Line ' + r.line + ' (' + (r.lineVsAvgPct >= 0 ? '+' : '') + (r.lineVsAvgPct*100).toFixed(1) + '%)' : 'No avg data'}
-              · ${r.mpg ? r.mpg + 'mpg' : '?mpg'}
+              · ${r.mpg ? r.mpg + 'mpg' : '?mpg'}${r.gp ? ' (' + r.gp + 'gp)' : ''}
               · ${r.usg ? r.usg + '% usg' : ''}
             </span>
           </div>
@@ -2759,7 +2893,10 @@ function renderEdgeBoard() {
         <div class="edge-score-col">
           <div class="edge-score">${r.score > 0 ? '+' : ''}${r.score.toFixed(3)}</div>
           <div class="edge-score-label">EDGE SCORE</div>
-          <button onclick="event.stopPropagation();quickCopy(buildCopyText(${JSON.stringify(r)}),this)" style="margin-top:6px;font-family:var(--mono);font-size:0.5rem;letter-spacing:1px;background:none;border:1px solid var(--border2);color:var(--text3);padding:2px 8px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s">📋 COPY</button>
+          <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;justify-content:center">
+            <button onclick="event.stopPropagation();quickCopy(buildCopyText(${JSON.stringify(r)}),this)" style="font-family:var(--mono);font-size:0.5rem;letter-spacing:1px;background:none;border:1px solid var(--border2);color:var(--text3);padding:2px 8px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s">📋 COPY</button>
+            <button onclick="event.stopPropagation();logEdgeBet(${JSON.stringify(r)}, '${activeEdgeCat}', this)" style="font-family:var(--mono);font-size:0.5rem;letter-spacing:1px;background:none;border:1px solid var(--green);color:var(--green);padding:2px 8px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s">📌 LOG BET</button>
+          </div>
         </div>
       </div>`;
     }).join('')}
@@ -3224,18 +3361,10 @@ function checkProGate(id) {
   return false;
 }
 
-// Hide lock when switching to free tab
+// hideLock kept for auth flow (called after sign-in)
 function hideLock() {
   document.getElementById('proLockScreen').style.display = 'none';
 }
-
-// Patch switchTab to enforce pro gate
-const _origSwitchTabAuth = switchTab;
-switchTab = function(id) {
-  _origSwitchTabAuth(id);
-  hideLock();
-  checkProGate(id);
-};
 
 // ═══════════ BEST PARLAYS ═══════════
 let activeBPTab = 2;
