@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2630,7 +2629,7 @@ async function scanFullSlate() {
         if (!data || !game) { failed++; return; }
         const eventObj = Array.isArray(data) ? data[0] : data;
         if (!eventObj?.bookmakers?.length) { failed++; return; }
-        allPropsData.push({ eventData: eventObj, homeTeam: game.home_team, awayTeam: game.away_team });
+        allPropsData.push({ eventData: eventObj, homeTeam: game.home_team, awayTeam: game.away_team, commenceTime: game.commence_time });
         loaded++;
       });
 
@@ -2652,7 +2651,7 @@ async function scanFullSlate() {
           const data = await res.json();
           const eventObj = Array.isArray(data) ? data[0] : data;
           if (eventObj?.bookmakers?.length) {
-            allPropsData.push({ eventData: eventObj, homeTeam: game.home_team, awayTeam: game.away_team });
+            allPropsData.push({ eventData: eventObj, homeTeam: game.home_team, awayTeam: game.away_team, commenceTime: game.commence_time });
             loaded++;
           } else { failed++; }
         } catch(e) { failed++; console.warn('Failed:', game.home_team, e.message); }
@@ -2714,7 +2713,7 @@ function renderEdgeBoard() {
 
   const results = []; // { player, line, side, ev, dvpGrade, score, bestOdds, book, game, pos }
 
-  allPropsData.forEach(({ eventData, homeTeam, awayTeam }) => {
+  allPropsData.forEach(({ eventData, homeTeam, awayTeam, commenceTime }) => {
     if (!eventData?.bookmakers) return;
 
     // Build playerMap for this game (same logic as renderProps)
@@ -2818,7 +2817,8 @@ function renderEdgeBoard() {
       const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus;
       const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus;
 
-      const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}`;
+      const gameTime = commenceTime ? new Date(commenceTime).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+      const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}${gameTime ? ' · ' + gameTime + ' ET' : ''}`;
 
       if (overScore > 0 || evOver > 0) {
         results.push({
@@ -3029,7 +3029,7 @@ function _computeAllEdgeResults() {
     activeEdgeCat = cat;
     // Re-run the scoring logic inline by calling a scoped version
     if (!allPropsData || !allPropsData.length) return;
-    allPropsData.forEach(({ eventData, homeTeam, awayTeam }) => {
+    allPropsData.forEach(({ eventData, homeTeam, awayTeam, commenceTime }) => {
       if (!eventData?.bookmakers) return;
       const playerMap = {};
       eventData.bookmakers.forEach(book => {
@@ -3070,7 +3070,8 @@ function _computeAllEdgeResults() {
         }
         const dvpGrade = playerPos && oppAbbr ? DVP[playerPos+'_grade']?.[oppAbbr] : null;
         const dvpBonus = DVP_BONUS[dvpGrade] || 0;
-        const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}`;
+        const gameTime3 = commenceTime ? new Date(commenceTime).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+        const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}${gameTime3 ? ' · ' + gameTime3 + ' ET' : ''}`;
         const catLabel = {player_points:'PTS',player_rebounds:'REB',player_assists:'AST',player_points_rebounds_assists:'PRA'}[cat]||cat;
         if (evOver > 0) all.push({ player: prop.player, line: prop.line, side: 'OVER', ev: evOver, score: evOver + dvpBonus, book: PROP_BOOK_LABELS[bestOverBook]||bestOverBook, game: gameLabel, market: cat });
         if (evUnder > 0) all.push({ player: prop.player, line: prop.line, side: 'UNDER', ev: evUnder, score: evUnder - dvpBonus, book: PROP_BOOK_LABELS[bestUnderBook]||bestUnderBook, game: gameLabel, market: cat });
