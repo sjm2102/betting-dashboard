@@ -3429,6 +3429,7 @@ function buildBestParlays() {
     for (let j = i + 1; j < allEdges.length; j++) {
       const a = allEdges[i], b = allEdges[j];
       if (a.game === b.game) continue; // same game — skip
+      if (a.book !== b.book) continue;  // different books — can't parlay
       const combinedScore = a.score + b.score;
       const decOdds = americanToDecimal(a.bestOdds) * americanToDecimal(b.bestOdds);
       const parlayOdds = decimalToAmerican(decOdds);
@@ -3446,6 +3447,7 @@ function buildBestParlays() {
         const a = allEdges[i], b = allEdges[j], c = allEdges[k];
         const games = new Set([a.game, b.game, c.game]);
         if (games.size < 2) continue; // at least 2 different games
+        if (a.book !== b.book || b.book !== c.book) continue; // different books — can't parlay
         const combinedScore = a.score + b.score + c.score;
         const decOdds = americanToDecimal(a.bestOdds) * americanToDecimal(b.bestOdds) * americanToDecimal(c.bestOdds);
         const parlayOdds = decimalToAmerican(decOdds);
