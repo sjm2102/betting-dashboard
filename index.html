@@ -313,6 +313,42 @@
   }
   .stake-input:focus { border-color: var(--green); }
 
+
+  /* ── HOT STREAKS ── */
+  .streak-cat-btn {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1px;
+    background: none; border: 1px solid var(--border2); color: var(--text3);
+    padding: 4px 12px; border-radius: 2px; cursor: pointer; transition: all 0.15s;
+  }
+  .streak-cat-btn.active, .streak-cat-btn:hover { border-color: var(--green); color: var(--green); }
+  .streak-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 4px;
+    margin-bottom: 10px; overflow: hidden;
+  }
+  .streak-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+  }
+  .streak-fire { font-size: 1.2rem; margin-right: 8px; }
+  .streak-player { font-family: var(--mono); font-size: 0.85rem; font-weight: 600; color: var(--text); letter-spacing: 1px; text-transform: uppercase; }
+  .streak-team { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); margin-left: 6px; }
+  .streak-badge {
+    font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 2px; letter-spacing: 1px;
+  }
+  .streak-badge-fire { background: #ff6b0022; color: #ff6b00; border: 1px solid #ff6b0044; }
+  .streak-badge-hot  { background: #ffab0022; color: var(--amber); border: 1px solid #ffab0044; }
+  .streak-body { padding: 10px 14px; }
+  .streak-stat-line { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .streak-game-dot {
+    font-family: var(--mono); font-size: 0.6rem; padding: 2px 7px;
+    border-radius: 2px; border: 1px solid transparent;
+  }
+  .streak-dot-hit  { background: var(--green-dim); color: var(--green); border-color: #00e67633; }
+  .streak-dot-miss { background: var(--red-dim);   color: var(--red);   border-color: #ff3d5733; }
+  .streak-info { font-family: var(--mono); font-size: 0.6rem; color: var(--text3); }
+  .streak-today { margin-top: 8px; padding: 6px 10px; background: var(--bg3); border-radius: 3px; font-family: var(--mono); font-size: 0.62rem; color: var(--amber); border: 1px solid #ffab0033; }
+
   /* ── BET TRACKER ── */
   .tracker-controls {
     padding: 12px 16px;
@@ -1030,6 +1066,7 @@
   <button class="tab" onclick="switchTab('lines')">LINES</button>
   <button class="tab" onclick="switchTab('parlay')">PARLAY</button>
   <button class="tab" onclick="switchTab('tracker')">TRACKER</button>
+  <button class="tab" onclick="switchTab('streaks')">🔥 HOT STREAKS</button>
 </nav>
 
 <!-- ═══ MOBILE BOTTOM NAV ═══ -->
@@ -1051,6 +1088,7 @@
     <button class="more-drawer-btn" onclick="switchTabMobile('arb')">ARB</button>
     <button class="more-drawer-btn" onclick="switchTabMobile('lines')">LINES</button>
     <button class="more-drawer-btn" onclick="switchTabMobile('tracker')">TRACKER</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('streaks')">🔥 HOT STREAKS</button>
   </div>
 </div>
 
@@ -1333,6 +1371,29 @@
     <div id="betList" class="bet-list"></div>
   </div>
 
+
+  <!-- ═══════════════════ HOT STREAKS ═══════════════════ -->
+  <div class="panel" id="panel-streaks">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🔥 HOT STREAKS</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-top:2px">Players hitting props 5+ games in a row · Based on last 10 games · Updates when Edge data loads</div>
+      </div>
+      <button class="btn btn-green" id="streaksRefreshBtn" onclick="loadStreaks()">⚡ FIND STREAKS</button>
+    </div>
+    <!-- Stat filter tabs -->
+    <div style="display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+      <button class="streak-cat-btn active" onclick="setStreakCat('all',this)">ALL</button>
+      <button class="streak-cat-btn" onclick="setStreakCat('pts',this)">PTS</button>
+      <button class="streak-cat-btn" onclick="setStreakCat('reb',this)">REB</button>
+      <button class="streak-cat-btn" onclick="setStreakCat('ast',this)">AST</button>
+      <button class="streak-cat-btn" onclick="setStreakCat('pra',this)">PRA</button>
+    </div>
+    <div id="streaksList" style="padding:16px">
+      <div class="loading-wrap">Click ⚡ FIND STREAKS to scan today's players for hot streaks.</div>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -1487,13 +1548,14 @@ function switchTab(id) {
   }
   document.getElementById('proLockScreen').style.display = 'none';
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['odds','props','edge','bestparlays','ev','arb','lines','parlay','tracker'];
+    const ids = ['odds','props','edge','bestparlays','ev','arb','lines','parlay','tracker','streaks'];
     t.classList.toggle('active', ids[i] === id);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   // Auto-build parlays when switching to that tab
   if (id === 'bestparlays') buildBestParlays();
+  if (id === 'streaks' && streaksData.length) renderStreaks();
 }
 
 // ═══════════ MATH ═══════════
@@ -3108,7 +3170,7 @@ function buildCopyText(r) {
 
 // ═══════════ MOBILE BOTTOM NAV ═══════════
 const BOTTOM_NAV_IDS = { odds:'bnOdds', props:'bnProps', edge:'bnEdge', parlay:'bnParlay' };
-const MORE_TAB_IDS = ['ev','arb','lines','tracker'];
+const MORE_TAB_IDS = ['ev','arb','lines','tracker','streaks'];
 
 function switchTabMobile(id) {
   closeMoreDrawer();
@@ -3153,7 +3215,7 @@ function closeMoreDrawer() {
 const SUPABASE_URL = 'https://vytelzvzopovvdlycyam.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dGVsenZ6b3BvdnZkbHljeWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQ2NjQsImV4cCI6MjA4ODIzMDY2NH0.5LbRaLewc7xBWuDCLTWAogwulBAEA9HTg6RFu8YDQys';
 
-const PRO_TABS = ['props','edge','bestparlays','ev','arb','lines','parlay','tracker'];
+const PRO_TABS = ['props','edge','bestparlays','ev','arb','lines','parlay','tracker','streaks'];
 let currentUser = null;
 let isPro = false;
 let _supabase = null;
@@ -3550,6 +3612,214 @@ renderParlay();
 // Init — Supabase handles auth then loads data
 initSupabase();
 loadCachedData();
+
+// ═══════════════════ HOT STREAKS ═══════════════════
+let streaksData = [];       // all found streaks
+let activeStreakCat = 'all';
+
+function setStreakCat(cat, btn) {
+  activeStreakCat = cat;
+  document.querySelectorAll('.streak-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStreaks();
+}
+
+// ESPN athlete search — returns ESPN athlete ID for a player name
+async function espnAthleteId(name) {
+  try {
+    const q = encodeURIComponent(name);
+    const res = await fetch(`https://site.web.api.espn.com/apis/common/v3/search?query=${q}&limit=5&type=athlete&sport=basketball&league=nba`);
+    const d = await res.json();
+    const hit = d?.items?.[0]?.contents?.[0];
+    return hit?.id || null;
+  } catch(e) { return null; }
+}
+
+// Fetch last N game logs for an ESPN athlete ID
+async function espnGameLog(athleteId, season = '2025') {
+  try {
+    const res = await fetch(`https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${athleteId}/gamelog?season=${season}`);
+    const d = await res.json();
+    // Extract relevant rows: pts, reb, ast, min
+    const cats = d?.seasonTypes?.[0]?.categories || [];
+    const statLabels = cats.flatMap(c => c.labels || []);
+    const ptIdx  = statLabels.indexOf('PTS');
+    const rebIdx = statLabels.indexOf('REB');
+    const astIdx = statLabels.indexOf('AST');
+    const events = d?.seasonTypes?.[0]?.events || [];
+    return events.slice(-10).map(ev => {
+      const stats = ev.stats || [];
+      return {
+        date: ev.gameDate || ev.date || '',
+        pts:  ptIdx  >= 0 ? parseFloat(stats[ptIdx])  || 0 : 0,
+        reb:  rebIdx >= 0 ? parseFloat(stats[rebIdx]) || 0 : 0,
+        ast:  astIdx >= 0 ? parseFloat(stats[astIdx]) || 0 : 0,
+        get pra() { return this.pts + this.reb + this.ast; }
+      };
+    });
+  } catch(e) { return []; }
+}
+
+// Compute longest current (most-recent) streak over a threshold
+function currentStreak(games, statKey, threshold) {
+  // games ordered oldest → newest; count consecutive hits from the END
+  let streak = 0;
+  for (let i = games.length - 1; i >= 0; i--) {
+    const val = statKey === 'pra' ? games[i].pts + games[i].reb + games[i].ast : games[i][statKey];
+    if (val > threshold) streak++;
+    else break;
+  }
+  return streak;
+}
+
+// Get hit/miss array for last 10 games
+function hitMissArray(games, statKey, threshold) {
+  return games.map(g => {
+    const val = statKey === 'pra' ? g.pts + g.reb + g.ast : g[statKey];
+    return { val: Math.round(val * 10) / 10, hit: val > threshold };
+  });
+}
+
+async function loadStreaks() {
+  const btn = document.getElementById('streaksRefreshBtn');
+  const el  = document.getElementById('streaksList');
+
+  if (!cachedEdgeData) {
+    el.innerHTML = '<div class="loading-wrap">No edge data yet — load the Edge tab first, then come back.</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ SCANNING...';
+  el.innerHTML = '<div class="loading-wrap">Fetching game logs for today\'s players…</div>';
+
+  // Collect unique players + their lines from edge data
+  const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
+  const statMap = { player_points:'pts', player_rebounds:'reb', player_assists:'ast', player_points_rebounds_assists:'pra' };
+  const playerLines = {}; // name → { pts, reb, ast, pra }
+
+  cats.forEach(cat => {
+    const statKey = statMap[cat];
+    (cachedEdgeData.results[cat] || []).forEach(r => {
+      if (!playerLines[r.player]) playerLines[r.player] = {};
+      if (!playerLines[r.player][statKey]) playerLines[r.player][statKey] = r.line;
+    });
+  });
+
+  const players = Object.keys(playerLines);
+  if (!players.length) {
+    el.innerHTML = '<div class="loading-wrap">No players in edge data. Run a full scan first.</div>';
+    btn.disabled = false; btn.textContent = '⚡ FIND STREAKS';
+    return;
+  }
+
+  const found = [];
+  let done = 0;
+
+  for (const name of players) {
+    el.innerHTML = `<div class="loading-wrap">Checking ${name}… (${done}/${players.length})</div>`;
+    const id = await espnAthleteId(name);
+    if (!id) { done++; continue; }
+    const games = await espnGameLog(id);
+    if (games.length < 5) { done++; continue; }
+
+    const lines = playerLines[name];
+    const checkStats = [
+      { key:'pts',  label:'PTS', threshold: lines.pts  || null },
+      { key:'reb',  label:'REB', threshold: lines.reb  || null },
+      { key:'ast',  label:'AST', threshold: lines.ast  || null },
+      { key:'pra',  label:'PRA', threshold: lines.pra  || null },
+    ];
+
+    checkStats.forEach(({ key, label, threshold }) => {
+      if (!threshold) return;
+      const streak = currentStreak(games, key, threshold);
+      if (streak >= 5) {
+        const hm = hitMissArray(games, key, threshold);
+        // Get today's edge info
+        const edgeCat = Object.keys(statMap).find(c => statMap[c] === key);
+        const edgeResult = (cachedEdgeData.results[edgeCat] || []).find(r => r.player === name);
+        found.push({
+          player: name,
+          team: edgeResult?.team || '',
+          statKey: key,
+          statLabel: label,
+          threshold,
+          streak,
+          games: hm,
+          edgeResult,
+          score: edgeResult?.score || 0,
+        });
+      }
+    });
+
+    done++;
+    await new Promise(r => setTimeout(r, 120)); // rate limit
+  }
+
+  streaksData = found.sort((a, b) => b.streak - a.streak || b.score - a.score);
+
+  btn.disabled = false;
+  btn.textContent = '⚡ FIND STREAKS';
+  renderStreaks();
+}
+
+function renderStreaks() {
+  const el = document.getElementById('streaksList');
+  if (!streaksData.length) {
+    el.innerHTML = '<div class="loading-wrap">No hot streaks found (5+ games) for today\'s players.</div>';
+    return;
+  }
+
+  const filtered = activeStreakCat === 'all'
+    ? streaksData
+    : streaksData.filter(s => s.statKey === activeStreakCat);
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="loading-wrap">No ${activeStreakCat.toUpperCase()} streaks found for today's players.</div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.map(s => {
+    const isOnFire = s.streak >= 8;
+    const badgeClass = isOnFire ? 'streak-badge-fire' : 'streak-badge-hot';
+    const badgeText  = isOnFire ? `🔥 ${s.streak} IN A ROW` : `⚡ ${s.streak} IN A ROW`;
+    const fireIcon   = isOnFire ? '🔥' : '⚡';
+
+    const dots = s.games.map((g, i) => {
+      const isStreak = i >= s.games.length - s.streak;
+      return `<span class="streak-game-dot ${g.hit ? 'streak-dot-hit' : 'streak-dot-miss'}" title="Game ${i+1}: ${g.val} ${s.statLabel}">${g.val}</span>`;
+    }).join('');
+
+    const avg10 = (s.games.reduce((sum, g) => sum + g.val, 0) / s.games.length).toFixed(1);
+    const hitRate = Math.round((s.games.filter(g => g.hit).length / s.games.length) * 100);
+
+    const todayInfo = s.edgeResult
+      ? `Today's line: <span style="color:var(--text)">${s.edgeResult.side} ${s.threshold} ${s.statLabel}</span> &nbsp;·&nbsp; Book: <span style="color:var(--text)">${s.edgeResult.book}</span> &nbsp;·&nbsp; EV: <span style="color:${s.edgeResult.ev > 0 ? 'var(--green)' : 'var(--red)'}">+${(s.edgeResult.ev * 100).toFixed(1)}%</span> &nbsp;·&nbsp; Edge Score: <span style="color:var(--green)">+${s.score.toFixed(3)}</span>`
+      : '';
+
+    return `<div class="streak-card">
+      <div class="streak-card-header">
+        <div style="display:flex;align-items:center">
+          <span class="streak-fire">${fireIcon}</span>
+          <span class="streak-player">${s.player}</span>
+          ${s.team ? `<span class="streak-team">(${s.team})</span>` : ''}
+          <span style="margin-left:10px;font-family:var(--mono);font-size:0.6rem;color:var(--text3);background:var(--bg3);padding:2px 8px;border-radius:2px;border:1px solid var(--border)">${s.statLabel}</span>
+        </div>
+        <span class="streak-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="streak-body">
+        <div class="streak-stat-line">${dots}</div>
+        <div class="streak-info">
+          L10 Avg: <span style="color:var(--text)">${avg10} ${s.statLabel}</span>
+          &nbsp;·&nbsp; Line: <span style="color:var(--text)">${s.threshold}</span>
+          &nbsp;·&nbsp; Hit Rate (L10): <span style="color:var(--green)">${hitRate}%</span>
+        </div>
+        ${todayInfo ? `<div class="streak-today">${todayInfo}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
 </script>
 </body>
 </html>
