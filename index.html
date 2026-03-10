@@ -1377,9 +1377,9 @@
     <div class="section-header">
       <div>
         <div class="section-title">🔥 HOT STREAKS</div>
-        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-top:2px">Players hitting props 5+ games in a row · Based on last 10 games · Updates when Edge data loads</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-top:2px">Players with 10+ PTS / 8+ REB / 5+ AST / 20+ PRA in 5+ consecutive games · Last 10 games · Today's edge info shown when available</div>
       </div>
-      <button class="btn btn-green" id="streaksRefreshBtn" onclick="loadStreaks()">⚡ FIND STREAKS</button>
+      <button class="btn btn-green" id="streaksRefreshBtn" onclick="loadStreaks()">↻ REFRESH</button>
     </div>
     <!-- Stat filter tabs -->
     <div style="display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap">
@@ -1390,7 +1390,7 @@
       <button class="streak-cat-btn" onclick="setStreakCat('pra',this)">PRA</button>
     </div>
     <div id="streaksList" style="padding:16px">
-      <div class="loading-wrap">Click ⚡ FIND STREAKS to scan today's players for hot streaks.</div>
+      <div class="loading-wrap">Loading hot streaks… (load the Edge tab first if this takes too long)</div>
     </div>
   </div>
 
@@ -1555,7 +1555,7 @@ function switchTab(id) {
   document.getElementById('panel-'+id).classList.add('active');
   // Auto-build parlays when switching to that tab
   if (id === 'bestparlays') buildBestParlays();
-  if (id === 'streaks' && streaksData.length) renderStreaks();
+  if (id === 'streaks') { if (streaksData.length) renderStreaks(); else if (cachedEdgeData) loadStreaks(); }
 }
 
 // ═══════════ MATH ═══════════
@@ -3693,55 +3693,57 @@ async function loadStreaks() {
   btn.textContent = '⏳ SCANNING...';
   el.innerHTML = '<div class="loading-wrap">Fetching game logs for today\'s players…</div>';
 
-  // Collect unique players + their lines from edge data
+  // Collect unique players from ALL edge categories
   const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
   const statMap = { player_points:'pts', player_rebounds:'reb', player_assists:'ast', player_points_rebounds_assists:'pra' };
-  const playerLines = {}; // name → { pts, reb, ast, pra }
+  const playerTeams = {};
 
   cats.forEach(cat => {
-    const statKey = statMap[cat];
     (cachedEdgeData.results[cat] || []).forEach(r => {
-      if (!playerLines[r.player]) playerLines[r.player] = {};
-      if (!playerLines[r.player][statKey]) playerLines[r.player][statKey] = r.line;
+      if (!playerTeams[r.player]) playerTeams[r.player] = r.team || '';
     });
   });
 
-  const players = Object.keys(playerLines);
+  const players = Object.keys(playerTeams);
   if (!players.length) {
     el.innerHTML = '<div class="loading-wrap">No players in edge data. Run a full scan first.</div>';
-    btn.disabled = false; btn.textContent = '⚡ FIND STREAKS';
+    btn.disabled = false; btn.textContent = '↻ REFRESH';
     return;
   }
+
+  // Fixed thresholds — looking for players consistently putting up these numbers
+  const THRESHOLDS = { pts: 10, reb: 8, ast: 5, pra: 20 };
 
   const found = [];
   let done = 0;
 
   for (const name of players) {
-    el.innerHTML = `<div class="loading-wrap">Checking ${name}… (${done}/${players.length})</div>`;
+    el.innerHTML = `<div class="loading-wrap">Checking ${name}… (${done + 1}/${players.length})</div>`;
     const id = await espnAthleteId(name);
     if (!id) { done++; continue; }
     const games = await espnGameLog(id);
     if (games.length < 5) { done++; continue; }
 
-    const lines = playerLines[name];
-    const checkStats = [
-      { key:'pts',  label:'PTS', threshold: lines.pts  || null },
-      { key:'reb',  label:'REB', threshold: lines.reb  || null },
-      { key:'ast',  label:'AST', threshold: lines.ast  || null },
-      { key:'pra',  label:'PRA', threshold: lines.pra  || null },
+    const checks = [
+      { key:'pts', label:'PTS' },
+      { key:'reb', label:'REB' },
+      { key:'ast', label:'AST' },
+      { key:'pra', label:'PRA' },
     ];
 
-    checkStats.forEach(({ key, label, threshold }) => {
-      if (!threshold) return;
+    checks.forEach(({ key, label }) => {
+      const threshold = THRESHOLDS[key];
       const streak = currentStreak(games, key, threshold);
       if (streak >= 5) {
         const hm = hitMissArray(games, key, threshold);
-        // Get today's edge info
         const edgeCat = Object.keys(statMap).find(c => statMap[c] === key);
-        const edgeResult = (cachedEdgeData.results[edgeCat] || []).find(r => r.player === name);
+        const edgeResult = edgeCat ? (cachedEdgeData.results[edgeCat] || []).find(r => r.player === name) : null;
+        const avg10 = (games.reduce((s, g) => {
+          return s + (key === 'pra' ? g.pts + g.reb + g.ast : g[key]);
+        }, 0) / games.length).toFixed(1);
         found.push({
           player: name,
-          team: edgeResult?.team || '',
+          team: playerTeams[name],
           statKey: key,
           statLabel: label,
           threshold,
@@ -3749,20 +3751,22 @@ async function loadStreaks() {
           games: hm,
           edgeResult,
           score: edgeResult?.score || 0,
+          avg10,
         });
       }
     });
 
     done++;
-    await new Promise(r => setTimeout(r, 120)); // rate limit
+    await new Promise(r => setTimeout(r, 120));
   }
 
-  streaksData = found.sort((a, b) => b.streak - a.streak || b.score - a.score);
+  streaksData = found.sort((a, b) => b.streak - a.streak || parseFloat(b.avg10) - parseFloat(a.avg10));
 
   btn.disabled = false;
-  btn.textContent = '⚡ FIND STREAKS';
+  btn.textContent = '↻ REFRESH';
   renderStreaks();
 }
+
 
 function renderStreaks() {
   const el = document.getElementById('streaksList');
@@ -3795,7 +3799,7 @@ function renderStreaks() {
     const hitRate = Math.round((s.games.filter(g => g.hit).length / s.games.length) * 100);
 
     const todayInfo = s.edgeResult
-      ? `Today's line: <span style="color:var(--text)">${s.edgeResult.side} ${s.threshold} ${s.statLabel}</span> &nbsp;·&nbsp; Book: <span style="color:var(--text)">${s.edgeResult.book}</span> &nbsp;·&nbsp; EV: <span style="color:${s.edgeResult.ev > 0 ? 'var(--green)' : 'var(--red)'}">+${(s.edgeResult.ev * 100).toFixed(1)}%</span> &nbsp;·&nbsp; Edge Score: <span style="color:var(--green)">+${s.score.toFixed(3)}</span>`
+      ? `📋 Today's prop: <span style="color:var(--text)">${s.edgeResult.side} ${s.edgeResult.line} ${s.statLabel}</span> &nbsp;·&nbsp; ${s.edgeResult.book} &nbsp;·&nbsp; EV: <span style="color:${s.edgeResult.ev > 0 ? 'var(--green)' : 'var(--red)'}">+${(s.edgeResult.ev * 100).toFixed(1)}%</span> &nbsp;·&nbsp; Edge: <span style="color:var(--green)">+${s.score.toFixed(3)}</span>`
       : '';
 
     return `<div class="streak-card">
@@ -3812,7 +3816,7 @@ function renderStreaks() {
         <div class="streak-stat-line">${dots}</div>
         <div class="streak-info">
           L10 Avg: <span style="color:var(--text)">${avg10} ${s.statLabel}</span>
-          &nbsp;·&nbsp; Line: <span style="color:var(--text)">${s.threshold}</span>
+          &nbsp;·&nbsp; Threshold: <span style="color:var(--text)">${s.threshold}+</span>
           &nbsp;·&nbsp; Hit Rate (L10): <span style="color:var(--green)">${hitRate}%</span>
         </div>
         ${todayInfo ? `<div class="streak-today">${todayInfo}</div>` : ''}
