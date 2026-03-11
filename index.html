@@ -2908,6 +2908,122 @@ function buildEdgeBoard() {
   if (typeof allPropsData !== 'undefined') { const _r = _computeAllEdgeResults(); renderTop5EdgeBets(_r); }
 }
 
+
+// ══════════════════════════════════════════════════
+// FEATURE DATA: PACE · B2B · REST · IMPLIED TOTALS
+// ══════════════════════════════════════════════════
+const TEAM_PACE = {
+  ATL:101.2,BOS:98.1,BKN:99.4,CHA:97.8,CHI:98.9,CLE:96.5,DAL:98.3,DEN:100.1,
+  DET:99.7,GS:100.8,HOU:99.9,IND:102.4,LAC:98.6,LAL:99.0,MEM:100.5,MIA:97.2,
+  MIL:99.5,MIN:97.6,NO:100.3,NY:96.8,OKC:99.2,ORL:97.9,PHI:98.4,PHO:100.0,
+  POR:100.2,SA:98.7,SAC:101.5,TOR:99.3,UTA:99.1,WAS:101.0
+};
+const PACE_LEAGUE_AVG = 99.5;
+
+function getTeamAbbr(fullName) { return TEAM_TO_DVP[fullName] || null; }
+
+function paceFactor(homeTeam, awayTeam) {
+  const hp = TEAM_PACE[getTeamAbbr(homeTeam)] || PACE_LEAGUE_AVG;
+  const ap = TEAM_PACE[getTeamAbbr(awayTeam)] || PACE_LEAGUE_AVG;
+  return ((hp + ap) / 2 - PACE_LEAGUE_AVG) / PACE_LEAGUE_AVG;
+}
+
+function isB2B(gameTime, teamAbbr) {
+  if (!gameTime || !teamAbbr || !gamesData.length) return false;
+  const gameDate = new Date(gameTime);
+  const yesterday = new Date(gameDate);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yStr = yesterday.toISOString().slice(0, 10);
+  return gamesData.some(g => {
+    if (!g.commence_time) return false;
+    if (g.commence_time.slice(0, 10) !== yStr) return false;
+    return getTeamAbbr(g.home_team) === teamAbbr || getTeamAbbr(g.away_team) === teamAbbr;
+  });
+}
+
+function getRestDays(gameTime, teamAbbr) {
+  if (!gameTime || !teamAbbr || !gamesData.length) return null;
+  const gameDate = new Date(gameTime);
+  let minDiff = 999;
+  for (const g of gamesData) {
+    if (!g.commence_time) continue;
+    const t = new Date(g.commence_time);
+    if (t >= gameDate) continue;
+    if (getTeamAbbr(g.home_team) !== teamAbbr && getTeamAbbr(g.away_team) !== teamAbbr) continue;
+    const diff = Math.round((gameDate - t) / 86400000);
+    if (diff > 0 && diff < minDiff) minDiff = diff;
+  }
+  return minDiff === 999 ? null : minDiff;
+}
+
+function getImpliedTotal(homeTeam, awayTeam, playerTeamAbbr) {
+  if (!gamesData.length) return null;
+  const game = gamesData.find(g => g.home_team === homeTeam && g.away_team === awayTeam);
+  if (!game?.impliedTotal) return null;
+  const isHome = getTeamAbbr(homeTeam) === playerTeamAbbr;
+  return { teamTotal: isHome ? game.impliedTotal.homeImp : game.impliedTotal.awayImp, gameTotal: game.impliedTotal.total };
+}
+
+// ── L5 GAME LOG CACHE ──
+const _l5Cache = {};
+
+async function fetchL5Stats(playerName) {
+  if (_l5Cache[playerName]) return _l5Cache[playerName];
+  try {
+    // ESPN athlete search → game log
+    const searchUrl = `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(playerName)}&limit=1&type=athlete&sport=basketball&league=nba`;
+    const sr = await fetch(searchUrl);
+    const sd = await sr.json();
+    const athleteId = sd?.items?.[0]?.contents?.[0]?.athlete?.id;
+    if (!athleteId) return null;
+
+    const logUrl = `https://site.web.api.espn.com/apis/eventing/v1/athletes/${athleteId}/eventlog?limit=15&sport=basketball&league=nba`;
+    const lr = await fetch(logUrl);
+    const ld = await lr.json();
+
+    const events = ld?.events?.previousEvents?.events;
+    if (!events?.length) return null;
+
+    const stats = [];
+    for (const evt of events.slice(0, 15)) {
+      const athl = evt?.athlete;
+      if (!athl) continue;
+      const statsList = athl.statistics?.splits?.categories;
+      if (!statsList) continue;
+      const gen = statsList.find(c => c.name === 'general');
+      if (!gen?.stats) continue;
+      const row = {};
+      gen.stats.forEach(s => { row[s.abbreviation || s.name] = parseFloat(s.displayValue) || 0; });
+      if (row.PTS !== undefined) stats.push(row);
+    }
+    if (!stats.length) return null;
+
+    const result = {
+      l5: stats.slice(0, 5),
+      l15: stats.slice(0, 15),
+      l5avg: {
+        pts: avg(stats.slice(0,5), 'PTS'),
+        reb: avg(stats.slice(0,5), 'REB'),
+        ast: avg(stats.slice(0,5), 'AST'),
+        pra: avg(stats.slice(0,5), 'PTS') + avg(stats.slice(0,5), 'REB') + avg(stats.slice(0,5), 'AST'),
+      }
+    };
+    _l5Cache[playerName] = result;
+    return result;
+  } catch(e) { return null; }
+}
+
+function avg(arr, key) {
+  if (!arr.length) return 0;
+  return arr.reduce((s, r) => s + (r[key] || 0), 0) / arr.length;
+}
+
+function hitRate(games, statKey, line, side) {
+  if (!games.length || !line) return null;
+  const hits = games.filter(g => side === 'OVER' ? (g[statKey] || 0) > line : (g[statKey] || 0) < line);
+  return hits.length / games.length;
+}
+
 function renderEdgeBoard() {
   const el = document.getElementById('edgeList');
   if (!allPropsData || !allPropsData.length) return;
@@ -3012,11 +3128,29 @@ function renderEdgeBoard() {
       const rawUsgBonus = Math.max(0, Math.min(0.06, (usg - 15) / 20 * 0.06));
       const usgBonus = rawUsgBonus * gpReliability;
 
-      // Final combined score — 4 components:
-      // EV (~0.00–0.10) + DvP (~0–0.10) + LineVsAvg (~0–0.15) + MPG (~0–0.06) + USG (~0–0.06)
-      // MPG and USG are both scaled by GP reliability to penalize injury fill-ins
-      const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus;
-      const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus;
+      // ── PACE BONUS ──
+      const pf = paceFactor(prop.homeTeam, prop.awayTeam);
+      const paceBonus = Math.max(-0.04, Math.min(0.04, pf * 0.5));
+
+      // ── B2B / REST ──
+      const playerTeamAbbr = playerStats?.team ? getTeamAbbr(
+        Object.keys(TEAM_TO_DVP).find(k => k.toLowerCase().includes(playerStats.team.toLowerCase())) || '') : null;
+      const b2b = commenceTime ? isB2B(commenceTime, playerTeamAbbr) : false;
+      const rest = commenceTime ? getRestDays(commenceTime, playerTeamAbbr) : null;
+      const b2bPenalty = b2b ? -0.05 : 0;
+      const restBonus = rest !== null ? (rest >= 3 ? 0.02 : rest === 2 ? 0.01 : 0) : 0;
+
+      // ── IMPLIED TEAM TOTAL ──
+      const impliedInfo = getImpliedTotal(prop.homeTeam, prop.awayTeam, playerTeamAbbr);
+      let teamTotalBonus = 0;
+      if (impliedInfo) {
+        const totalDev = (impliedInfo.teamTotal - 112.5) / 112.5;
+        teamTotalBonus = Math.max(-0.04, Math.min(0.04, totalDev * 0.4));
+      }
+
+      // Final combined score — 7 components:
+      const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus + paceBonus + b2bPenalty + restBonus + teamTotalBonus;
+      const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus - paceBonus + b2bPenalty + restBonus - teamTotalBonus;
 
       const gameTime = commenceTime ? new Date(commenceTime).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
       const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}${gameTime ? ' · ' + gameTime + ' ET' : ''}`;
@@ -3029,7 +3163,10 @@ function renderEdgeBoard() {
           lineVsAvgPct, mpg, usg,
           score: overScore, bestOdds: bestOver,
           book: PROP_BOOK_LABELS[bestOverBook] || bestOverBook,
-          game: gameLabel, ppg: playerStats?.ppg
+          game: gameLabel, ppg: playerStats?.ppg,
+          paceBonus, b2b, restDays: rest, restBonus, teamTotalBonus,
+          teamAbbr: playerTeamAbbr, homeTeam: prop.homeTeam, awayTeam: prop.awayTeam,
+          commenceTime
         });
       }
       if (underScore > 0 || evUnder > 0) {
@@ -3040,7 +3177,10 @@ function renderEdgeBoard() {
           lineVsAvgPct: lineVsAvgPct !== null ? -lineVsAvgPct : null, mpg, usg,
           score: underScore, bestOdds: bestUnder,
           book: PROP_BOOK_LABELS[bestUnderBook] || bestUnderBook,
-          game: gameLabel, ppg: playerStats?.ppg
+          game: gameLabel, ppg: playerStats?.ppg,
+          paceBonus: -paceBonus, b2b, restDays: rest, restBonus, teamTotalBonus: -teamTotalBonus,
+          teamAbbr: playerTeamAbbr, homeTeam: prop.homeTeam, awayTeam: prop.awayTeam,
+          commenceTime
         });
       }
     });
@@ -3066,7 +3206,10 @@ function renderEdgeBoard() {
       const dvpBadge = r.dvpGrade
         ? `<span class="dvp-badge ${GRADE_BADGE[r.dvpGrade].cls}" style="font-size:0.52rem;padding:1px 5px">${GRADE_BADGE[r.dvpGrade].label}</span>`
         : '';
-      const statHint = r.ppg ? `<span>Season avg: ${r.ppg}ppg</span>` : '';
+      const statHint = r.seasonAvg ? `<span>Avg: ${r.seasonAvg.toFixed(1)}</span>` : '';
+      const paceHint = r.paceBonus ? `<span style="color:${r.paceBonus > 0.01 ? 'var(--green)' : r.paceBonus < -0.01 ? 'var(--amber)' : 'var(--text3)'}">${r.paceBonus > 0.01 ? '⚡ Fast pace' : r.paceBonus < -0.01 ? '🐢 Slow pace' : ''}</span>` : '';
+      const b2bHint = r.b2b ? `<span style="color:var(--red)">⚠️ B2B</span>` : (r.restDays >= 3 ? `<span style="color:var(--green)">✅ ${r.restDays}d rest</span>` : '');
+      const totalHint = r.teamTotalBonus > 0.01 ? `<span style="color:var(--green)">📈 High team total</span>` : r.teamTotalBonus < -0.01 ? `<span style="color:var(--amber)">📉 Low team total</span>` : '';
       return `<div class="edge-row ${rank <= 3 ? 'edge-top' : ''}" onclick="addToParlay('edge_${r.player}_${activeEdgeCat}_${r.side}','${r.player} ${r.side === 'OVER' ? 'O' : 'U'}${r.line} ${catLabel}',${r.bestOdds},'${r.book}',0.5)">
         <div class="edge-rank ${rankClass}">${rankDisplay}</div>
         <div>
@@ -3081,7 +3224,7 @@ function renderEdgeBoard() {
             <span>${r.game}</span>
             ${r.pos ? `<span>${r.pos}</span>` : ''}
             ${r.dvpRank ? `<span>Def rank #${r.dvpRank}</span>` : ''}
-            ${statHint}
+            ${statHint} ${paceHint} ${b2bHint} ${totalHint}
             <span style="color:var(--text2)">
               EV: ${r.ev > 0 ? '+' : ''}${r.ev.toFixed(3)}
               · DvP: ${r.dvpBonus >= 0 ? '+' : ''}${r.dvpBonus.toFixed(3)}
@@ -3624,18 +3767,38 @@ function buildBestParlays() {
   // Sort by score descending
   allEdges.sort((a, b) => b.score - a.score);
 
-  // Build 2-leg combos — legs must be from different games
+  // ── CORRELATION SCORING ──
+  // Legs are positively correlated if they're on the same team (both overs = good, both unders = good)
+  // Legs are NEGATIVELY correlated (bad for parlays) if one is over and one is under for same team
+  // Legs in a high-total game are positively correlated (both players from that game score more)
+  function correlationPenalty(legA, legB) {
+    const sameTeam = legA.teamAbbr && legB.teamAbbr && legA.teamAbbr === legB.teamAbbr;
+    const sameGame = legA.game === legB.game;
+    // Same team, same direction = slightly correlated (not ideal but not bad)
+    // Same team, opposite direction = negatively correlated — penalise
+    if (sameTeam) {
+      if (legA.side !== legB.side) return -0.08; // opposing bets on same team = bad
+      return -0.01; // same direction same team = mild positive corr, slight penalty for independence
+    }
+    // Different teams in same game, both overs = positive correlation (high-scoring game)
+    if (sameGame && legA.side === 'OVER' && legB.side === 'OVER') return 0.01; // small bonus
+    return 0; // no correlation
+  }
+
+  // Build 2-leg combos
   const twos = [];
   for (let i = 0; i < allEdges.length; i++) {
     for (let j = i + 1; j < allEdges.length; j++) {
       const a = allEdges[i], b = allEdges[j];
-      if (a.game === b.game) continue; // same game — skip
-      if (a.book !== b.book) continue;  // different books — can't parlay
-      const combinedScore = a.score + b.score;
+      if (a.game === b.game && a.teamAbbr === b.teamAbbr && a.side !== b.side) continue; // opposing same-team legs
+      if (a.book !== b.book) continue;
+      const corrAdj = correlationPenalty(a, b);
+      const combinedScore = a.score + b.score + corrAdj;
       const decOdds = americanToDecimal(a.bestOdds) * americanToDecimal(b.bestOdds);
       const parlayOdds = decimalToAmerican(decOdds);
       const payout10 = ((decOdds - 1) * 10).toFixed(2);
-      twos.push({ legs: [a, b], combinedScore, parlayOdds, payout10 });
+      const corrLabel = corrAdj < -0.05 ? '⚠️ Correlated' : corrAdj > 0 ? '✅ Uncorrelated' : '';
+      twos.push({ legs: [a, b], combinedScore, parlayOdds, payout10, corrLabel, corrAdj });
     }
   }
   twos.sort((a, b) => b.combinedScore - a.combinedScore);
@@ -3647,13 +3810,20 @@ function buildBestParlays() {
       for (let k = j + 1; k < allEdges.length; k++) {
         const a = allEdges[i], b = allEdges[j], c = allEdges[k];
         const games = new Set([a.game, b.game, c.game]);
-        if (games.size < 2) continue; // at least 2 different games
-        if (a.book !== b.book || b.book !== c.book) continue; // different books — can't parlay
-        const combinedScore = a.score + b.score + c.score;
+        if (games.size < 2) continue;
+        if (a.book !== b.book || b.book !== c.book) continue;
+        // Skip if any pair has opposing same-team legs
+        if (a.teamAbbr && b.teamAbbr && a.teamAbbr === b.teamAbbr && a.side !== b.side) continue;
+        if (a.teamAbbr && c.teamAbbr && a.teamAbbr === c.teamAbbr && a.side !== c.side) continue;
+        if (b.teamAbbr && c.teamAbbr && b.teamAbbr === c.teamAbbr && b.side !== c.side) continue;
+        const corrAdj = correlationPenalty(a,b) + correlationPenalty(a,c) + correlationPenalty(b,c);
+        const combinedScore = a.score + b.score + c.score + corrAdj;
         const decOdds = americanToDecimal(a.bestOdds) * americanToDecimal(b.bestOdds) * americanToDecimal(c.bestOdds);
         const parlayOdds = decimalToAmerican(decOdds);
         const payout10 = ((decOdds - 1) * 10).toFixed(2);
-        threes.push({ legs: [a, b, c], combinedScore, parlayOdds, payout10 });
+        const uniqueTeams = new Set([a.teamAbbr, b.teamAbbr, c.teamAbbr].filter(Boolean));
+        const corrLabel = uniqueTeams.size === 3 ? '✅ Fully Independent' : uniqueTeams.size === 2 ? '➖ Partial' : '⚠️ Correlated';
+        threes.push({ legs: [a, b, c], combinedScore, parlayOdds, payout10, corrLabel, corrAdj });
       }
     }
   }
@@ -3695,6 +3865,7 @@ function renderBPList(elId, parlays) {
     }).join('');
 
     const copyText = p.legs.map(r => `${r.player} ${r.side} ${r.line} ${r.catLabel} (${r.book})`).join(' + ');
+    const corrBadge = p.corrLabel ? `<span style="font-family:var(--mono);font-size:0.55rem;color:${p.corrAdj > 0 ? 'var(--green)' : p.corrAdj < -0.05 ? 'var(--red)' : 'var(--text3)'};margin-left:8px">${p.corrLabel}</span>` : '';
 
     return `
       <div style="background:var(--bg2);border:1px solid ${rank<=3?'var(--green)':'var(--border)'};border-radius:4px;padding:12px 14px;${rank<=3?'background:var(--bg3)':''}">
@@ -3757,13 +3928,20 @@ loadCachedData();
 const DVP_GRADE_LABEL = { A:'Elite Defense 🔴', B:'Good Defense', C:'Average', D:'Weak Defense', F:'Elite Matchup 🟢' };
 const DVP_GRADE_COLOR = { A:'var(--red)', B:'#ff8c00', C:'var(--text2)', D:'var(--amber)', F:'var(--green)' };
 
-function buildDeepData() {
+async function buildDeepDataAsync() {
   if (!cachedEdgeData) return [];
   const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
   const catLabel = { player_points:'PTS', player_rebounds:'REB', player_assists:'AST', player_points_rebounds_assists:'PRA' };
+  const statKey  = { player_points:'pts', player_rebounds:'reb', player_assists:'ast', player_points_rebounds_assists:'pra' };
+  const espnKey  = { player_points:'PTS', player_rebounds:'REB', player_assists:'AST', player_points_rebounds_assists:'PRA' };
   const seen = new Set();
   const all = [];
   const injuries = window._injuryData || {};
+
+  // Pre-fetch L5 data for all unique players in edge results (parallel)
+  const uniquePlayers = [];
+  cats.forEach(cat => { (cachedEdgeData.results[cat] || []).forEach(r => { if (!uniquePlayers.includes(r.player)) uniquePlayers.push(r.player); }); });
+  await Promise.all(uniquePlayers.map(p => fetchL5Stats(p)));
 
   // Build a lookup: lowercase player name → injury info
   function getInjury(playerName) {
@@ -3810,14 +3988,31 @@ function buildDeepData() {
       const usg = r.usg || stats?.usg || null;
       const gp  = r.gp  || stats?.gp  || null;
 
+      // ── L5 data (from cache populated above) ──
+      const l5data = _l5Cache[r.player] || null;
+      const sk = statKey[cat];
+      const ek = espnKey[cat];
+      const l5avg = l5data ? (sk === 'pra'
+        ? (l5data.l5avg.pts + l5data.l5avg.reb + l5data.l5avg.ast)
+        : l5data.l5avg[sk]) : null;
+      const l15games = l5data?.l15 || [];
+      const l15hr = l15games.length ? hitRate(l15games, ek, r.line, r.side) : null;
+      const l5hr  = l5data?.l5?.length ? hitRate(l5data.l5, ek, r.line, r.side) : null;
+      // L5 trend: compare l5avg to season avg
+      const l5Trend = l5avg && seasonAvg ? l5avg - seasonAvg : null; // positive = hot, negative = cold
+
+      // L5 bonus for true prob: hot streak boosts, cold streak penalises
+      const l5TrendBonus = l5Trend !== null && seasonAvg
+        ? Math.max(-0.08, Math.min(0.08, (l5Trend / seasonAvg) * 0.3))
+        : 0;
+
       // Implied probability from American odds
       const odds = r.bestOdds || -110;
       const impliedProb = odds < 0
         ? Math.abs(odds) / (Math.abs(odds) + 100)
         : 100 / (odds + 100);
 
-      // True probability: implied + EV adjustment + injury penalty
-      const trueProb = Math.min(0.95, Math.max(0.05, impliedProb + (r.ev || 0) + penalty));
+
 
       // DVP signal
       const dvpGrade = r.dvpGrade || null;
@@ -3864,6 +4059,13 @@ function buildDeepData() {
         injReason: inj ? inj.reason : null,
         injPenalty: penalty,
         teammateOut,
+        // new feature fields
+        l5avg, l5hr, l15hr, l5Trend, l5TrendBonus,
+        paceBonus: r.paceBonus || 0,
+        b2b: r.b2b || false,
+        restDays: r.restDays !== undefined ? r.restDays : null,
+        restBonus: r.restBonus || 0,
+        teamTotalBonus: r.teamTotalBonus || 0,
       });
     });
   });
@@ -3914,6 +4116,54 @@ function renderDeepCards(data) {
 
     const sharpHtml = `<div class="da-signal"><span class="da-signal-icon">📊</span><span class="da-signal-text">${d.sharpSignal}</span></div>`;
 
+    // ── L5 rolling average signal ──
+    const l5Html = d.l5avg != null
+      ? (() => {
+          const trendIcon = d.l5Trend > 1 ? '🔥' : d.l5Trend < -1 ? '❄️' : '➖';
+          const trendStr  = d.l5Trend != null
+            ? ` · L5 trend: <span style="color:${d.l5Trend > 0 ? 'var(--green)' : 'var(--red)'}">${d.l5Trend > 0 ? '+' : ''}${d.l5Trend.toFixed(1)}</span> vs season avg`
+            : '';
+          return `<div class="da-signal"><span class="da-signal-icon">${trendIcon}</span><span class="da-signal-text">L5 avg: <strong>${d.l5avg.toFixed(1)}</strong> vs line ${d.line}${trendStr}</span></div>`;
+        })()
+      : '';
+
+    // ── Hit rate signal ──
+    const hrHtml = d.l15hr != null
+      ? (() => {
+          const pct = Math.round(d.l15hr * 100);
+          const icon = pct >= 70 ? '✅' : pct >= 50 ? '➖' : '⚠️';
+          const l5pct = d.l5hr != null ? ` · L5: ${Math.round(d.l5hr*100)}%` : '';
+          return `<div class="da-signal"><span class="da-signal-icon">${icon}</span><span class="da-signal-text">L15 hit rate: <strong style="color:${pct >= 70 ? 'var(--green)' : pct < 50 ? 'var(--red)' : 'var(--text2)'}">${pct}%</strong>${l5pct} on ${d.side} ${d.line} ${d.catLabel}</span></div>`;
+        })()
+      : '';
+
+    // ── Pace signal ──
+    const paceHtml = d.paceBonus
+      ? (() => {
+          const fast = d.paceBonus > 0.01, slow = d.paceBonus < -0.01;
+          if (!fast && !slow) return '';
+          return `<div class="da-signal"><span class="da-signal-icon">${fast ? '⚡' : '🐢'}</span><span class="da-signal-text">Game pace: <strong style="color:${fast ? 'var(--green)' : 'var(--amber)'}">${fast ? 'Fast pace' : 'Slow pace'}</strong> — ${fast ? 'extra possessions benefit counting stats' : 'fewer possessions, lower counting stat ceiling'}</span></div>`;
+        })()
+      : '';
+
+    // ── B2B / Rest signal ──
+    const b2bHtml = d.b2b
+      ? `<div class="da-signal"><span class="da-signal-icon">⚠️</span><span class="da-signal-text" style="color:var(--red)"><strong>Back-to-back</strong> — 2nd night fatigue, expect reduced minutes/efficiency</span></div>`
+      : d.restDays != null && d.restDays >= 3
+      ? `<div class="da-signal"><span class="da-signal-icon">✅</span><span class="da-signal-text" style="color:var(--green)"><strong>${d.restDays} days rest</strong> — well-rested, expect full minutes and sharp performance</span></div>`
+      : d.restDays === 2
+      ? `<div class="da-signal"><span class="da-signal-icon">➖</span><span class="da-signal-text">1 day rest — normal recovery, no adjustment</span></div>`
+      : '';
+
+    // ── Implied team total signal ──
+    const totalHtml = d.teamTotalBonus
+      ? (() => {
+          const high = d.teamTotalBonus > 0.01, low = d.teamTotalBonus < -0.01;
+          if (!high && !low) return '';
+          return `<div class="da-signal"><span class="da-signal-icon">${high ? '📈' : '📉'}</span><span class="da-signal-text">Team implied total: <strong style="color:${high ? 'var(--green)' : 'var(--amber)'}">${high ? 'High' : 'Low'} scoring game projected</strong> — ${high ? 'favors counting stat overs' : 'limits counting stat upside'}</span></div>`;
+        })()
+      : '';
+
     // ── Injury badge HTML ──
     const injBadge = d.injStatus
       ? (() => {
@@ -3946,7 +4196,7 @@ function renderDeepCards(data) {
         </div>
       </div>
       <div class="da-card-body" id="da-body-${i}">
-        <div class="da-grid">
+        <div class="da-grid" style="grid-template-columns:repeat(3,1fr)">
           <div class="da-metric">
             <div class="da-metric-label">Odds</div>
             <div class="da-metric-value">${oddsStr}</div>
@@ -3965,16 +4215,31 @@ function renderDeepCards(data) {
           <div class="da-metric">
             <div class="da-metric-label">True Prob Est.</div>
             <div class="da-metric-value" style="color:${d.injPenalty < 0 ? 'var(--amber)' : 'var(--green)'}">${tpStr}</div>
-            <div class="da-metric-note">${d.injPenalty < 0 ? 'adj. for injury' : 'implied + EV adj.'}</div>
+            <div class="da-metric-note">${d.injPenalty < 0 ? 'adj. for injury' : d.l5TrendBonus && Math.abs(d.l5TrendBonus) > 0.01 ? 'incl. L5 trend' : 'implied + EV adj.'}</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">L5 Avg</div>
+            <div class="da-metric-value" style="color:${d.l5avg != null ? (d.l5Trend > 1 ? 'var(--green)' : d.l5Trend < -1 ? 'var(--red)' : 'var(--text2)') : 'var(--text3)'}">${d.l5avg != null ? d.l5avg.toFixed(1) : '—'}</div>
+            <div class="da-metric-note">${d.l5Trend != null ? (d.l5Trend > 0 ? '🔥 hot' : '❄️ cold') : 'loading…'}</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">L15 Hit Rate</div>
+            <div class="da-metric-value" style="color:${d.l15hr != null ? (d.l15hr >= 0.7 ? 'var(--green)' : d.l15hr < 0.5 ? 'var(--red)' : 'var(--text2)') : 'var(--text3)'}">${d.l15hr != null ? Math.round(d.l15hr*100)+'%' : '—'}</div>
+            <div class="da-metric-note">${d.side} ${d.line} ${d.catLabel}</div>
           </div>
         </div>
         <div style="margin-bottom:10px">
           ${injHtml}
           ${opptyHtml}
+          ${l5Html}
+          ${hrHtml}
           ${dvpHtml}
           ${avgHtml}
           ${usgHtml}
           ${mpgHtml}
+          ${paceHtml}
+          ${b2bHtml}
+          ${totalHtml}
           ${sharpHtml}
         </div>
         <div class="da-verdict ${d.verdictClass}">${d.verdict} — EV ${evStr} · True prob ${tpStr} · Edge score ${edgeStr}</div>
@@ -3992,7 +4257,12 @@ async function generateAIPicks(data) {
   const betSummaries = top.map((d, i) => {
     const injNote = d.injStatus ? ` | INJURY: ${d.injStatus}${d.injReason ? ' ('+d.injReason+')' : ''}` : '';
     const oppNote = d.teammateOut ? ' | TEAMMATE OUT (opportunity)' : '';
-    return `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}%${injNote}${oppNote}`;
+    const l5Note  = d.l5avg != null ? ` | L5 avg: ${d.l5avg.toFixed(1)}${d.l5Trend != null ? ' (trend: '+(d.l5Trend>0?'+':'')+d.l5Trend.toFixed(1)+')' : ''}` : '';
+    const hrNote  = d.l15hr != null ? ` | L15 hit rate: ${Math.round(d.l15hr*100)}%` : '';
+    const b2bNote = d.b2b ? ' | B2B (fatigue)' : (d.restDays >= 3 ? ` | ${d.restDays}d rest` : '');
+    const paceNote = Math.abs(d.paceBonus||0) > 0.01 ? ` | Pace: ${(d.paceBonus||0)>0?'fast':'slow'}` : '';
+    const totNote = Math.abs(d.teamTotalBonus||0) > 0.01 ? ` | Team total: ${(d.teamTotalBonus||0)>0?'high':'low'}` : '';
+    return `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}%${l5Note}${hrNote}${b2bNote}${paceNote}${totNote}${injNote}${oppNote}`;
   }).join('\n');
 
   const prompt = `You are an expert NBA prop bet analyst. Below are today's top edge bets ranked by edge score, with key statistical factors.
@@ -4094,7 +4364,9 @@ function renderInjuryStatusBar() {
 
 async function loadDeepDive() {
   renderInjuryStatusBar();
-  const data = buildDeepData();
+  // Show loading state while L5 data fetches
+  document.getElementById('daCardList').innerHTML = '<div class="da-loading"><div class="da-loading-spinner"></div>Loading L5 game logs…</div>';
+  const data = await buildDeepDataAsync();
   renderDeepCards(data);
   if (data.length) await generateAIPicks(data);
   else document.getElementById('daAiPicks').innerHTML = '<div class="da-loading">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
