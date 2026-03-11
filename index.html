@@ -314,6 +314,98 @@
   .stake-input:focus { border-color: var(--green); }
 
 
+
+  /* ── DEEP ANALYSIS ── */
+  .da-ai-section {
+    background: linear-gradient(135deg, #0a1a0a 0%, #0d1a2e 100%);
+    border: 1px solid #00e67633;
+    border-radius: 6px; margin: 16px; padding: 16px;
+  }
+  .da-ai-title {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 2px;
+    color: var(--green); font-weight: 700; margin-bottom: 4px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .da-ai-subtitle { font-family: var(--mono); font-size: 0.58rem; color: var(--text3); margin-bottom: 14px; }
+  .da-pick-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 5px; margin-bottom: 10px; overflow: hidden;
+  }
+  .da-pick-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--border);
+    background: #ffffff08;
+  }
+  .da-pick-rank {
+    font-family: var(--mono); font-size: 1rem; font-weight: 700;
+    color: var(--green); margin-right: 10px; min-width: 24px;
+  }
+  .da-pick-player { font-family: var(--mono); font-size: 0.82rem; font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; }
+  .da-pick-badge {
+    font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+    padding: 3px 10px; border-radius: 2px; letter-spacing: 1px;
+    background: var(--green-dim); color: var(--green); border: 1px solid #00e67633;
+  }
+  .da-pick-factors { padding: 10px 14px; }
+  .da-factor {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-family: var(--mono); font-size: 0.62rem; color: var(--text2);
+    margin-bottom: 7px; line-height: 1.5;
+  }
+  .da-factor-dot { color: var(--green); font-size: 0.7rem; margin-top: 1px; flex-shrink: 0; }
+  .da-loading {
+    text-align: center; padding: 30px; font-family: var(--mono);
+    font-size: 0.65rem; color: var(--text3);
+  }
+  .da-loading-spinner {
+    width: 28px; height: 28px; border: 2px solid var(--border);
+    border-top-color: var(--green); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .da-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 5px; margin-bottom: 8px; overflow: hidden;
+  }
+  .da-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px; cursor: pointer; user-select: none;
+  }
+  .da-card-header:hover { background: #ffffff05; }
+  .da-card-left { display: flex; align-items: center; gap: 10px; }
+  .da-card-player { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--text); letter-spacing: 1px; text-transform: uppercase; }
+  .da-card-meta { font-family: var(--mono); font-size: 0.58rem; color: var(--text3); margin-top: 2px; }
+  .da-card-score {
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+    padding: 3px 9px; border-radius: 2px;
+  }
+  .da-card-score-pos { background: var(--green-dim); color: var(--green); border: 1px solid #00e67633; }
+  .da-card-score-neg { background: var(--red-dim); color: var(--red); border: 1px solid #ff3d5733; }
+  .da-card-body { padding: 0 14px 12px; display: none; }
+  .da-card-body.open { display: block; }
+  .da-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;
+  }
+  .da-metric {
+    background: var(--bg3); border-radius: 3px; padding: 8px 10px;
+    border: 1px solid var(--border);
+  }
+  .da-metric-label { font-family: var(--mono); font-size: 0.55rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+  .da-metric-value { font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--text); }
+  .da-metric-note { font-family: var(--mono); font-size: 0.55rem; color: var(--text3); margin-top: 2px; }
+  .da-signal { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-family: var(--mono); font-size: 0.6rem; }
+  .da-signal-icon { font-size: 0.75rem; }
+  .da-signal-text { color: var(--text2); line-height: 1.4; }
+  .da-verdict {
+    margin-top: 10px; padding: 8px 12px; border-radius: 3px;
+    font-family: var(--mono); font-size: 0.62rem; line-height: 1.5;
+  }
+  .da-verdict-play { background: #00e67611; color: var(--green); border: 1px solid #00e67633; }
+  .da-verdict-pass { background: #ff3d5711; color: var(--red); border: 1px solid #ff3d5733; }
+  .da-verdict-lean { background: #ffab0011; color: var(--amber); border: 1px solid #ffab0033; }
+  .da-chevron { font-size: 0.6rem; color: var(--text3); transition: transform 0.2s; }
+  .da-chevron.open { transform: rotate(180deg); }
+
   /* ── HOT STREAKS ── */
   .streak-cat-btn {
     font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1px;
@@ -1061,12 +1153,8 @@
   <button class="tab" onclick="switchTab('props')">PROPS</button>
   <button class="tab" onclick="switchTab('edge')">🏆 EDGE</button>
   <button class="tab" onclick="switchTab('bestparlays')">⚡ BEST PARLAYS</button>
-  <button class="tab" onclick="switchTab('ev')">EV CALC</button>
-  <button class="tab" onclick="switchTab('arb')">ARB</button>
-  <button class="tab" onclick="switchTab('lines')">LINES</button>
-  <button class="tab" onclick="switchTab('parlay')">PARLAY</button>
   <button class="tab" onclick="switchTab('tracker')">TRACKER</button>
-  <button class="tab" onclick="switchTab('streaks')">🔥 HOT STREAKS</button>
+  <button class="tab" onclick="switchTab('deepdive')">🧠 DEEP ANALYSIS</button>
 </nav>
 
 <!-- ═══ MOBILE BOTTOM NAV ═══ -->
@@ -1074,7 +1162,6 @@
   <button class="bottom-nav-btn active" id="bnOdds" onclick="switchTabMobile('odds')">ODDS</button>
   <button class="bottom-nav-btn" id="bnProps" onclick="switchTabMobile('props')">PROPS</button>
   <button class="bottom-nav-btn" id="bnEdge" onclick="switchTabMobile('edge')">EDGE</button>
-  <button class="bottom-nav-btn" id="bnParlay" onclick="switchTabMobile('parlay')">PARLAY</button>
   <button class="bottom-nav-btn" id="bnMore" onclick="toggleMoreDrawer()">MORE</button>
 </nav>
 
@@ -1084,11 +1171,8 @@
   <div class="more-drawer-handle"></div>
   <div class="more-drawer-grid">
     <button class="more-drawer-btn" onclick="switchTabMobile('bestparlays')">BEST PARLAYS</button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('ev')">EV CALC</button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('arb')">ARB</button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('lines')">LINES</button>
     <button class="more-drawer-btn" onclick="switchTabMobile('tracker')">TRACKER</button>
-    <button class="more-drawer-btn" onclick="switchTabMobile('streaks')">🔥 HOT STREAKS</button>
+    <button class="more-drawer-btn" onclick="switchTabMobile('deepdive')">🧠 DEEP ANALYSIS</button>
   </div>
 </div>
 
@@ -1394,6 +1478,42 @@
     </div>
   </div>
 
+
+  <!-- ═══════════════════ DEEP ANALYSIS ═══════════════════ -->
+  <div class="panel" id="panel-deepdive">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🧠 DEEP ANALYSIS</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-top:2px">
+          Detailed prop analysis · DVP · Usage · B2B fatigue · Implied probability · Sharp factors
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="loadDeepDive()">↻ REFRESH</button>
+    </div>
+
+    <!-- AI Top 3 Picks Section -->
+    <div class="da-ai-section">
+      <div class="da-ai-title">✦ AI TOP 3 PICKS</div>
+      <div class="da-ai-subtitle">Claude analyzes all edge bets and selects the 3 highest-probability winners with supporting factors</div>
+      <div id="daAiPicks">
+        <div class="da-loading">
+          <div class="da-loading-spinner"></div>
+          Load edge data first, then open this tab to generate AI picks.
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Cards -->
+    <div style="padding:0 16px 16px">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        ALL EDGE BETS — CLICK TO EXPAND FULL ANALYSIS
+      </div>
+      <div id="daCardList">
+        <div class="da-loading">No data — run a scan in the Edge tab first.</div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -1548,7 +1668,7 @@ function switchTab(id) {
   }
   document.getElementById('proLockScreen').style.display = 'none';
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const ids = ['odds','props','edge','bestparlays','ev','arb','lines','parlay','tracker','streaks'];
+    const ids = ['odds','props','edge','bestparlays','tracker','deepdive'];
     t.classList.toggle('active', ids[i] === id);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1556,6 +1676,7 @@ function switchTab(id) {
   // Auto-build parlays when switching to that tab
   if (id === 'bestparlays') buildBestParlays();
   if (id === 'streaks') { if (streaksData.length) renderStreaks(); else if (cachedEdgeData) loadStreaks(); }
+  if (id === 'deepdive' && cachedEdgeData) loadDeepDive();
 }
 
 // ═══════════ MATH ═══════════
@@ -3170,7 +3291,7 @@ function buildCopyText(r) {
 
 // ═══════════ MOBILE BOTTOM NAV ═══════════
 const BOTTOM_NAV_IDS = { odds:'bnOdds', props:'bnProps', edge:'bnEdge', parlay:'bnParlay' };
-const MORE_TAB_IDS = ['ev','arb','lines','tracker','streaks'];
+const MORE_TAB_IDS = ['tracker','deepdive'];
 
 function switchTabMobile(id) {
   closeMoreDrawer();
@@ -3215,7 +3336,7 @@ function closeMoreDrawer() {
 const SUPABASE_URL = 'https://vytelzvzopovvdlycyam.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5dGVsenZ6b3BvdnZkbHljeWFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NTQ2NjQsImV4cCI6MjA4ODIzMDY2NH0.5LbRaLewc7xBWuDCLTWAogwulBAEA9HTg6RFu8YDQys';
 
-const PRO_TABS = ['props','edge','bestparlays','ev','arb','lines','parlay','tracker','streaks'];
+const PRO_TABS = ['props','edge','bestparlays','tracker','deepdive'];
 let currentUser = null;
 let isPro = false;
 let _supabase = null;
@@ -3612,6 +3733,260 @@ renderParlay();
 // Init — Supabase handles auth then loads data
 initSupabase();
 loadCachedData();
+
+// ═══════════════════ DEEP ANALYSIS ═══════════════════
+
+const DVP_GRADE_LABEL = { A:'Elite Defense 🔴', B:'Good Defense', C:'Average', D:'Weak Defense', F:'Elite Matchup 🟢' };
+const DVP_GRADE_COLOR = { A:'var(--red)', B:'#ff8c00', C:'var(--text2)', D:'var(--amber)', F:'var(--green)' };
+
+function buildDeepData() {
+  if (!cachedEdgeData) return [];
+  const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
+  const catLabel = { player_points:'PTS', player_rebounds:'REB', player_assists:'AST', player_points_rebounds_assists:'PRA' };
+  const seen = new Set();
+  const all = [];
+
+  cats.forEach(cat => {
+    (cachedEdgeData.results[cat] || []).forEach(r => {
+      const key = r.player + '_' + cat;
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      const stats = getPlayerStats(r.player);
+      const seasonAvg = r.seasonAvg || stats?.ppg || null;
+      const lineVsPct = r.lineVsAvgPct !== undefined ? r.lineVsAvgPct : (seasonAvg ? Math.round(((r.line - seasonAvg) / seasonAvg) * 100) : null);
+      const mpg = r.mpg || stats?.mpg || null;
+      const usg = r.usg || stats?.usg || null;
+      const gp  = r.gp  || stats?.gp  || null;
+
+      // Implied probability from American odds
+      const odds = r.bestOdds || -110;
+      const impliedProb = odds < 0
+        ? Math.abs(odds) / (Math.abs(odds) + 100)
+        : 100 / (odds + 100);
+
+      // True probability estimate: implied + EV adjustment
+      const trueProb = Math.min(0.95, Math.max(0.05, impliedProb + (r.ev || 0)));
+
+      // DVP signal
+      const dvpGrade = r.dvpGrade || null;
+      const dvpRank  = r.dvpRank  || null;
+
+      // Usage validation: for PTS lines, compare usg% to expected scoring
+      // High usg (>28%) with reasonable line = valid; low usg (<15%) with high line = flag
+      let usgSignal = null;
+      if (usg && cat === 'player_points') {
+        if (usg >= 28 && r.line <= (seasonAvg || 999) * 1.1) usgSignal = 'positive';
+        else if (usg < 15 && r.line > 12) usgSignal = 'warning';
+        else usgSignal = 'neutral';
+      }
+
+      // B2B fatigue check — detect from game field if we can, or flag as unknown
+      const gameStr = r.game || '';
+
+      // Sharp money signal: EV > 0.04 on the same side as the line movement
+      const sharpSignal = (r.ev || 0) > 0.04
+        ? 'Sharp-leaning — strong positive EV suggests book may be off'
+        : (r.ev || 0) < -0.02
+        ? 'Pass signal — negative EV, book likely has this priced correctly'
+        : 'Neutral — no clear sharp lean';
+
+      // Overall verdict
+      let verdict, verdictClass;
+      const score = r.score || 0;
+      if (score > 0.06 && trueProb > 0.55) { verdict = '✅ STRONG PLAY'; verdictClass = 'da-verdict-play'; }
+      else if (score > 0.03 && trueProb > 0.5) { verdict = '⚡ LEAN PLAY'; verdictClass = 'da-verdict-lean'; }
+      else { verdict = '⚠️ PASS / MONITOR'; verdictClass = 'da-verdict-pass'; }
+
+      all.push({
+        player: r.player, side: r.side, line: r.line, cat, catLabel: catLabel[cat],
+        book: r.book, game: gameStr, pos: r.pos || '',
+        ev: r.ev || 0, score, dvpBonus: r.dvpBonus || 0, dvpGrade, dvpRank,
+        bestOdds: odds, impliedProb, trueProb,
+        seasonAvg, lineVsPct, mpg, usg, gp, usgSignal, sharpSignal,
+        verdict, verdictClass,
+      });
+    });
+  });
+
+  return all.sort((a, b) => b.score - a.score);
+}
+
+function toggleDaCard(id) {
+  const body = document.getElementById('da-body-' + id);
+  const chev = document.getElementById('da-chev-' + id);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+function renderDeepCards(data) {
+  const el = document.getElementById('daCardList');
+  if (!data.length) {
+    el.innerHTML = '<div class="da-loading">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
+    return;
+  }
+
+  el.innerHTML = data.map((d, i) => {
+    const oddsStr = d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds;
+    const evStr   = (d.ev >= 0 ? '+' : '') + (d.ev * 100).toFixed(1) + '%';
+    const ipStr   = (d.impliedProb * 100).toFixed(1) + '%';
+    const tpStr   = (d.trueProb   * 100).toFixed(1) + '%';
+    const edgeStr = (d.score >= 0 ? '+' : '') + d.score.toFixed(3);
+    const scoreClass = d.score > 0 ? 'da-card-score-pos' : 'da-card-score-neg';
+
+    const dvpHtml = d.dvpGrade
+      ? `<div class="da-signal"><span class="da-signal-icon">🛡️</span><span class="da-signal-text">DVP Grade vs ${d.pos||'?'}: <span style="color:${DVP_GRADE_COLOR[d.dvpGrade]||'var(--text2)'}">${DVP_GRADE_LABEL[d.dvpGrade]||d.dvpGrade}</span>${d.dvpRank ? ' (Rank #' + d.dvpRank + ')' : ''}</span></div>`
+      : `<div class="da-signal"><span class="da-signal-icon">🛡️</span><span class="da-signal-text" style="color:var(--text3)">DVP data unavailable for this matchup</span></div>`;
+
+    const usgHtml = d.usg
+      ? `<div class="da-signal"><span class="da-signal-icon">${d.usgSignal==='positive'?'✅':d.usgSignal==='warning'?'⚠️':'➖'}</span><span class="da-signal-text">Usage rate: <strong>${d.usg}%</strong> — ${d.usgSignal==='positive'?'High usage validates this line':'d.usgSignal'==='warning'?'Low usage vs high line — use caution':'Usage appears in line with expectations'}</span></div>`
+      : '';
+
+    const avgHtml = d.seasonAvg
+      ? `<div class="da-signal"><span class="da-signal-icon">${Math.abs(d.lineVsPct||0) <= 5 ? '➖' : (d.side==='OVER' && d.lineVsPct < 0) || (d.side==='UNDER' && d.lineVsPct > 0) ? '✅' : '⚠️'}</span><span class="da-signal-text">Season avg: <strong>${d.seasonAvg.toFixed(1)}</strong> vs Line ${d.line} — <span style="color:${(d.lineVsPct||0) < 0 ? 'var(--green)' : 'var(--amber)'}">${d.lineVsPct >= 0 ? '+' : ''}${d.lineVsPct}% vs avg</span></span></div>`
+      : '';
+
+    const mpgHtml = d.mpg
+      ? `<div class="da-signal"><span class="da-signal-icon">⏱️</span><span class="da-signal-text">Minutes: <strong>${d.mpg} mpg</strong>${d.gp ? ' over ' + d.gp + ' games' : ''} — ${d.mpg >= 32 ? 'Heavy starter load' : d.mpg >= 25 ? 'Solid starter minutes' : 'Limited role — watch for usage dips'}</span></div>`
+      : '';
+
+    const sharpHtml = `<div class="da-signal"><span class="da-signal-icon">📊</span><span class="da-signal-text">${d.sharpSignal}</span></div>`;
+
+    return `<div class="da-card">
+      <div class="da-card-header" onclick="toggleDaCard(${i})">
+        <div class="da-card-left">
+          <div>
+            <div class="da-card-player">${d.player} <span style="color:var(--text3);font-size:0.6rem">(${d.pos||'?'})</span></div>
+            <div class="da-card-meta">${d.side} ${d.line} ${d.catLabel} · ${d.book} · ${d.game}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="da-card-score ${scoreClass}">EDGE ${edgeStr}</span>
+          <span class="da-chevron" id="da-chev-${i}">▼</span>
+        </div>
+      </div>
+      <div class="da-card-body" id="da-body-${i}">
+        <div class="da-grid">
+          <div class="da-metric">
+            <div class="da-metric-label">Odds</div>
+            <div class="da-metric-value">${oddsStr}</div>
+            <div class="da-metric-note">${d.book}</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">Expected Value</div>
+            <div class="da-metric-value" style="color:${d.ev>=0?'var(--green)':'var(--red)'}">${evStr}</div>
+            <div class="da-metric-note">vs -110 baseline</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">Implied Prob</div>
+            <div class="da-metric-value">${ipStr}</div>
+            <div class="da-metric-note">from book odds</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">True Prob Est.</div>
+            <div class="da-metric-value" style="color:var(--green)">${tpStr}</div>
+            <div class="da-metric-note">implied + EV adj.</div>
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          ${dvpHtml}
+          ${avgHtml}
+          ${usgHtml}
+          ${mpgHtml}
+          ${sharpHtml}
+        </div>
+        <div class="da-verdict ${d.verdictClass}">${d.verdict} — EV ${evStr} · True prob ${tpStr} · Edge score ${edgeStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function generateAIPicks(data) {
+  const el = document.getElementById('daAiPicks');
+  el.innerHTML = '<div class="da-loading"><div class="da-loading-spinner"></div>Claude is analyzing all edge bets…</div>';
+
+  // Build a compact summary of top bets for Claude to analyze
+  const top = data.slice(0, 20); // send top 20 by edge score
+  const betSummaries = top.map((d, i) =>
+    `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}% | Verdict: ${d.verdict}`
+  ).join('\n');
+
+  const prompt = `You are an expert NBA prop bet analyst. Below are today's top edge bets ranked by edge score, with key statistical factors.
+
+Your task: Pick the 3 BEST bets for winning probability — not just highest EV, but considering the full picture (matchup, usage, minutes, line vs average, implied vs true probability).
+
+For each pick give EXACTLY 3 bullet point factors (concise, specific, data-driven) explaining WHY this bet has the best chance of winning.
+
+Today's edge bets:
+${betSummaries}
+
+Respond in this EXACT JSON format (no markdown, no extra text):
+{
+  "picks": [
+    {
+      "rank": 1,
+      "player": "Player Name",
+      "bet": "OVER/UNDER X PTS/REB/AST/PRA",
+      "book": "BookName",
+      "factors": [
+        "Factor one here",
+        "Factor two here",
+        "Factor three here"
+      ]
+    },
+    { "rank": 2, ... },
+    { "rank": 3, ... }
+  ]
+}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data_resp = await response.json();
+    const raw = data_resp.content?.find(b => b.type === 'text')?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    const rankEmoji = ['🥇', '🥈', '🥉'];
+    el.innerHTML = parsed.picks.map((p, i) => `
+      <div class="da-pick-card">
+        <div class="da-pick-header">
+          <div style="display:flex;align-items:center">
+            <span class="da-pick-rank">${rankEmoji[i] || '#' + p.rank}</span>
+            <div>
+              <div class="da-pick-player">${p.player}</div>
+              <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);margin-top:1px">${p.bet} · ${p.book}</div>
+            </div>
+          </div>
+          <span class="da-pick-badge">AI PICK #${p.rank}</span>
+        </div>
+        <div class="da-pick-factors">
+          ${p.factors.map(f => `<div class="da-factor"><span class="da-factor-dot">▸</span><span>${f}</span></div>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  } catch(err) {
+    el.innerHTML = `<div class="da-loading" style="color:var(--red)">AI analysis failed: ${err.message}. Check console for details.</div>`;
+    console.error('Deep Analysis AI error:', err);
+  }
+}
+
+async function loadDeepDive() {
+  const data = buildDeepData();
+  renderDeepCards(data);
+  if (data.length) await generateAIPicks(data);
+  else document.getElementById('daAiPicks').innerHTML = '<div class="da-loading">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
+}
 
 // ═══════════════════ HOT STREAKS ═══════════════════
 let streaksData = [];       // all found streaks
