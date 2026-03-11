@@ -3942,7 +3942,8 @@ Respond in this EXACT JSON format (no markdown, no extra text):
 }`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const WORKER_URL = 'https://odds-proxy.stevenmcgraw89.workers.dev';
+    const response = await fetch(WORKER_URL + '/ai', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
