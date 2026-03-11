@@ -315,6 +315,14 @@
 
 
 
+
+  /* ── INJURY BADGES ── */
+  .inj-out        { background:#ff3d5722;color:var(--red);border:1px solid #ff3d5744;font-family:var(--mono);font-size:0.55rem;padding:2px 7px;border-radius:2px;letter-spacing:1px;font-weight:700; }
+  .inj-doubtful   { background:#ff6b0022;color:#ff6b00;border:1px solid #ff6b0044;font-family:var(--mono);font-size:0.55rem;padding:2px 7px;border-radius:2px;letter-spacing:1px;font-weight:700; }
+  .inj-questionable{ background:#ffab0022;color:var(--amber);border:1px solid #ffab0044;font-family:var(--mono);font-size:0.55rem;padding:2px 7px;border-radius:2px;letter-spacing:1px;font-weight:700; }
+  .inj-probable   { background:#ffffff11;color:var(--text3);border:1px solid var(--border);font-family:var(--mono);font-size:0.55rem;padding:2px 7px;border-radius:2px;letter-spacing:1px; }
+  .inj-opportunity{ background:#00e67622;color:var(--green);border:1px solid #00e67633;font-family:var(--mono);font-size:0.55rem;padding:2px 7px;border-radius:2px;letter-spacing:1px;font-weight:700; }
+
   /* ── DEEP ANALYSIS ── */
   .da-ai-section {
     background: linear-gradient(135deg, #0a1a0a 0%, #0d1a2e 100%);
@@ -1489,6 +1497,15 @@
         </div>
       </div>
       <button class="btn btn-green" onclick="loadDeepDive()">↻ REFRESH</button>
+    </div>
+
+    <!-- Injury Report Status Bar -->
+    <div id="injuryStatusBar" style="display:none;margin:0 16px 12px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px">🏥 INJURY REPORT</div>
+        <div id="injurySummary" style="font-family:var(--mono);font-size:0.65rem;color:var(--text2)"></div>
+      </div>
+      <div id="injuryBadgeList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
     </div>
 
     <!-- AI Top 3 Picks Section -->
@@ -2708,6 +2725,7 @@ async function loadCachedData() {
 
     if (json.edge && json.edge.results) {
       cachedEdgeData = json.edge;
+      if (json.injuries) window._injuryData = json.injuries;
       _renderEdgeFromCache(activeEdgeCat);
       // Populate top5 on odds tab from cache
       const _allCats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
@@ -3745,12 +3763,45 @@ function buildDeepData() {
   const catLabel = { player_points:'PTS', player_rebounds:'REB', player_assists:'AST', player_points_rebounds_assists:'PRA' };
   const seen = new Set();
   const all = [];
+  const injuries = window._injuryData || {};
+
+  // Build a lookup: lowercase player name → injury info
+  function getInjury(playerName) {
+    return injuries[(playerName || '').toLowerCase()] || null;
+  }
+
+  // Check if any teammate of a player (same team) is OUT — opportunity signal
+  function hasTeammateOut(playerName, teamName) {
+    if (!teamName) return false;
+    const pLow = (playerName || '').toLowerCase();
+    for (const [name, inj] of Object.entries(injuries)) {
+      if (name === pLow) continue;
+      if (inj.team === teamName && inj.status === 'Out') return true;
+    }
+    return false;
+  }
+
+  // Injury probability penalty
+  function injuryPenalty(inj) {
+    if (!inj) return 0;
+    const s = inj.status;
+    if (s === 'Out')          return -1;   // remove entirely
+    if (s === 'Doubtful')     return -0.08;
+    if (s === 'Questionable') return -0.04;
+    if (s === 'Probable')     return -0.01;
+    return 0;
+  }
 
   cats.forEach(cat => {
     (cachedEdgeData.results[cat] || []).forEach(r => {
       const key = r.player + '_' + cat;
       if (seen.has(key)) return;
       seen.add(key);
+
+      // ── Injury check ──
+      const inj = getInjury(r.player);
+      const penalty = injuryPenalty(inj);
+      if (penalty === -1) return; // skip OUT players entirely
 
       const stats = getPlayerStats(r.player);
       const seasonAvg = r.seasonAvg || stats?.ppg || null;
@@ -3765,15 +3816,14 @@ function buildDeepData() {
         ? Math.abs(odds) / (Math.abs(odds) + 100)
         : 100 / (odds + 100);
 
-      // True probability estimate: implied + EV adjustment
-      const trueProb = Math.min(0.95, Math.max(0.05, impliedProb + (r.ev || 0)));
+      // True probability: implied + EV adjustment + injury penalty
+      const trueProb = Math.min(0.95, Math.max(0.05, impliedProb + (r.ev || 0) + penalty));
 
       // DVP signal
       const dvpGrade = r.dvpGrade || null;
       const dvpRank  = r.dvpRank  || null;
 
-      // Usage validation: for PTS lines, compare usg% to expected scoring
-      // High usg (>28%) with reasonable line = valid; low usg (<15%) with high line = flag
+      // Usage validation
       let usgSignal = null;
       if (usg && cat === 'player_points') {
         if (usg >= 28 && r.line <= (seasonAvg || 999) * 1.1) usgSignal = 'positive';
@@ -3781,21 +3831,25 @@ function buildDeepData() {
         else usgSignal = 'neutral';
       }
 
-      // B2B fatigue check — detect from game field if we can, or flag as unknown
       const gameStr = r.game || '';
 
-      // Sharp money signal: EV > 0.04 on the same side as the line movement
+      // Sharp money signal
       const sharpSignal = (r.ev || 0) > 0.04
         ? 'Sharp-leaning — strong positive EV suggests book may be off'
         : (r.ev || 0) < -0.02
         ? 'Pass signal — negative EV, book likely has this priced correctly'
         : 'Neutral — no clear sharp lean';
 
-      // Overall verdict
+      // Teammate opportunity
+      const teammateOut = hasTeammateOut(r.player, inj?.team || r.team || '');
+
+      // Overall verdict — factor in injury penalty and teammate opportunity
       let verdict, verdictClass;
       const score = r.score || 0;
-      if (score > 0.06 && trueProb > 0.55) { verdict = '✅ STRONG PLAY'; verdictClass = 'da-verdict-play'; }
-      else if (score > 0.03 && trueProb > 0.5) { verdict = '⚡ LEAN PLAY'; verdictClass = 'da-verdict-lean'; }
+      const injPenalty = Math.abs(penalty);
+      const effectiveScore = score - injPenalty;
+      if (effectiveScore > 0.06 && trueProb > 0.55) { verdict = '✅ STRONG PLAY'; verdictClass = 'da-verdict-play'; }
+      else if (effectiveScore > 0.03 && trueProb > 0.5) { verdict = '⚡ LEAN PLAY'; verdictClass = 'da-verdict-lean'; }
       else { verdict = '⚠️ PASS / MONITOR'; verdictClass = 'da-verdict-pass'; }
 
       all.push({
@@ -3805,12 +3859,18 @@ function buildDeepData() {
         bestOdds: odds, impliedProb, trueProb,
         seasonAvg, lineVsPct, mpg, usg, gp, usgSignal, sharpSignal,
         verdict, verdictClass,
+        // injury fields
+        injStatus: inj ? inj.status : null,
+        injReason: inj ? inj.reason : null,
+        injPenalty: penalty,
+        teammateOut,
       });
     });
   });
 
   return all.sort((a, b) => b.score - a.score);
 }
+
 
 function toggleDaCard(id) {
   const body = document.getElementById('da-body-' + id);
@@ -3854,11 +3914,29 @@ function renderDeepCards(data) {
 
     const sharpHtml = `<div class="da-signal"><span class="da-signal-icon">📊</span><span class="da-signal-text">${d.sharpSignal}</span></div>`;
 
+    // ── Injury badge HTML ──
+    const injBadge = d.injStatus
+      ? (() => {
+          const s = d.injStatus;
+          const cls = s === 'Out' ? 'inj-out' : s === 'Doubtful' ? 'inj-doubtful' : s === 'Questionable' ? 'inj-questionable' : 'inj-probable';
+          const label = s === 'Out' ? '🚫 OUT' : s === 'Doubtful' ? '🔴 DOUBTFUL' : s === 'Questionable' ? '🟡 QUESTIONABLE' : '🟢 PROBABLE';
+          return `<span class="${cls}">${label}</span>`;
+        })()
+      : '';
+    const oppBadge = d.teammateOut ? `<span class="inj-opportunity">⬆ OPP</span>` : '';
+
+    const injHtml = d.injStatus
+      ? `<div class="da-signal"><span class="da-signal-icon">🏥</span><span class="da-signal-text"><strong>${d.injStatus}</strong>${d.injReason ? ' — ' + d.injReason : ''}${d.injPenalty ? ' · True prob adjusted ' + (d.injPenalty*100).toFixed(0) + '%' : ''}</span></div>`
+      : '';
+    const opptyHtml = d.teammateOut
+      ? `<div class="da-signal"><span class="da-signal-icon">⬆️</span><span class="da-signal-text" style="color:var(--green)"><strong>Teammate opportunity</strong> — a key teammate is out, potential for increased role/usage</span></div>`
+      : '';
+
     return `<div class="da-card">
       <div class="da-card-header" onclick="toggleDaCard(${i})">
         <div class="da-card-left">
           <div>
-            <div class="da-card-player">${d.player} <span style="color:var(--text3);font-size:0.6rem">(${d.pos||'?'})</span></div>
+            <div class="da-card-player">${d.player} <span style="color:var(--text3);font-size:0.6rem">(${d.pos||'?'})</span> ${injBadge} ${oppBadge}</div>
             <div class="da-card-meta">${d.side} ${d.line} ${d.catLabel} · ${d.book} · ${d.game}</div>
           </div>
         </div>
@@ -3886,11 +3964,13 @@ function renderDeepCards(data) {
           </div>
           <div class="da-metric">
             <div class="da-metric-label">True Prob Est.</div>
-            <div class="da-metric-value" style="color:var(--green)">${tpStr}</div>
-            <div class="da-metric-note">implied + EV adj.</div>
+            <div class="da-metric-value" style="color:${d.injPenalty < 0 ? 'var(--amber)' : 'var(--green)'}">${tpStr}</div>
+            <div class="da-metric-note">${d.injPenalty < 0 ? 'adj. for injury' : 'implied + EV adj.'}</div>
           </div>
         </div>
         <div style="margin-bottom:10px">
+          ${injHtml}
+          ${opptyHtml}
           ${dvpHtml}
           ${avgHtml}
           ${usgHtml}
@@ -3909,9 +3989,11 @@ async function generateAIPicks(data) {
 
   // Build a compact summary of top bets for Claude to analyze
   const top = data.slice(0, 20); // send top 20 by edge score
-  const betSummaries = top.map((d, i) =>
-    `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}% | Verdict: ${d.verdict}`
-  ).join('\n');
+  const betSummaries = top.map((d, i) => {
+    const injNote = d.injStatus ? ` | INJURY: ${d.injStatus}${d.injReason ? ' ('+d.injReason+')' : ''}` : '';
+    const oppNote = d.teammateOut ? ' | TEAMMATE OUT (opportunity)' : '';
+    return `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}%${injNote}${oppNote}`;
+  }).join('\n');
 
   const prompt = `You are an expert NBA prop bet analyst. Below are today's top edge bets ranked by edge score, with key statistical factors.
 
@@ -3982,7 +4064,36 @@ Respond in this EXACT JSON format (no markdown, no extra text):
   }
 }
 
+function renderInjuryStatusBar() {
+  const injuries = window._injuryData || {};
+  const bar = document.getElementById('injuryStatusBar');
+  const summary = document.getElementById('injurySummary');
+  const badgeList = document.getElementById('injuryBadgeList');
+  if (!bar) return;
+
+  const entries = Object.entries(injuries);
+  if (!entries.length) { bar.style.display = 'none'; return; }
+
+  // Count by status
+  const counts = { Out: 0, Doubtful: 0, Questionable: 0, Probable: 0 };
+  entries.forEach(([, inj]) => { if (counts[inj.status] !== undefined) counts[inj.status]++; });
+
+  summary.textContent = `${entries.length} players listed · ${counts.Out} Out · ${counts.Doubtful} Doubtful · ${counts.Questionable} Questionable`;
+
+  // Show only Out + Doubtful players as badges (most impactful)
+  const impactful = entries.filter(([, inj]) => inj.status === 'Out' || inj.status === 'Doubtful').slice(0, 20);
+  badgeList.innerHTML = impactful.map(([name, inj]) => {
+    const displayName = name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const cls = inj.status === 'Out' ? 'inj-out' : 'inj-doubtful';
+    const icon = inj.status === 'Out' ? '🚫' : '🔴';
+    return `<span class="${cls}" title="${inj.reason || ''}">${icon} ${displayName}</span>`;
+  }).join('');
+
+  bar.style.display = 'block';
+}
+
 async function loadDeepDive() {
+  renderInjuryStatusBar();
   const data = buildDeepData();
   renderDeepCards(data);
   if (data.length) await generateAIPicks(data);
