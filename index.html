@@ -4059,6 +4059,10 @@ function _buildDeepDataCore() {
       // Teammate opportunity
       const teammateOut = hasTeammateOut(r.player, inj?.team || r.team || '');
 
+      // True probability: implied + EV + L5 trend + injury penalty
+      const baseTrueProb = Math.min(0.95, Math.max(0.05, impliedProb + (r.ev || 0) + (l5TrendBonus || 0)));
+      const trueProb = Math.min(0.95, Math.max(0.05, baseTrueProb + penalty));
+
       // Overall verdict — factor in injury penalty and teammate opportunity
       let verdict, verdictClass;
       const score = r.score || 0;
