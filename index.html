@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src https://vytelzvzopovvdlycyam.supabase.co https://odds-proxy.stevenmcgraw89.workers.dev https://*.espn.com https://site.web.api.espn.com https://site.api.espn.com https://sjm2102.github.io https://ak-static.cms.nba.com; img-src 'self' data: https:; font-src 'self' data:;">
 <title>The Edge — NBA Betting Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -3525,6 +3525,21 @@ const PRO_TABS = ['props','edge','bestparlays','tracker','deepdive'];
 let currentUser = null;
 let isPro = false;
 let _supabase = null;
+let _currentSession = null; // Stores full session so we can pass JWT to Worker
+
+// Returns Authorization header for pro-gated Worker requests
+async function getAuthHeaders() {
+  if (!_supabase) return {};
+  try {
+    const { data } = await _supabase.auth.getSession();
+    const token = data?.session?.access_token;
+    if (!token) return {};
+    return { 'Authorization': `Bearer ${token}` };
+  } catch(e) {
+    console.warn('[Auth] getAuthHeaders failed:', e);
+    return {};
+  }
+}
 
 function initSupabase() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -4320,9 +4335,10 @@ Respond in this EXACT JSON format (no markdown, no extra text):
 
   try {
     const WORKER_URL = 'https://odds-proxy.stevenmcgraw89.workers.dev';
+    const authHdrs = await getAuthHeaders();
     const response = await fetch(WORKER_URL + '/ai', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHdrs },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
