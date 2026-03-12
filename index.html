@@ -2968,49 +2968,65 @@ function getImpliedTotal(homeTeam, awayTeam, playerTeamAbbr) {
 const _l5Cache = {};
 
 async function fetchL5Stats(playerName) {
-  if (_l5Cache[playerName]) return _l5Cache[playerName];
+  if (_l5Cache[playerName] !== undefined) return _l5Cache[playerName];
+  // Mark as attempted immediately to prevent duplicate calls
+  _l5Cache[playerName] = null;
+
+  // 4-second timeout per player — if ESPN is slow we skip gracefully
+  const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
+
   try {
-    // ESPN athlete search → game log
     const searchUrl = `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(playerName)}&limit=1&type=athlete&sport=basketball&league=nba`;
-    const sr = await fetch(searchUrl);
-    const sd = await sr.json();
+    const sd = await Promise.race([
+      fetch(searchUrl).then(r => r.json()),
+      timeout(4000)
+    ]);
     const athleteId = sd?.items?.[0]?.contents?.[0]?.athlete?.id;
     if (!athleteId) return null;
 
-    const logUrl = `https://site.web.api.espn.com/apis/eventing/v1/athletes/${athleteId}/eventlog?limit=15&sport=basketball&league=nba`;
-    const lr = await fetch(logUrl);
-    const ld = await lr.json();
+    // Try the player game log endpoint
+    const logUrl = `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${athleteId}/gamelog`;
+    const ld = await Promise.race([
+      fetch(logUrl).then(r => r.json()),
+      timeout(4000)
+    ]);
 
-    const events = ld?.events?.previousEvents?.events;
-    if (!events?.length) return null;
+    // ESPN gamelog returns categories with stat rows per game
+    const categories = ld?.seasonTypes?.[0]?.categories || ld?.categories || [];
+    const statCat = categories.find(c => c.name === 'offensive' || c.displayName === 'Offensive' || c.labels);
+    if (!statCat?.labels || !statCat?.values) return null;
 
-    const stats = [];
-    for (const evt of events.slice(0, 15)) {
-      const athl = evt?.athlete;
-      if (!athl) continue;
-      const statsList = athl.statistics?.splits?.categories;
-      if (!statsList) continue;
-      const gen = statsList.find(c => c.name === 'general');
-      if (!gen?.stats) continue;
-      const row = {};
-      gen.stats.forEach(s => { row[s.abbreviation || s.name] = parseFloat(s.displayValue) || 0; });
-      if (row.PTS !== undefined) stats.push(row);
-    }
-    if (!stats.length) return null;
+    const labels = statCat.labels; // e.g. ['PTS','REB','AST','STL','BLK',...]
+    const ptsIdx = labels.indexOf('PTS');
+    const rebIdx = labels.indexOf('REB');
+    const astIdx = labels.indexOf('AST');
+    if (ptsIdx === -1) return null;
+
+    // values is array of game stat arrays (most recent first)
+    const games = (statCat.values || []).slice(0, 15).map(row => ({
+      PTS: row[ptsIdx] || 0,
+      REB: rebIdx >= 0 ? (row[rebIdx] || 0) : 0,
+      AST: astIdx >= 0 ? (row[astIdx] || 0) : 0,
+    })).filter(g => g.PTS !== undefined);
+
+    if (!games.length) return null;
 
     const result = {
-      l5: stats.slice(0, 5),
-      l15: stats.slice(0, 15),
+      l5: games.slice(0, 5),
+      l15: games.slice(0, 15),
       l5avg: {
-        pts: avg(stats.slice(0,5), 'PTS'),
-        reb: avg(stats.slice(0,5), 'REB'),
-        ast: avg(stats.slice(0,5), 'AST'),
-        pra: avg(stats.slice(0,5), 'PTS') + avg(stats.slice(0,5), 'REB') + avg(stats.slice(0,5), 'AST'),
+        pts: avg(games.slice(0,5), 'PTS'),
+        reb: avg(games.slice(0,5), 'REB'),
+        ast: avg(games.slice(0,5), 'AST'),
+        pra: avg(games.slice(0,5), 'PTS') + avg(games.slice(0,5), 'REB') + avg(games.slice(0,5), 'AST'),
       }
     };
     _l5Cache[playerName] = result;
     return result;
-  } catch(e) { return null; }
+  } catch(e) {
+    // Silently fail — L5 data is nice-to-have, not required
+    return null;
+  }
 }
 
 function avg(arr, key) {
@@ -3938,10 +3954,15 @@ async function buildDeepDataAsync() {
   const all = [];
   const injuries = window._injuryData || {};
 
-  // Pre-fetch L5 data for all unique players in edge results (parallel)
+  // Pre-fetch L5 data for all unique players (parallel, 8s global cap)
   const uniquePlayers = [];
   cats.forEach(cat => { (cachedEdgeData.results[cat] || []).forEach(r => { if (!uniquePlayers.includes(r.player)) uniquePlayers.push(r.player); }); });
-  await Promise.all(uniquePlayers.map(p => fetchL5Stats(p)));
+  try {
+    await Promise.race([
+      Promise.all(uniquePlayers.map(p => fetchL5Stats(p))),
+      new Promise(res => setTimeout(res, 8000)) // 8s max — then proceed without L5
+    ]);
+  } catch(e) { /* proceed without L5 data */ }
 
   // Build a lookup: lowercase player name → injury info
   function getInjury(playerName) {
