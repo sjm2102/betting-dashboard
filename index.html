@@ -1692,9 +1692,16 @@ function switchTab(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   // Auto-build parlays when switching to that tab
-  if (id === 'bestparlays') buildBestParlays();
+  if (id === 'bestparlays') {
+    if (cachedEdgeData) buildBestParlays();
+    else {
+      document.getElementById('bp2List').innerHTML = '<div class="loading-wrap"><div class="da-loading-spinner"></div>Fetching data…</div>';
+      document.getElementById('bp3List').innerHTML = '<div class="loading-wrap"></div>';
+      loadCachedData().then(() => { if (cachedEdgeData) buildBestParlays(); });
+    }
+  }
   if (id === 'streaks') { if (streaksData.length) renderStreaks(); else if (cachedEdgeData) loadStreaks(); }
-  if (id === 'deepdive' && cachedEdgeData) loadDeepDive();
+  if (id === 'deepdive') { if (cachedEdgeData) loadDeepDive(); else loadCachedDataThenDeepDive(); }
 }
 
 // ═══════════ MATH ═══════════
@@ -4374,6 +4381,18 @@ function renderInjuryStatusBar() {
   }).join('');
 
   bar.style.display = 'block';
+}
+
+async function loadCachedDataThenDeepDive() {
+  // Show loading state
+  document.getElementById('daCardList').innerHTML = '<div class="da-loading"><div class="da-loading-spinner"></div>Fetching latest data…</div>';
+  document.getElementById('daAiPicks').innerHTML = '<div class="da-loading"><div class="da-loading-spinner"></div>Fetching latest data…</div>';
+  await loadCachedData();
+  if (cachedEdgeData) loadDeepDive();
+  else {
+    document.getElementById('daCardList').innerHTML = '<div class="da-loading">No data available — Worker may not have run yet today.</div>';
+    document.getElementById('daAiPicks').innerHTML = '<div class="da-loading">No data available.</div>';
+  }
 }
 
 async function loadDeepDive() {
