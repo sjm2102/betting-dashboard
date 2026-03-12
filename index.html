@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3944,7 +3945,7 @@ loadCachedData();
 const DVP_GRADE_LABEL = { A:'Elite Defense 🔴', B:'Good Defense', C:'Average', D:'Weak Defense', F:'Elite Matchup 🟢' };
 const DVP_GRADE_COLOR = { A:'var(--red)', B:'#ff8c00', C:'var(--text2)', D:'var(--amber)', F:'var(--green)' };
 
-async function buildDeepDataAsync() {
+function _buildDeepDataCore() {
   if (!cachedEdgeData) return [];
   const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
   const catLabel = { player_points:'PTS', player_rebounds:'REB', player_assists:'AST', player_points_rebounds_assists:'PRA' };
@@ -3954,15 +3955,7 @@ async function buildDeepDataAsync() {
   const all = [];
   const injuries = window._injuryData || {};
 
-  // Pre-fetch L5 data for all unique players (parallel, 8s global cap)
-  const uniquePlayers = [];
-  cats.forEach(cat => { (cachedEdgeData.results[cat] || []).forEach(r => { if (!uniquePlayers.includes(r.player)) uniquePlayers.push(r.player); }); });
-  try {
-    await Promise.race([
-      Promise.all(uniquePlayers.map(p => fetchL5Stats(p))),
-      new Promise(res => setTimeout(res, 8000)) // 8s max — then proceed without L5
-    ]);
-  } catch(e) { /* proceed without L5 data */ }
+  // L5 data comes from _l5Cache (populated in background by loadDeepDive)
 
   // Build a lookup: lowercase player name → injury info
   function getInjury(playerName) {
@@ -4385,12 +4378,53 @@ function renderInjuryStatusBar() {
 
 async function loadDeepDive() {
   renderInjuryStatusBar();
-  // Show loading state while L5 data fetches
-  document.getElementById('daCardList').innerHTML = '<div class="da-loading"><div class="da-loading-spinner"></div>Loading L5 game logs…</div>';
-  const data = await buildDeepDataAsync();
+
+  // Step 1: Render cards immediately with whatever data we have (sync, instant)
+  const data = buildDeepDataSync();
   renderDeepCards(data);
-  if (data.length) await generateAIPicks(data);
-  else document.getElementById('daAiPicks').innerHTML = '<div class="da-loading">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
+
+  if (!data.length) {
+    document.getElementById('daAiPicks').innerHTML = '<div class="da-loading">No edge data — run SCAN FULL SLATE in the Edge tab first.</div>';
+    return;
+  }
+
+  // Step 2: Start AI picks immediately (doesn't need L5)
+  const aiPromise = generateAIPicks(data);
+
+  // Step 3: Fetch L5 in background with a hard 10s cap, then silently update cards
+  (async () => {
+    try {
+      const uniquePlayers = [...new Set(data.map(d => d.player))];
+      await Promise.race([
+        Promise.allSettled(uniquePlayers.map(p => fetchL5Stats(p))),
+        new Promise(res => setTimeout(res, 10000))
+      ]);
+      // Re-render cards with L5 data now populated in cache
+      const data2 = buildDeepDataSync();
+      renderDeepCards(data2);
+    } catch(e) { /* L5 failed silently, cards already showing */ }
+  })();
+
+  await aiPromise;
+}
+
+// Synchronous version — uses _l5Cache if already populated, otherwise null
+function buildDeepDataSync() {
+  return _buildDeepDataCore();
+}
+
+// Keep async version for compatibility
+async function buildDeepDataAsync() {
+  const uniquePlayers = [];
+  const cats = ['player_points','player_rebounds','player_assists','player_points_rebounds_assists'];
+  cats.forEach(cat => { (cachedEdgeData?.results[cat] || []).forEach(r => { if (!uniquePlayers.includes(r.player)) uniquePlayers.push(r.player); }); });
+  try {
+    await Promise.race([
+      Promise.allSettled(uniquePlayers.map(p => fetchL5Stats(p))),
+      new Promise(res => setTimeout(res, 10000))
+    ]);
+  } catch(e) {}
+  return _buildDeepDataCore();
 }
 
 // ═══════════════════ HOT STREAKS ═══════════════════
