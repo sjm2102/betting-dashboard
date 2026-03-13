@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Edge">
+<meta name="theme-color" content="#0a0a0a">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src https://vytelzvzopovvdlycyam.supabase.co https://odds-proxy.stevenmcgraw89.workers.dev https://*.espn.com https://site.web.api.espn.com https://site.api.espn.com https://sjm2102.github.io https://ak-static.cms.nba.com; img-src 'self' data: https:; font-src 'self' data:;">
@@ -1060,6 +1066,16 @@
     white-space: nowrap;
   }
   .theme-toggle:hover { border-color: var(--green); color: var(--green); }
+
+  /* ── iOS / Touch Device Fixes ── */
+  * { -webkit-tap-highlight-color: transparent; }
+  button, a, [onclick] { touch-action: manipulation; }
+  input, select, textarea { font-size: 1rem !important; } /* prevent iOS auto-zoom */
+  /* Fix iOS position:fixed scroll freeze */
+  body.modal-open { overflow: hidden; -webkit-overflow-scrolling: touch; }
+  /* Smooth scrolling on iOS */
+  .tab-content, .odds-list, .edge-list { -webkit-overflow-scrolling: touch; }
+
 </style>
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1094,13 +1110,13 @@
       <!-- Email field -->
       <div style="margin-bottom:14px">
         <label style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;display:block;margin-bottom:6px">EMAIL</label>
-        <input id="authEmail" type="email" placeholder="you@example.com" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:0.8rem;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"/>
+        <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:1rem;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"/>
       </div>
 
       <!-- Password field -->
       <div style="margin-bottom:20px">
         <label style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:1px;display:block;margin-bottom:6px">PASSWORD</label>
-        <input id="authPassword" type="password" placeholder="••••••••" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:0.8rem;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')handleEmailAuth()"/>
+        <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:1rem;box-sizing:border-box;outline:none" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')handleEmailAuth()"/>
       </div>
 
       <!-- Email auth button -->
@@ -1135,14 +1151,29 @@
 </div>
 
 <!-- ═══════════════════ PRO LOCK SCREEN ═══════════════════ -->
-<div id="proLockScreen" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.95);z-index:200;align-items:center;justify-content:center">
-  <div style="text-align:center;padding:32px">
-    <div style="font-size:2rem;margin-bottom:12px">🔒</div>
-    <div style="font-family:var(--display);font-size:1.4rem;letter-spacing:3px;margin-bottom:8px">PRO FEATURE</div>
-    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-bottom:20px;line-height:1.7">Upgrade to THE EDGE Pro to unlock<br>Props, Edge Board, EV Calc, Arb & more.</div>
-    <button onclick="alert('Subscription coming soon!')" style="padding:12px 28px;background:var(--green);color:#000;font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">UPGRADE TO PRO</button>
-    <button onclick="document.getElementById('proLockScreen').style.display='none';switchTab('odds')" style="padding:10px 28px;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:0.65rem;letter-spacing:2px;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px">← BACK TO ODDS</button>
-    <button onclick="handleSignOut()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:0.58rem;cursor:pointer;letter-spacing:1px;text-decoration:underline">SIGN OUT</button>
+<div id="proLockScreen" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.97);z-index:200;align-items:center;justify-content:center;-webkit-overflow-scrolling:touch">
+  <div style="text-align:center;padding:32px;max-width:340px;width:90%">
+    <div style="font-size:2.2rem;margin-bottom:16px">⚡</div>
+    <div style="font-family:var(--display);font-size:1.4rem;letter-spacing:3px;margin-bottom:6px">THE EDGE PRO</div>
+    <div style="font-family:var(--mono);font-size:0.7rem;color:var(--green);letter-spacing:2px;margin-bottom:20px">$4.99 / MONTH</div>
+    <div style="text-align:left;margin-bottom:24px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px">
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);letter-spacing:1px;margin-bottom:12px;text-transform:uppercase">What you unlock</div>
+      <div style="font-family:var(--mono);font-size:0.75rem;color:var(--text);line-height:2">
+        <div>⚡ Edge Board — AI-scored best bets</div>
+        <div>📊 Props — player prop analysis</div>
+        <div>🎯 Best Parlays — correlated picks</div>
+        <div>🧠 Deep Analysis — AI breakdowns</div>
+        <div>📈 Bet Tracker — P&amp;L dashboard</div>
+      </div>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-bottom:16px;line-height:1.6">Subscriptions are managed through your Apple ID.<br>Cancel anytime in Settings → Subscriptions.</div>
+    <button id="upgradeBtn" onclick="handleUpgrade()" style="padding:14px 28px;background:var(--green);color:#000;font-family:var(--mono);font-size:1rem;font-weight:700;letter-spacing:2px;border:none;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px;touch-action:manipulation">UPGRADE TO PRO</button>
+    <button onclick="handleRestorePurchase()" style="padding:10px 28px;background:none;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:1rem;letter-spacing:2px;border-radius:4px;cursor:pointer;display:block;width:100%;margin-bottom:10px;touch-action:manipulation">RESTORE PURCHASE</button>
+    <button onclick="document.getElementById('proLockScreen').style.display='none';switchTab('odds')" style="padding:10px 28px;background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:1rem;letter-spacing:2px;cursor:pointer;display:block;width:100%;margin-bottom:6px;touch-action:manipulation">← BACK TO ODDS</button>
+    <div style="display:flex;justify-content:center;gap:16px;margin-top:8px">
+      <a href="https://sjm2102.github.io/betting-dashboard/privacy.html" target="_blank" style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-decoration:underline">Privacy Policy</a>
+      <a href="https://sjm2102.github.io/betting-dashboard/terms.html" target="_blank" style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-decoration:underline">Terms of Use</a>
+    </div>
   </div>
 </div>
 
@@ -1978,7 +2009,7 @@ function renderArb() {
       <div class="arb-calc">
         <div class="arb-calc-item">
           <div class="form-label">TOTAL STAKE ($)</div>
-          <input class="arb-stake-input" type="number" value="100" id="arbStake${i}" oninput="calcArbStakes(${i},${a.bestAway.price},${a.bestHome.price})" />
+          <input class="arb-stake-input" type="number" style="font-size:1rem" value="100" id="arbStake${i}" oninput="calcArbStakes(${i},${a.bestAway.price},${a.bestHome.price})" />
         </div>
         <div class="arb-calc-item">
           <div class="form-label">GUARANTEED PROFIT</div>
@@ -2975,64 +3006,113 @@ function getImpliedTotal(homeTeam, awayTeam, playerTeamAbbr) {
 // ── L5 GAME LOG CACHE ──
 const _l5Cache = {};
 
-async function fetchL5Stats(playerName) {
-  if (_l5Cache[playerName] !== undefined) return _l5Cache[playerName];
-  // Mark as attempted immediately to prevent duplicate calls
-  _l5Cache[playerName] = null;
+async function fetchL5Stats(playerName, oppAbbr) {
+  const cacheKey = playerName;
+  if (_l5Cache[cacheKey] !== undefined) return _l5Cache[cacheKey];
+  _l5Cache[cacheKey] = null;
 
-  // 4-second timeout per player — if ESPN is slow we skip gracefully
   const timeout = ms => new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
 
   try {
     const searchUrl = `https://site.web.api.espn.com/apis/common/v3/search?query=${encodeURIComponent(playerName)}&limit=1&type=athlete&sport=basketball&league=nba`;
-    const sd = await Promise.race([
-      fetch(searchUrl).then(r => r.json()),
-      timeout(4000)
-    ]);
+    const sd = await Promise.race([fetch(searchUrl).then(r => r.json()), timeout(4000)]);
     const athleteId = sd?.items?.[0]?.contents?.[0]?.athlete?.id;
     if (!athleteId) return null;
 
-    // Try the player game log endpoint
     const logUrl = `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${athleteId}/gamelog`;
-    const ld = await Promise.race([
-      fetch(logUrl).then(r => r.json()),
-      timeout(4000)
-    ]);
+    const ld = await Promise.race([fetch(logUrl).then(r => r.json()), timeout(4000)]);
 
-    // ESPN gamelog returns categories with stat rows per game
     const categories = ld?.seasonTypes?.[0]?.categories || ld?.categories || [];
     const statCat = categories.find(c => c.name === 'offensive' || c.displayName === 'Offensive' || c.labels);
     if (!statCat?.labels || !statCat?.values) return null;
 
-    const labels = statCat.labels; // e.g. ['PTS','REB','AST','STL','BLK',...]
+    const labels = statCat.labels;
     const ptsIdx = labels.indexOf('PTS');
     const rebIdx = labels.indexOf('REB');
     const astIdx = labels.indexOf('AST');
+    const minIdx = labels.indexOf('MIN');
     if (ptsIdx === -1) return null;
 
-    // values is array of game stat arrays (most recent first)
-    const games = (statCat.values || []).slice(0, 15).map(row => ({
-      PTS: row[ptsIdx] || 0,
-      REB: rebIdx >= 0 ? (row[rebIdx] || 0) : 0,
-      AST: astIdx >= 0 ? (row[astIdx] || 0) : 0,
-    })).filter(g => g.PTS !== undefined);
+    // Also grab the events list for home/away detection and opponent matching
+    const events = ld?.seasonTypes?.[0]?.events || ld?.events || [];
+
+    const rawGames = (statCat.values || []).slice(0, 20);
+
+    const games = rawGames.map((row, i) => {
+      const ev = events[i] || {};
+      const isHome = ev.atVs === 'vs' || ev.homeAway === 'home';
+      const oppTeamAbbr = ev.opponent?.abbreviation || ev.opponentAbbrev || '';
+      return {
+        PTS: row[ptsIdx] || 0,
+        REB: rebIdx >= 0 ? (row[rebIdx] || 0) : 0,
+        AST: astIdx >= 0 ? (row[astIdx] || 0) : 0,
+        MIN: minIdx >= 0 ? (row[minIdx] || 0) : 0,
+        home: isHome,
+        opp: oppTeamAbbr.toUpperCase(),
+      };
+    }).filter(g => g.PTS !== undefined);
 
     if (!games.length) return null;
 
-    const result = {
-      l5: games.slice(0, 5),
-      l15: games.slice(0, 15),
-      l5avg: {
-        pts: avg(games.slice(0,5), 'PTS'),
-        reb: avg(games.slice(0,5), 'REB'),
-        ast: avg(games.slice(0,5), 'AST'),
-        pra: avg(games.slice(0,5), 'PTS') + avg(games.slice(0,5), 'REB') + avg(games.slice(0,5), 'AST'),
-      }
+    const l5  = games.slice(0, 5);
+    const l15 = games.slice(0, 15);
+
+    // ── Helper functions ──
+    const avgFn = (arr, k) => arr.length ? arr.reduce((s,r) => s + (r[k]||0), 0) / arr.length : 0;
+    const medianFn = (arr, k) => {
+      const vals = arr.map(r => r[k]||0).sort((a,b) => a-b);
+      const m = Math.floor(vals.length / 2);
+      return vals.length % 2 !== 0 ? vals[m] : (vals[m-1] + vals[m]) / 2;
     };
-    _l5Cache[playerName] = result;
+    const stdDevFn = (arr, k) => {
+      if (arr.length < 2) return 0;
+      const m = avgFn(arr, k);
+      return Math.sqrt(arr.reduce((s,r) => s + Math.pow((r[k]||0) - m, 2), 0) / arr.length);
+    };
+
+    // ── Home / Away splits (L15) ──
+    const homeGames = l15.filter(g => g.home);
+    const awayGames = l15.filter(g => !g.home);
+    const homeSplit = homeGames.length >= 3 ? {
+      pts: avgFn(homeGames, 'PTS'), reb: avgFn(homeGames, 'REB'), ast: avgFn(homeGames, 'AST'),
+    } : null;
+    const awaySplit = awayGames.length >= 3 ? {
+      pts: avgFn(awayGames, 'PTS'), reb: avgFn(awayGames, 'REB'), ast: avgFn(awayGames, 'AST'),
+    } : null;
+
+    // ── H2H vs upcoming opponent (L15 or season) ──
+    const h2hGames = oppAbbr ? l15.filter(g => g.opp === oppAbbr.toUpperCase()) : [];
+
+    // ── Minutes consistency (std dev L10) ──
+    const l10 = games.slice(0, 10);
+    const minStdDev = stdDevFn(l10, 'MIN');
+    const minAvg    = avgFn(l10, 'MIN');
+
+    // ── Median scores (more robust than mean for outlier-heavy players) ──
+    const medianPts = medianFn(l15, 'PTS');
+    const medianReb = medianFn(l15, 'REB');
+    const medianAst = medianFn(l15, 'AST');
+
+    const result = {
+      l5, l15,
+      l5avg: {
+        pts: avgFn(l5, 'PTS'),
+        reb: avgFn(l5, 'REB'),
+        ast: avgFn(l5, 'AST'),
+        pra: avgFn(l5, 'PTS') + avgFn(l5, 'REB') + avgFn(l5, 'AST'),
+      },
+      // New fields
+      homeSplit, awaySplit,
+      h2hGames, h2hAvg: h2hGames.length >= 2 ? {
+        pts: avgFn(h2hGames, 'PTS'), reb: avgFn(h2hGames, 'REB'), ast: avgFn(h2hGames, 'AST'),
+        games: h2hGames.length,
+      } : null,
+      medianPts, medianReb, medianAst,
+      minStdDev, minAvg,
+    };
+    _l5Cache[cacheKey] = result;
     return result;
   } catch(e) {
-    // Silently fail — L5 data is nice-to-have, not required
     return null;
   }
 }
@@ -3042,10 +3122,191 @@ function avg(arr, key) {
   return arr.reduce((s, r) => s + (r[key] || 0), 0) / arr.length;
 }
 
+function medianOf(arr, key) {
+  if (!arr.length) return null;
+  const vals = arr.map(r => r[key] || 0).sort((a,b) => a-b);
+  const m = Math.floor(vals.length / 2);
+  return vals.length % 2 !== 0 ? vals[m] : (vals[m-1] + vals[m]) / 2;
+}
+
+function stdDev(arr, key) {
+  if (arr.length < 2) return 0;
+  const m = avg(arr, key);
+  return Math.sqrt(arr.reduce((s,r) => s + Math.pow((r[key]||0) - m, 2), 0) / arr.length);
+}
+
 function hitRate(games, statKey, line, side) {
   if (!games.length || !line) return null;
   const hits = games.filter(g => side === 'OVER' ? (g[statKey] || 0) > line : (g[statKey] || 0) < line);
   return hits.length / games.length;
+}
+
+// ── Blowout risk: large spread = starters may sit in 4th quarter ──
+// Returns a penalty between -0.06 (high blowout risk) and 0
+function blowoutRiskPenalty(homeTeam, awayTeam, playerTeamAbbr) {
+  const game = gamesData.find(g => g.home_team === homeTeam && g.away_team === awayTeam);
+  if (!game) return 0;
+  // Find best spread for each team
+  let bestSpread = null;
+  game.bookmakers?.forEach(bk => {
+    const mkt = bk.markets?.find(m => m.key === 'spreads');
+    if (!mkt) return;
+    mkt.outcomes?.forEach(o => {
+      if (o.point !== undefined) {
+        const absSpread = Math.abs(o.point);
+        if (bestSpread === null || absSpread > bestSpread) bestSpread = absSpread;
+      }
+    });
+  });
+  if (bestSpread === null) return 0;
+  // Determine if player's team is the heavy FAVORITE (most likely to blow out)
+  // In that case, starters may sit in 4th — penalty applies
+  const homeAbbr = getTeamAbbr(homeTeam);
+  const awayAbbr = getTeamAbbr(awayTeam);
+  let playerIsHome = playerTeamAbbr && homeAbbr && playerTeamAbbr.toUpperCase() === homeAbbr.toUpperCase();
+  // The spread for favorites is negative, so if home spread is -10 the home team is favored
+  let playerSpread = null;
+  game.bookmakers?.forEach(bk => {
+    const mkt = bk.markets?.find(m => m.key === 'spreads');
+    if (!mkt) return;
+    mkt.outcomes?.forEach(o => {
+      const oName = o.name || '';
+      const isPlayerTeam = playerIsHome
+        ? oName.toLowerCase().includes(homeTeam.split(' ').pop().toLowerCase())
+        : oName.toLowerCase().includes(awayTeam.split(' ').pop().toLowerCase());
+      if (isPlayerTeam && o.point !== undefined) playerSpread = o.point;
+    });
+  });
+  if (playerSpread === null) return 0;
+  // Only penalise if player's team is a big FAVOURITE (spread < -8)
+  // Their starters are most likely to get benched in a blowout win
+  if (playerSpread < -14) return -0.06;
+  if (playerSpread < -10) return -0.04;
+  if (playerSpread < -8)  return -0.02;
+  return 0;
+}
+
+// ── Game total bonus: high O/U = faster pace = more counting stats ──
+// Returns bonus between -0.03 and +0.03
+function gameTotalBonus(homeTeam, awayTeam) {
+  const game = gamesData.find(g => g.home_team === homeTeam && g.away_team === awayTeam);
+  if (!game?.impliedTotal?.total) return 0;
+  const total = game.impliedTotal.total;
+  // League avg O/U ~225. Scale bonus accordingly
+  const dev = (total - 225) / 225;
+  return Math.max(-0.03, Math.min(0.03, dev * 0.6));
+}
+
+// ── Line movement: compare earliest snapshot to current line ──
+// Returns { moved: bool, direction: 'up'|'down'|null, amount: number }
+function getLineMovement(playerName, line, side) {
+  try {
+    const history = lineHistory || {};
+    // lineHistory keys are game event IDs — scan for this player in all snapshots
+    let earliest = null, latest = null;
+    Object.values(history).forEach(entry => {
+      if (!entry.snapshots?.length) return;
+      const first = entry.snapshots[0];
+      const last  = entry.snapshots[entry.snapshots.length - 1];
+      // Check if this player appears in the bookmaker prop data
+      [first, last].forEach((snap, idx) => {
+        snap.bookmakers?.forEach(bk => {
+          bk.markets?.forEach(mkt => {
+            if (!['player_points','player_rebounds','player_assists','player_points_rebounds_assists'].includes(mkt.key)) return;
+            mkt.outcomes?.forEach(o => {
+              if ((o.description || '').toLowerCase().includes(playerName.toLowerCase()) && o.point !== undefined) {
+                if (idx === 0 && earliest === null) earliest = o.point;
+                if (idx === 1) latest = o.point;
+              }
+            });
+          });
+        });
+      });
+    });
+    if (earliest === null || latest === null || earliest === latest) return { moved: false, direction: null, amount: 0 };
+    const amount = latest - earliest;
+    return { moved: true, direction: amount > 0 ? 'up' : 'down', amount };
+  } catch(e) { return { moved: false, direction: null, amount: 0 }; }
+}
+
+// ── Line movement bonus/penalty ──
+// If line moved UP = books expect more production = if player is OVER, fade (contrarian)
+//   OR follow if sharp money moved it (positive EV confirms)
+// Simple rule: if line moved DOWN and we're betting OVER = positive (market agrees)
+//              if line moved UP and we're betting UNDER = positive (market agrees)
+function lineMovementBonus(playerName, line, side) {
+  const mv = getLineMovement(playerName, line, side);
+  if (!mv.moved) return 0;
+  const amt = Math.abs(mv.amount);
+  // Line moved in our favour (books raised line for UNDER or lowered for OVER)
+  if ((side === 'UNDER' && mv.direction === 'up') || (side === 'OVER' && mv.direction === 'down')) {
+    return Math.min(0.04, amt * 0.01); // +0.01 per 0.5pt move, capped at +0.04
+  }
+  // Line moved against us
+  if ((side === 'OVER' && mv.direction === 'up') || (side === 'UNDER' && mv.direction === 'down')) {
+    return Math.max(-0.03, -(amt * 0.008));
+  }
+  return 0;
+}
+
+// ── Home/away split bonus ──
+// Compare player's home or away avg to season avg for this stat
+// Returns bonus between -0.06 and +0.06
+function homeAwaySplitBonus(l5data, isPlayerHome, statCat) {
+  if (!l5data) return 0;
+  const sk = { player_points:'pts', player_rebounds:'reb', player_assists:'ast', player_points_rebounds_assists:'pra' }[statCat] || 'pts';
+  const split = isPlayerHome ? l5data.homeSplit : l5data.awaySplit;
+  if (!split) return 0;
+  const splitAvg = sk === 'pra' ? ((split.pts||0) + (split.reb||0) + (split.ast||0)) : (split[sk] || 0);
+  const l5avg = l5data.l5avg[sk] || 0;
+  if (!l5avg) return 0;
+  const diff = (splitAvg - l5avg) / l5avg; // % better/worse at home vs general avg
+  return Math.max(-0.06, Math.min(0.06, diff * 0.25));
+}
+
+// ── Median vs mean bonus ──
+// If median is significantly different from mean (outlier-skewed average),
+// use median as the truer baseline. Penalise over if mean >> median (inflated by outlier)
+function medianMeanBonus(l5data, line, side, statCat) {
+  if (!l5data) return 0;
+  const sk = statCat === 'player_points' ? 'Pts'
+    : statCat === 'player_rebounds' ? 'Reb'
+    : statCat === 'player_assists' ? 'Ast' : 'Pts';
+  const medianVal = l5data[`median${sk}`];
+  if (!medianVal || !line) return 0;
+  const diff = medianVal - line;
+  // Median well above line = over is safer than mean suggests
+  if (side === 'OVER'  && diff > 1.5) return Math.min(0.04,  diff * 0.01);
+  if (side === 'UNDER' && diff < -1.5) return Math.min(0.04, -diff * 0.01);
+  // Median well below line = over looks worse than inflated mean suggests
+  if (side === 'OVER'  && diff < -2) return Math.max(-0.04,  diff * 0.01);
+  if (side === 'UNDER' && diff > 2)  return Math.max(-0.04, -diff * 0.01);
+  return 0;
+}
+
+// ── Minutes consistency penalty ──
+// High std dev of minutes = volatile player = riskier prop
+function minutesConsistencyPenalty(l5data) {
+  if (!l5data?.minStdDev) return 0;
+  const cv = l5data.minAvg > 0 ? l5data.minStdDev / l5data.minAvg : 0; // coefficient of variation
+  if (cv > 0.35) return -0.04; // very volatile minutes (>35% CV)
+  if (cv > 0.25) return -0.02;
+  if (cv > 0.15) return -0.01;
+  return 0;
+}
+
+// ── H2H vs opponent bonus ──
+function h2hBonus(l5data, line, side, statCat) {
+  if (!l5data?.h2hAvg || l5data.h2hGames.length < 2) return 0;
+  const sk = { player_points:'pts', player_rebounds:'reb', player_assists:'ast', player_points_rebounds_assists:'pra' }[statCat] || 'pts';
+  const h2hVal = sk === 'pra'
+    ? ((l5data.h2hAvg.pts||0) + (l5data.h2hAvg.reb||0) + (l5data.h2hAvg.ast||0))
+    : (l5data.h2hAvg[sk] || 0);
+  if (!h2hVal || !line) return 0;
+  const diff = (h2hVal - line) / line;
+  if (side === 'OVER')  return Math.max(-0.04, Math.min(0.04,  diff * 0.2));
+  if (side === 'UNDER') return Math.max(-0.04, Math.min(0.04, -diff * 0.2));
+  return 0;
 }
 
 function renderEdgeBoard() {
@@ -3172,9 +3433,40 @@ function renderEdgeBoard() {
         teamTotalBonus = Math.max(-0.04, Math.min(0.04, totalDev * 0.4));
       }
 
-      // Final combined score — 7 components:
-      const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus + paceBonus + b2bPenalty + restBonus + teamTotalBonus;
-      const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus - paceBonus + b2bPenalty + restBonus - teamTotalBonus;
+      // ── NEW: GAME TOTAL BONUS ──
+      const gameTotBonus = gameTotalBonus(prop.homeTeam, prop.awayTeam);
+
+      // ── NEW: BLOWOUT RISK PENALTY ──
+      const blowoutPenalty = blowoutRiskPenalty(prop.homeTeam, prop.awayTeam, playerTeamAbbr);
+
+      // ── NEW: LINE MOVEMENT ──
+      const lineMovOver  = lineMovementBonus(prop.player, prop.line, 'OVER');
+      const lineMovUnder = lineMovementBonus(prop.player, prop.line, 'UNDER');
+
+      // ── NEW: HOME/AWAY SPLIT (requires L5 data — use cached if available) ──
+      const l5cached = _l5Cache[prop.player];
+      const isPlayerHome = playerTeamAbbr && prop.homeTeam
+        ? (prop.homeTeam.toLowerCase().includes(playerStats?.team?.toLowerCase() || '###') ||
+           getTeamAbbr(prop.homeTeam)?.toUpperCase() === playerTeamAbbr?.toUpperCase())
+        : false;
+      const haSplitBonus = homeAwaySplitBonus(l5cached, isPlayerHome, activeEdgeCat);
+
+      // ── NEW: MEDIAN vs MEAN BONUS ──
+      const medMeanOver  = medianMeanBonus(l5cached, prop.line, 'OVER',  activeEdgeCat);
+      const medMeanUnder = medianMeanBonus(l5cached, prop.line, 'UNDER', activeEdgeCat);
+
+      // ── NEW: MINUTES CONSISTENCY PENALTY ──
+      const minConsPenalty = minutesConsistencyPenalty(l5cached);
+
+      // ── NEW: H2H vs OPPONENT ──
+      const h2hOver  = h2hBonus(l5cached, prop.line, 'OVER',  activeEdgeCat);
+      const h2hUnder = h2hBonus(l5cached, prop.line, 'UNDER', activeEdgeCat);
+
+      // Final combined score — 14 components:
+      const overScore  = evOver  + dvpBonus + lineAvgBonusOver  + mpgBonus + usgBonus + paceBonus + b2bPenalty + restBonus + teamTotalBonus
+                       + gameTotBonus + blowoutPenalty + lineMovOver  + haSplitBonus + medMeanOver  + minConsPenalty + h2hOver;
+      const underScore = evUnder - dvpBonus + lineAvgBonusUnder + mpgBonus + usgBonus - paceBonus + b2bPenalty + restBonus - teamTotalBonus
+                       - gameTotBonus + blowoutPenalty + lineMovUnder - haSplitBonus + medMeanUnder + minConsPenalty + h2hUnder;
 
       const gameTime = commenceTime ? new Date(commenceTime).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true }) : '';
       const gameLabel = `${prop.awayTeam.split(' ').pop()} @ ${prop.homeTeam.split(' ').pop()}${gameTime ? ' · ' + gameTime + ' ET' : ''}`;
@@ -3189,6 +3481,9 @@ function renderEdgeBoard() {
           book: PROP_BOOK_LABELS[bestOverBook] || bestOverBook,
           game: gameLabel, ppg: playerStats?.ppg,
           paceBonus, b2b, restDays: rest, restBonus, teamTotalBonus,
+          gameTotBonus, blowoutPenalty, lineMov: lineMovOver, haSplitBonus,
+          medMeanBonus: medMeanOver, minConsPenalty, h2hBonus: h2hOver,
+          isPlayerHome,
           teamAbbr: playerTeamAbbr, homeTeam: prop.homeTeam, awayTeam: prop.awayTeam,
           commenceTime
         });
@@ -3203,6 +3498,9 @@ function renderEdgeBoard() {
           book: PROP_BOOK_LABELS[bestUnderBook] || bestUnderBook,
           game: gameLabel, ppg: playerStats?.ppg,
           paceBonus: -paceBonus, b2b, restDays: rest, restBonus, teamTotalBonus: -teamTotalBonus,
+          gameTotBonus: -gameTotBonus, blowoutPenalty, lineMov: lineMovUnder, haSplitBonus: -haSplitBonus,
+          medMeanBonus: medMeanUnder, minConsPenalty, h2hBonus: h2hUnder,
+          isPlayerHome,
           teamAbbr: playerTeamAbbr, homeTeam: prop.homeTeam, awayTeam: prop.awayTeam,
           commenceTime
         });
@@ -3232,6 +3530,14 @@ function renderEdgeBoard() {
         : '';
       const statHint = r.seasonAvg ? `<span>Avg: ${r.seasonAvg.toFixed(1)}</span>` : '';
       const paceHint = r.paceBonus ? `<span style="color:${r.paceBonus > 0.01 ? 'var(--green)' : r.paceBonus < -0.01 ? 'var(--amber)' : 'var(--text3)'}">${r.paceBonus > 0.01 ? '⚡ Fast pace' : r.paceBonus < -0.01 ? '🐢 Slow pace' : ''}</span>` : '';
+      const blowoutHint = r.blowoutPenalty && r.blowoutPenalty < -0.01 ? `<span style="color:var(--amber)">💤 Blowout risk</span>` : '';
+      const lineMovHint = r.lineMov && Math.abs(r.lineMov) > 0.005
+        ? `<span style="color:${r.lineMov > 0 ? 'var(--green)' : 'var(--amber)'}">${r.lineMov > 0 ? '📈 Line moved ✓' : '📉 Line moved ✗'}</span>` : '';
+      const haSplitHint = r.haSplitBonus && Math.abs(r.haSplitBonus) > 0.01
+        ? `<span style="color:${r.haSplitBonus > 0 ? 'var(--green)' : 'var(--amber)'}">${r.isPlayerHome ? '🏠' : '✈️'} ${r.haSplitBonus > 0 ? 'Favors' : 'Fades'} ${r.isPlayerHome ? 'home' : 'away'}</span>` : '';
+      const minConsHint = r.minConsPenalty && r.minConsPenalty < -0.01 ? `<span style="color:var(--amber)">⏱️ Volatile mins</span>` : '';
+      const h2hHint = r.h2hBonus && Math.abs(r.h2hBonus) > 0.005
+        ? `<span style="color:${r.h2hBonus > 0 ? 'var(--green)' : 'var(--amber)'}">${r.h2hBonus > 0 ? '🔄 Good H2H' : '🔄 Bad H2H'}</span>` : '';
       const b2bHint = r.b2b ? `<span style="color:var(--red)">⚠️ B2B</span>` : (r.restDays >= 3 ? `<span style="color:var(--green)">✅ ${r.restDays}d rest</span>` : '');
       const totalHint = r.teamTotalBonus > 0.01 ? `<span style="color:var(--green)">📈 High team total</span>` : r.teamTotalBonus < -0.01 ? `<span style="color:var(--amber)">📉 Low team total</span>` : '';
       return `<div class="edge-row ${rank <= 3 ? 'edge-top' : ''}" onclick="addToParlay('edge_${r.player}_${activeEdgeCat}_${r.side}','${r.player} ${r.side === 'OVER' ? 'O' : 'U'}${r.line} ${catLabel}',${r.bestOdds},'${r.book}',0.5)">
@@ -3248,7 +3554,7 @@ function renderEdgeBoard() {
             <span>${r.game}</span>
             ${r.pos ? `<span>${r.pos}</span>` : ''}
             ${r.dvpRank ? `<span>Def rank #${r.dvpRank}</span>` : ''}
-            ${statHint} ${paceHint} ${b2bHint} ${totalHint}
+            ${statHint} ${paceHint} ${b2bHint} ${totalHint} ${blowoutHint} ${lineMovHint} ${haSplitHint} ${minConsHint} ${h2hHint}
             <span style="color:var(--text2)">
               EV: ${r.ev > 0 ? '+' : ''}${r.ev.toFixed(3)}
               · DvP: ${r.dvpBonus >= 0 ? '+' : ''}${r.dvpBonus.toFixed(3)}
@@ -3721,6 +4027,61 @@ async function handleAppleAuth() {
   if (error) showAuthError(error.message);
 }
 
+
+// ── Apple IAP / Subscription Handlers ──
+// These functions bridge to StoreKit via WKWebView message passing when running
+// inside the native iOS wrapper app. On web, they fall back gracefully.
+
+function handleUpgrade() {
+  const btn = document.getElementById('upgradeBtn');
+  if (btn) { btn.textContent = 'OPENING...'; btn.disabled = true; }
+  // Try to call native iOS StoreKit bridge (injected by WKWebView)
+  if (window.webkit?.messageHandlers?.iapHandler) {
+    // Native iOS app — trigger StoreKit purchase sheet
+    window.webkit.messageHandlers.iapHandler.postMessage({
+      action: 'purchase',
+      productId: 'com.theedge.pro.monthly'
+    });
+  } else {
+    // Web fallback — redirect to a payment page or show message
+    alert('To subscribe, please download The Edge app from the App Store, or contact support@theedge.app');
+    if (btn) { btn.textContent = 'UPGRADE TO PRO'; btn.disabled = false; }
+  }
+}
+
+function handleRestorePurchase() {
+  if (window.webkit?.messageHandlers?.iapHandler) {
+    // Native iOS — trigger StoreKit restore
+    window.webkit.messageHandlers.iapHandler.postMessage({ action: 'restore' });
+  } else {
+    alert('Restore is only available in the iOS app. If you have a web subscription, sign in with your account.');
+  }
+}
+
+// Called by native iOS app after successful purchase/restore
+// The app verifies the receipt server-side and sets is_pro = true in Supabase,
+// then calls this function via WKWebView evaluateJavaScript
+function onIAPSuccess(productId) {
+  console.log('[IAP] Purchase/restore success:', productId);
+  document.getElementById('proLockScreen').style.display = 'none';
+  // Refresh pro status from Supabase
+  checkProStatus().then(() => {
+    updateUserBadge();
+    // Show success message
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;font-family:var(--mono);font-size:0.75rem;font-weight:700;letter-spacing:2px;padding:12px 24px;border-radius:4px;z-index:999';
+    toast.textContent = '⚡ PRO UNLOCKED';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  });
+}
+
+function onIAPFailed(error) {
+  console.warn('[IAP] Purchase failed:', error);
+  const btn = document.getElementById('upgradeBtn');
+  if (btn) { btn.textContent = 'UPGRADE TO PRO'; btn.disabled = false; }
+}
+
 async function handleSignOut() {
   // Clear all Supabase session keys from storage
   Object.keys(localStorage).forEach(key => {
@@ -4074,9 +4435,33 @@ function _buildDeepDataCore() {
       // Teammate opportunity
       const teammateOut = hasTeammateOut(r.player, inj?.team || r.team || '');
 
-      // True probability: implied + EV + L5 trend + injury penalty
-      const baseTrueProb = Math.min(0.95, Math.max(0.05, impliedProb + (r.ev || 0) + (l5TrendBonus || 0)));
-      const trueProb = Math.min(0.95, Math.max(0.05, baseTrueProb + penalty));
+      // ── New factors for Deep Analysis true probability ──
+      const l5data = _l5Cache[r.player] || null;
+      const isPlayerHomeDA = r.isPlayerHome || false;
+      const haSplitBonusDA = homeAwaySplitBonus(l5data, isPlayerHomeDA, cat);
+      const medMeanBonusDA = medianMeanBonus(l5data, r.line, r.side, cat);
+      const minConsPenaltyDA = minutesConsistencyPenalty(l5data);
+      const h2hBonusDA = h2hBonus(l5data, r.line, r.side, cat);
+      const blowoutPenaltyDA = r.blowoutPenalty || 0;
+      const lineMovDA = r.lineMov || 0;
+
+      // H2H display data
+      const h2hData = l5data?.h2hAvg || null;
+      // Home/away split display
+      const splitData = isPlayerHomeDA ? l5data?.homeSplit : l5data?.awaySplit;
+      // Median value for display
+      const cat2median = { player_points: l5data?.medianPts, player_rebounds: l5data?.medianReb,
+                           player_assists: l5data?.medianAst, player_points_rebounds_assists: null };
+      const medianVal = cat2median[cat] || null;
+      // Minutes CV for display
+      const minCV = l5data?.minAvg > 0 ? (l5data.minStdDev / l5data.minAvg) : null;
+
+      // True probability: implied + EV + L5 trend + home/away split + median + injury penalty
+      const baseTrueProb = Math.min(0.95, Math.max(0.05,
+        impliedProb + (r.ev || 0) + (l5TrendBonus || 0)
+        + haSplitBonusDA + medMeanBonusDA + h2hBonusDA + lineMovDA
+      ));
+      const trueProb = Math.min(0.95, Math.max(0.05, baseTrueProb + penalty + minConsPenaltyDA + blowoutPenaltyDA));
 
       // Overall verdict — factor in injury penalty and teammate opportunity
       let verdict, verdictClass;
@@ -4099,13 +4484,23 @@ function _buildDeepDataCore() {
         injReason: inj ? inj.reason : null,
         injPenalty: penalty,
         teammateOut,
-        // new feature fields
+        // existing feature fields
         l5avg, l5hr, l15hr, l5Trend, l5TrendBonus,
         paceBonus: r.paceBonus || 0,
         b2b: r.b2b || false,
         restDays: r.restDays !== undefined ? r.restDays : null,
         restBonus: r.restBonus || 0,
         teamTotalBonus: r.teamTotalBonus || 0,
+        // new factors
+        haSplitBonus: haSplitBonusDA,
+        medMeanBonus: medMeanBonusDA,
+        minConsPenalty: minConsPenaltyDA,
+        h2hBonus: h2hBonusDA,
+        blowoutPenalty: blowoutPenaltyDA,
+        lineMov: lineMovDA,
+        isPlayerHome: isPlayerHomeDA,
+        h2hData, splitData, medianVal, minCV,
+        gameTotBonus: r.gameTotBonus || 0,
       });
     });
   });
@@ -4204,6 +4599,64 @@ function renderDeepCards(data) {
         })()
       : '';
 
+    // ── NEW: Blowout risk signal ──
+    const blowoutHtml = d.blowoutPenalty && d.blowoutPenalty < -0.01
+      ? `<div class="da-signal"><span class="da-signal-icon">💤</span><span class="da-signal-text"><strong style="color:var(--amber)">Blowout risk</strong> — team is a heavy favourite, starters may sit in 4th quarter</span></div>`
+      : '';
+
+    // ── NEW: Line movement signal ──
+    const lineMovHtml = d.lineMov && Math.abs(d.lineMov) > 0.005
+      ? (() => {
+          const pos = d.lineMov > 0;
+          return `<div class="da-signal"><span class="da-signal-icon">${pos ? '📈' : '📉'}</span><span class="da-signal-text">Line movement: <strong style="color:${pos ? 'var(--green)' : 'var(--amber)'}">${pos ? 'Favourable' : 'Unfavourable'}</strong> — books shifted line ${pos ? 'in our direction' : 'against our bet'}</span></div>`;
+        })()
+      : '';
+
+    // ── NEW: Home/Away split signal ──
+    const haSplitHtml = d.splitData && Math.abs(d.haSplitBonus || 0) > 0.01
+      ? (() => {
+          const loc = d.isPlayerHome ? 'Home' : 'Away';
+          const avg = d.splitData ? (d.splitData.pts || 0).toFixed(1) : '—';
+          const pos = (d.haSplitBonus || 0) > 0;
+          return `<div class="da-signal"><span class="da-signal-icon">${d.isPlayerHome ? '🏠' : '✈️'}</span><span class="da-signal-text">${loc} split avg: <strong style="color:${pos ? 'var(--green)' : 'var(--amber)'}">${avg} pts</strong> — player ${pos ? 'historically stronger' : 'historically weaker'} in this ${loc.toLowerCase()} setting</span></div>`;
+        })()
+      : '';
+
+    // ── NEW: Median vs Mean signal ──
+    const medianHtml = d.medianVal != null && Math.abs(d.medMeanBonus || 0) > 0.005
+      ? (() => {
+          const pos = (d.medMeanBonus || 0) > 0;
+          return `<div class="da-signal"><span class="da-signal-icon">📊</span><span class="da-signal-text">Median: <strong style="color:${pos ? 'var(--green)' : 'var(--amber)'}">${d.medianVal.toFixed(1)}</strong> vs season avg ${d.seasonAvg ? d.seasonAvg.toFixed(1) : '—'} — ${pos ? 'median supports this line' : 'outlier games inflate avg, median suggests caution'}</span></div>`;
+        })()
+      : '';
+
+    // ── NEW: Minutes consistency signal ──
+    const minConsHtml = d.minCV != null && d.minCV > 0.15
+      ? (() => {
+          const high = d.minCV > 0.35, med = d.minCV > 0.25;
+          const label = high ? 'Very volatile' : med ? 'Volatile' : 'Somewhat volatile';
+          const color = high ? 'var(--red)' : 'var(--amber)';
+          return `<div class="da-signal"><span class="da-signal-icon">⏱️</span><span class="da-signal-text">Minutes consistency: <strong style="color:${color}">${label}</strong> — ${Math.round(d.minCV*100)}% coefficient of variation in minutes played</span></div>`;
+        })()
+      : '';
+
+    // ── NEW: H2H vs opponent signal ──
+    const h2hHtml = d.h2hData && d.h2hData.games >= 2 && Math.abs(d.h2hBonus || 0) > 0.005
+      ? (() => {
+          const pos = (d.h2hBonus || 0) > 0;
+          const pts = (d.h2hData.pts || 0).toFixed(1);
+          return `<div class="da-signal"><span class="da-signal-icon">🔄</span><span class="da-signal-text">H2H vs opponent (${d.h2hData.games} games): <strong style="color:${pos ? 'var(--green)' : 'var(--amber)'}">${pts} pts avg</strong> — player ${pos ? 'historically strong' : 'historically struggles'} vs this defence</span></div>`;
+        })()
+      : '';
+
+    // ── NEW: Game total signal ──
+    const gameTotHtml = d.gameTotBonus && Math.abs(d.gameTotBonus) > 0.005
+      ? (() => {
+          const high = d.gameTotBonus > 0;
+          return `<div class="da-signal"><span class="da-signal-icon">${high ? '🏀' : '🛡️'}</span><span class="da-signal-text">Game total O/U: <strong style="color:${high ? 'var(--green)' : 'var(--amber)'}">${high ? 'High-scoring game projected' : 'Low-scoring game projected'}</strong> — ${high ? 'benefits all counting stats' : 'suppresses counting stat ceilings'}</span></div>`;
+        })()
+      : '';
+
     // ── Injury badge HTML ──
     const injBadge = d.injStatus
       ? (() => {
@@ -4267,6 +4720,21 @@ function renderDeepCards(data) {
             <div class="da-metric-value" style="color:${d.l15hr != null ? (d.l15hr >= 0.7 ? 'var(--green)' : d.l15hr < 0.5 ? 'var(--red)' : 'var(--text2)') : 'var(--text3)'}">${d.l15hr != null ? Math.round(d.l15hr*100)+'%' : '—'}</div>
             <div class="da-metric-note">${d.side} ${d.line} ${d.catLabel}</div>
           </div>
+          <div class="da-metric">
+            <div class="da-metric-label">Median</div>
+            <div class="da-metric-value" style="color:${d.medianVal != null ? (d.medianVal > (d.line||0) ? 'var(--green)' : d.medianVal < (d.line||0)*0.9 ? 'var(--red)' : 'var(--text2)') : 'var(--text3)'}">${d.medianVal != null ? d.medianVal.toFixed(1) : '—'}</div>
+            <div class="da-metric-note">vs mean ${d.seasonAvg ? d.seasonAvg.toFixed(1) : '—'}</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">${d.isPlayerHome ? '🏠 Home' : '✈️ Away'} Avg</div>
+            <div class="da-metric-value" style="color:${d.splitData ? ((d.haSplitBonus||0) > 0.01 ? 'var(--green)' : (d.haSplitBonus||0) < -0.01 ? 'var(--red)' : 'var(--text2)') : 'var(--text3)'}">${d.splitData ? (d.splitData.pts||0).toFixed(1) : '—'}</div>
+            <div class="da-metric-note">${d.isPlayerHome ? 'home split pts' : 'road split pts'}</div>
+          </div>
+          <div class="da-metric">
+            <div class="da-metric-label">Mins Volatility</div>
+            <div class="da-metric-value" style="color:${d.minCV != null ? (d.minCV > 0.35 ? 'var(--red)' : d.minCV > 0.2 ? 'var(--amber)' : 'var(--green)') : 'var(--text3)'}">${d.minCV != null ? Math.round(d.minCV*100)+'%' : '—'}</div>
+            <div class="da-metric-note">coeff. of variation</div>
+          </div>
         </div>
         <div style="margin-bottom:10px">
           ${injHtml}
@@ -4280,6 +4748,13 @@ function renderDeepCards(data) {
           ${paceHtml}
           ${b2bHtml}
           ${totalHtml}
+          ${gameTotHtml}
+          ${blowoutHtml}
+          ${lineMovHtml}
+          ${haSplitHtml}
+          ${medianHtml}
+          ${minConsHtml}
+          ${h2hHtml}
           ${sharpHtml}
         </div>
         <div class="da-verdict ${d.verdictClass}">${d.verdict} — EV ${evStr} · True prob ${tpStr} · Edge score ${edgeStr}</div>
@@ -4295,14 +4770,21 @@ async function generateAIPicks(data) {
   // Build a compact summary of top bets for Claude to analyze
   const top = data.slice(0, 20); // send top 20 by edge score
   const betSummaries = top.map((d, i) => {
-    const injNote = d.injStatus ? ` | INJURY: ${d.injStatus}${d.injReason ? ' ('+d.injReason+')' : ''}` : '';
-    const oppNote = d.teammateOut ? ' | TEAMMATE OUT (opportunity)' : '';
-    const l5Note  = d.l5avg != null ? ` | L5 avg: ${d.l5avg.toFixed(1)}${d.l5Trend != null ? ' (trend: '+(d.l5Trend>0?'+':'')+d.l5Trend.toFixed(1)+')' : ''}` : '';
-    const hrNote  = d.l15hr != null ? ` | L15 hit rate: ${Math.round(d.l15hr*100)}%` : '';
-    const b2bNote = d.b2b ? ' | B2B (fatigue)' : (d.restDays >= 3 ? ` | ${d.restDays}d rest` : '');
+    const injNote  = d.injStatus ? ` | INJURY: ${d.injStatus}${d.injReason ? ' ('+d.injReason+')' : ''}` : '';
+    const oppNote  = d.teammateOut ? ' | TEAMMATE OUT (opportunity)' : '';
+    const l5Note   = d.l5avg != null ? ` | L5 avg: ${d.l5avg.toFixed(1)}${d.l5Trend != null ? ' (trend: '+(d.l5Trend>0?'+':'')+d.l5Trend.toFixed(1)+')' : ''}` : '';
+    const hrNote   = d.l15hr != null ? ` | L15 hit rate: ${Math.round(d.l15hr*100)}%` : '';
+    const b2bNote  = d.b2b ? ' | B2B (fatigue)' : (d.restDays >= 3 ? ` | ${d.restDays}d rest` : '');
     const paceNote = Math.abs(d.paceBonus||0) > 0.01 ? ` | Pace: ${(d.paceBonus||0)>0?'fast':'slow'}` : '';
-    const totNote = Math.abs(d.teamTotalBonus||0) > 0.01 ? ` | Team total: ${(d.teamTotalBonus||0)>0?'high':'low'}` : '';
-    return `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}%${l5Note}${hrNote}${b2bNote}${paceNote}${totNote}${injNote}${oppNote}`;
+    const totNote  = Math.abs(d.teamTotalBonus||0) > 0.01 ? ` | Team total: ${(d.teamTotalBonus||0)>0?'high':'low'}` : '';
+    const medNote  = d.medianVal != null ? ` | Median: ${d.medianVal.toFixed(1)}` : '';
+    const haNote   = d.splitData ? ` | ${d.isPlayerHome?'Home':'Away'} split: ${(d.splitData.pts||0).toFixed(1)} pts` : '';
+    const minNote  = d.minCV != null && d.minCV > 0.2 ? ` | Volatile mins (${Math.round(d.minCV*100)}% CV)` : '';
+    const h2hNote  = d.h2hData?.games >= 2 ? ` | H2H vs opp: ${(d.h2hData.pts||0).toFixed(1)} pts (${d.h2hData.games}g)` : '';
+    const blowNote = d.blowoutPenalty && d.blowoutPenalty < -0.01 ? ' | BLOWOUT RISK (heavy favourite)' : '';
+    const lineMovNote = d.lineMov && Math.abs(d.lineMov) > 0.005 ? ` | Line movement: ${d.lineMov > 0 ? 'favourable' : 'unfavourable'}` : '';
+    const gameTotNote = Math.abs(d.gameTotBonus||0) > 0.005 ? ` | Game O/U: ${(d.gameTotBonus||0)>0?'high':'low'}` : '';
+    return `${i+1}. ${d.player} ${d.side} ${d.line} ${d.catLabel} (${d.book}, odds ${d.bestOdds > 0 ? '+' + d.bestOdds : d.bestOdds}) | EV: ${(d.ev*100).toFixed(1)}% | Edge: ${d.score.toFixed(3)} | DVP bonus: ${d.dvpBonus} | Season avg: ${d.seasonAvg ? d.seasonAvg.toFixed(1) : 'N/A'} | Median: ${d.medianVal ? d.medianVal.toFixed(1) : 'N/A'} | Line vs avg: ${d.lineVsPct !== null ? d.lineVsPct + '%' : 'N/A'} | Usage: ${d.usg || 'N/A'}% | MPG: ${d.mpg || 'N/A'} | True prob est: ${(d.trueProb*100).toFixed(1)}%${l5Note}${hrNote}${b2bNote}${paceNote}${totNote}${medNote}${haNote}${minNote}${h2hNote}${blowNote}${lineMovNote}${gameTotNote}${injNote}${oppNote}`;
   }).join('\n');
 
   const prompt = `You are an expert NBA prop bet analyst. Below are today's top edge bets ranked by edge score, with key statistical factors.
