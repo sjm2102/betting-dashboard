@@ -1,0 +1,41 @@
+{
+  "name": "The Edge — NBA Betting Dashboard",
+  "short_name": "The Edge",
+  "description": "AI-powered NBA betting analytics. Edge scores, player props, best parlays, and deep analysis.",
+  "start_url": "/betting-dashboard/",
+  "scope": "/betting-dashboard/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "categories": ["sports", "finance"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-odds.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "label": "Live NBA Odds"
+    },
+    {
+      "src": "screenshot-edge.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "label": "Edge Board"
+    }
+  ]
+}
