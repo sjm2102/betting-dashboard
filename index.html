@@ -3,13 +3,14 @@
 <head>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Edge">
 <meta name="theme-color" content="#0a0a0a">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src https://vytelzvzopovvdlycyam.supabase.co https://odds-proxy.stevenmcgraw89.workers.dev https://*.espn.com https://site.web.api.espn.com https://site.api.espn.com https://sjm2102.github.io https://ak-static.cms.nba.com; img-src 'self' data: https:; font-src 'self' data:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src https://vytelzvzopovvdlycyam.supabase.co https://odds-proxy.stevenmcgraw89.workers.dev https://*.espn.com https://site.web.api.espn.com https://site.api.espn.com https://sjm2102.github.io https://ak-static.cms.nba.com cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com;">
 <title>The Edge — NBA Betting Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -4436,7 +4437,7 @@ function _buildDeepDataCore() {
       const teammateOut = hasTeammateOut(r.player, inj?.team || r.team || '');
 
       // ── New factors for Deep Analysis true probability ──
-      const l5data = _l5Cache[r.player] || null;
+      // l5data already declared above — reuse it here
       const isPlayerHomeDA = r.isPlayerHome || false;
       const haSplitBonusDA = homeAwaySplitBonus(l5data, isPlayerHomeDA, cat);
       const medMeanBonusDA = medianMeanBonus(l5data, r.line, r.side, cat);
