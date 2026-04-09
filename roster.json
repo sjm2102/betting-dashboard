@@ -92,32 +92,32 @@
   "Luguentz Dort": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 8.5,
+    "ppg": 8.4,
     "rpg": 3.6,
-    "apg": 1.3,
-    "mpg": 27.1,
-    "usg": 14.2,
-    "gp": 66
+    "apg": 1.2,
+    "mpg": 27,
+    "usg": 14.1,
+    "gp": 67
   },
   "Chet Holmgren": {
     "team": "OKC",
     "pos": "C-F",
-    "ppg": 16.9,
-    "rpg": 8.8,
-    "apg": 1.6,
+    "ppg": 17.1,
+    "rpg": 8.9,
+    "apg": 1.7,
     "mpg": 28.9,
-    "usg": 21.8,
-    "gp": 68
+    "usg": 21.9,
+    "gp": 69
   },
   "Isaiah Hartenstein": {
     "team": "OKC",
     "pos": "C-F",
     "ppg": 9.2,
-    "rpg": 9.5,
-    "apg": 3.6,
-    "mpg": 24.3,
-    "usg": 16.2,
-    "gp": 46
+    "rpg": 9.4,
+    "apg": 3.5,
+    "mpg": 24.2,
+    "usg": 16.1,
+    "gp": 47
   },
   "Cason Wallace": {
     "team": "OKC",
@@ -127,47 +127,47 @@
     "apg": 2.6,
     "mpg": 26.6,
     "usg": 14.5,
-    "gp": 76
+    "gp": 77
   },
   "Shai Gilgeous-Alexander": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 31.3,
+    "ppg": 31.1,
     "rpg": 4.3,
-    "apg": 6.5,
-    "mpg": 33.3,
+    "apg": 6.6,
+    "mpg": 33.2,
     "usg": 33.4,
-    "gp": 67
+    "gp": 68
   },
   "Jaylin Williams": {
     "team": "OKC",
     "pos": "F",
-    "ppg": 7.3,
+    "ppg": 7.2,
     "rpg": 5.5,
-    "apg": 2.5,
+    "apg": 2.4,
     "mpg": 19.7,
     "usg": 15.6,
-    "gp": 64
+    "gp": 65
   },
   "Aaron Wiggins": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 9.6,
+    "ppg": 9.4,
     "rpg": 3.1,
     "apg": 1.6,
-    "mpg": 21.9,
+    "mpg": 21.6,
     "usg": 19.9,
-    "gp": 62
+    "gp": 63
   },
   "Alex Caruso": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 6.3,
-    "rpg": 2.7,
+    "ppg": 6.2,
+    "rpg": 2.8,
     "apg": 2,
-    "mpg": 18.3,
-    "usg": 15.8,
-    "gp": 55
+    "mpg": 18.2,
+    "usg": 15.7,
+    "gp": 56
   },
   "Brooks Barnhizer": {
     "team": "OKC",
@@ -182,12 +182,12 @@
   "Ajay Mitchell": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 13.7,
-    "rpg": 3.4,
+    "ppg": 13.6,
+    "rpg": 3.3,
     "apg": 3.6,
-    "mpg": 25.9,
-    "usg": 21.9,
-    "gp": 56
+    "mpg": 25.8,
+    "usg": 21.8,
+    "gp": 57
   },
   "Chris Youngblood": {
     "team": "OKC",
@@ -212,12 +212,12 @@
   "Jonathan Kuminga": {
     "team": "ATL",
     "pos": "F",
-    "ppg": 11.2,
+    "ppg": 12.1,
     "rpg": 5.3,
     "apg": 2.1,
-    "mpg": 21.5,
-    "usg": 21.4,
-    "gp": 14
+    "mpg": 22.1,
+    "usg": 22.1,
+    "gp": 15
   },
   "Draymond Green": {
     "team": "GOL",
@@ -342,12 +342,12 @@
   "Gabe Vincent": {
     "team": "ATL",
     "pos": "G",
-    "ppg": 3.6,
+    "ppg": 3.9,
     "rpg": 1.1,
     "apg": 1.7,
     "mpg": 13.3,
-    "usg": 14,
-    "gp": 22
+    "usg": 13.9,
+    "gp": 23
   },
   "Luka Doncic": {
     "team": "LAL",
@@ -402,12 +402,12 @@
   "Evan Mobley": {
     "team": "CLE",
     "pos": "C",
-    "ppg": 18.2,
-    "rpg": 8.9,
-    "apg": 3.7,
-    "mpg": 32,
-    "usg": 22.4,
-    "gp": 63
+    "ppg": 18.3,
+    "rpg": 9.1,
+    "apg": 3.6,
+    "mpg": 32.1,
+    "usg": 22.5,
+    "gp": 64
   },
   "Jaylon Tyson": {
     "team": "CLE",
@@ -422,32 +422,32 @@
   "Jarrett Allen": {
     "team": "CLE",
     "pos": "C",
-    "ppg": 15.3,
+    "ppg": 15.4,
     "rpg": 8.5,
     "apg": 1.8,
     "mpg": 27.1,
-    "usg": 19.8,
-    "gp": 55
+    "usg": 19.9,
+    "gp": 56
   },
   "Sam Merrill": {
     "team": "CLE",
     "pos": "G",
-    "ppg": 12.9,
+    "ppg": 12.8,
     "rpg": 2.6,
     "apg": 2.4,
     "mpg": 26.5,
-    "usg": 17.3,
-    "gp": 51
+    "usg": 17,
+    "gp": 52
   },
   "Donovan Mitchell": {
     "team": "CLE",
     "pos": "G",
-    "ppg": 27.8,
+    "ppg": 27.9,
     "rpg": 4.5,
     "apg": 5.7,
-    "mpg": 33.4,
+    "mpg": 33.5,
     "usg": 32.2,
-    "gp": 69
+    "gp": 70
   },
   "Dean Wade": {
     "team": "CLE",
@@ -456,8 +456,8 @@
     "rpg": 4.2,
     "apg": 1.5,
     "mpg": 22.4,
-    "usg": 10.1,
-    "gp": 57
+    "usg": 10,
+    "gp": 58
   },
   "Lonzo Ball": {
     "team": "CLE",
@@ -646,7 +646,7 @@
     "rpg": 1.6,
     "apg": 1.9,
     "mpg": 16.6,
-    "usg": 30.5,
+    "usg": 30.4,
     "gp": 18
   },
   "Ben Saraf": {
@@ -942,12 +942,12 @@
   "Franz Wagner": {
     "team": "ORL",
     "pos": "F",
-    "ppg": 20.5,
-    "rpg": 5.5,
+    "ppg": 20.4,
+    "rpg": 5.3,
     "apg": 3.4,
-    "mpg": 30.6,
+    "mpg": 30.3,
     "usg": 26.6,
-    "gp": 31
+    "gp": 32
   },
   "Paolo Banchero": {
     "team": "ORL",
@@ -955,39 +955,39 @@
     "ppg": 22.3,
     "rpg": 8.4,
     "apg": 5.1,
-    "mpg": 34.9,
-    "usg": 27.6,
-    "gp": 69
+    "mpg": 34.8,
+    "usg": 27.5,
+    "gp": 70
   },
   "Wendell Carter Jr.": {
     "team": "ORL",
     "pos": "C-F",
-    "ppg": 12.1,
+    "ppg": 11.9,
     "rpg": 7.4,
     "apg": 2,
-    "mpg": 29.5,
+    "mpg": 29.4,
     "usg": 15.7,
-    "gp": 75
+    "gp": 76
   },
   "Desmond Bane": {
     "team": "ORL",
     "pos": "G",
     "ppg": 20.5,
     "rpg": 4.2,
-    "apg": 4.1,
-    "mpg": 34.1,
+    "apg": 4.2,
+    "mpg": 34,
     "usg": 23.4,
-    "gp": 79
+    "gp": 80
   },
   "Jalen Suggs": {
     "team": "ORL",
     "pos": "G",
     "ppg": 13.7,
     "rpg": 3.9,
-    "apg": 5.6,
+    "apg": 5.5,
     "mpg": 27.6,
-    "usg": 23,
-    "gp": 54
+    "usg": 22.8,
+    "gp": 55
   },
   "Tyus Jones": {
     "team": "DEN",
@@ -1012,22 +1012,22 @@
   "Anthony Black": {
     "team": "ORL",
     "pos": "G",
-    "ppg": 15.3,
+    "ppg": 15.1,
     "rpg": 3.8,
     "apg": 3.8,
-    "mpg": 30.4,
+    "mpg": 30.2,
     "usg": 22.2,
-    "gp": 61
+    "gp": 62
   },
   "Goga Bitadze": {
     "team": "ORL",
     "pos": "C-F",
-    "ppg": 5.6,
-    "rpg": 4.7,
+    "ppg": 5.7,
+    "rpg": 4.9,
     "apg": 1.3,
-    "mpg": 15,
-    "usg": 13.2,
-    "gp": 61
+    "mpg": 15.1,
+    "usg": 13.4,
+    "gp": 62
   },
   "Tristan da Silva": {
     "team": "ORL",
@@ -1035,9 +1035,9 @@
     "ppg": 10,
     "rpg": 3.7,
     "apg": 1.5,
-    "mpg": 24.8,
-    "usg": 16.3,
-    "gp": 74
+    "mpg": 24.7,
+    "usg": 16.4,
+    "gp": 75
   },
   "Brandon Ingram": {
     "team": "TOR",
@@ -1156,18 +1156,18 @@
     "rpg": 3.8,
     "apg": 1.1,
     "mpg": 22.5,
-    "usg": 17.6,
+    "usg": 17.5,
     "gp": 65
   },
   "Jalen Johnson": {
     "team": "ATL",
     "pos": "F",
-    "ppg": 22.7,
+    "ppg": 22.6,
     "rpg": 10.3,
-    "apg": 8,
+    "apg": 7.9,
     "mpg": 35.3,
     "usg": 27,
-    "gp": 70
+    "gp": 71
   },
   "Kristaps Porzingis": {
     "team": "GOL",
@@ -1187,7 +1187,7 @@
     "apg": 5.8,
     "mpg": 33.2,
     "usg": 16,
-    "gp": 74
+    "gp": 75
   },
   "Trae Young": {
     "team": "WAS",
@@ -1202,12 +1202,12 @@
   "Nickeil Alexander-Walker": {
     "team": "ATL",
     "pos": "G",
-    "ppg": 20.8,
+    "ppg": 20.9,
     "rpg": 3.5,
     "apg": 3.7,
-    "mpg": 33.3,
+    "mpg": 33.4,
     "usg": 24,
-    "gp": 76
+    "gp": 77
   },
   "Keaton Wallace": {
     "team": "ATL",
@@ -1232,22 +1232,22 @@
   "Onyeka Okongwu": {
     "team": "ATL",
     "pos": "F-C",
-    "ppg": 15.3,
-    "rpg": 7.7,
+    "ppg": 15.4,
+    "rpg": 7.6,
     "apg": 3.2,
     "mpg": 31.1,
     "usg": 19.7,
-    "gp": 72
+    "gp": 73
   },
   "Mouhamed Gueye": {
     "team": "ATL",
     "pos": "F",
-    "ppg": 4.5,
+    "ppg": 4.4,
     "rpg": 3.6,
     "apg": 0.9,
-    "mpg": 15.3,
+    "mpg": 15.4,
     "usg": 12.4,
-    "gp": 75
+    "gp": 76
   },
   "Kelly Oubre Jr.": {
     "team": "PHI",
@@ -1453,11 +1453,11 @@
     "team": "DET",
     "pos": "G-F",
     "ppg": 9.9,
-    "rpg": 5.8,
+    "rpg": 5.7,
     "apg": 3.1,
-    "mpg": 26.1,
-    "usg": 17,
-    "gp": 70
+    "mpg": 26,
+    "usg": 16.9,
+    "gp": 71
   },
   "Tobias Harris": {
     "team": "DET",
@@ -1465,9 +1465,9 @@
     "ppg": 13.2,
     "rpg": 5.1,
     "apg": 2.6,
-    "mpg": 27.9,
+    "mpg": 27.8,
     "usg": 18.9,
-    "gp": 60
+    "gp": 61
   },
   "Jalen Duren": {
     "team": "DET",
@@ -1477,37 +1477,37 @@
     "apg": 1.9,
     "mpg": 28.3,
     "usg": 23.6,
-    "gp": 68
+    "gp": 69
   },
   "Duncan Robinson": {
     "team": "DET",
     "pos": "F",
-    "ppg": 12,
+    "ppg": 12.1,
     "rpg": 2.7,
     "apg": 2.1,
-    "mpg": 27.6,
-    "usg": 15.6,
-    "gp": 74
+    "mpg": 27.5,
+    "usg": 15.7,
+    "gp": 75
   },
   "Cade Cunningham": {
     "team": "DET",
     "pos": "G",
-    "ppg": 24.5,
+    "ppg": 24.4,
     "rpg": 5.6,
     "apg": 9.9,
-    "mpg": 34.4,
-    "usg": 30.7,
-    "gp": 61
+    "mpg": 34.2,
+    "usg": 30.6,
+    "gp": 62
   },
   "Isaiah Stewart": {
     "team": "DET",
     "pos": "F-C",
     "ppg": 10,
-    "rpg": 5.1,
+    "rpg": 5,
     "apg": 1.2,
-    "mpg": 23.2,
-    "usg": 16.4,
-    "gp": 55
+    "mpg": 22.9,
+    "usg": 16.5,
+    "gp": 56
   },
   "Caris LeVert": {
     "team": "DET",
@@ -1516,18 +1516,18 @@
     "rpg": 2,
     "apg": 2.7,
     "mpg": 19.4,
-    "usg": 18.4,
-    "gp": 57
+    "usg": 18.3,
+    "gp": 58
   },
   "Ronald Holland II": {
     "team": "DET",
     "pos": "F",
-    "ppg": 8.1,
+    "ppg": 8.2,
     "rpg": 4,
     "apg": 1.2,
-    "mpg": 19.8,
-    "usg": 18.9,
-    "gp": 75
+    "mpg": 19.9,
+    "usg": 19,
+    "gp": 76
   },
   "Paul Reed": {
     "team": "DET",
@@ -1535,19 +1535,19 @@
     "ppg": 7.5,
     "rpg": 4.5,
     "apg": 1.2,
-    "mpg": 13.9,
-    "usg": 20.4,
-    "gp": 62
+    "mpg": 13.8,
+    "usg": 20.5,
+    "gp": 63
   },
   "Javonte Green": {
     "team": "DET",
     "pos": "G",
-    "ppg": 6.9,
+    "ppg": 7,
     "rpg": 2.8,
     "apg": 0.7,
-    "mpg": 17.8,
+    "mpg": 17.7,
     "usg": 14.9,
-    "gp": 79
+    "gp": 80
   },
   "Isaac Okoro": {
     "team": "CHI",
@@ -1796,7 +1796,7 @@
     "rpg": 3.3,
     "apg": 8.1,
     "mpg": 28.4,
-    "usg": 32.5,
+    "usg": 32.6,
     "gp": 20
   },
   "Olivier-Maxence Prosper": {
@@ -1826,18 +1826,18 @@
     "rpg": 3.1,
     "apg": 3.8,
     "mpg": 20.1,
-    "usg": 18.5,
+    "usg": 18.6,
     "gp": 40
   },
   "Cedric Coward": {
     "team": "MEM",
     "pos": "G",
-    "ppg": 13.4,
+    "ppg": 13.6,
     "rpg": 5.9,
     "apg": 2.8,
     "mpg": 25.8,
-    "usg": 21.3,
-    "gp": 61
+    "usg": 21.5,
+    "gp": 62
   },
   "Cam Spencer": {
     "team": "MEM",
@@ -1862,12 +1862,12 @@
   "Khris Middleton": {
     "team": "DAL",
     "pos": "F",
-    "ppg": 10.1,
-    "rpg": 3.5,
+    "ppg": 9.9,
+    "rpg": 3.4,
     "apg": 2.3,
-    "mpg": 21.7,
+    "mpg": 21.5,
     "usg": 22.1,
-    "gp": 26
+    "gp": 27
   },
   "Kyshawn George": {
     "team": "WAS",
@@ -1892,12 +1892,12 @@
   "CJ McCollum": {
     "team": "ATL",
     "pos": "G",
-    "ppg": 18.6,
+    "ppg": 18.4,
     "rpg": 3.1,
     "apg": 4.1,
     "mpg": 28.9,
-    "usg": 26.9,
-    "gp": 39
+    "usg": 26.7,
+    "gp": 40
   },
   "Bub Carrington": {
     "team": "WAS",
@@ -1912,12 +1912,12 @@
   "Marvin Bagley III": {
     "team": "DAL",
     "pos": "F",
-    "ppg": 11,
+    "ppg": 11.4,
     "rpg": 7.1,
     "apg": 1.3,
-    "mpg": 21.8,
-    "usg": 17.8,
-    "gp": 20
+    "mpg": 22,
+    "usg": 18,
+    "gp": 21
   },
   "Tre Johnson": {
     "team": "WAS",
@@ -1942,12 +1942,12 @@
   "Corey Kispert": {
     "team": "ATL",
     "pos": "F",
-    "ppg": 9.1,
-    "rpg": 2.4,
-    "apg": 1.6,
-    "mpg": 18.5,
-    "usg": 19.5,
-    "gp": 36
+    "ppg": 8.9,
+    "rpg": 2.3,
+    "apg": 1.5,
+    "mpg": 18.2,
+    "usg": 19.3,
+    "gp": 37
   },
   "Justin Champagnie": {
     "team": "WAS",
@@ -1973,11 +1973,11 @@
     "team": "DAL",
     "pos": "G",
     "ppg": 2.7,
-    "rpg": 1.1,
+    "rpg": 1,
     "apg": 1,
-    "mpg": 8.9,
-    "usg": 17.2,
-    "gp": 20
+    "mpg": 9.3,
+    "usg": 18.2,
+    "gp": 21
   },
   "Tristan Vukcevic": {
     "team": "WAS",
@@ -2012,12 +2012,12 @@
   "Gary Trent Jr.": {
     "team": "MIL",
     "pos": "G",
-    "ppg": 8.2,
+    "ppg": 8.1,
     "rpg": 1,
     "apg": 1.2,
     "mpg": 21.2,
-    "usg": 17,
-    "gp": 64
+    "usg": 17.2,
+    "gp": 65
   },
   "Giannis Antetokounmpo": {
     "team": "MIL",
@@ -2036,7 +2036,7 @@
     "rpg": 5.3,
     "apg": 1.4,
     "mpg": 26.9,
-    "usg": 18.7,
+    "usg": 18.6,
     "gp": 70
   },
   "A.J. Green": {
@@ -2045,9 +2045,9 @@
     "ppg": 9.9,
     "rpg": 2.7,
     "apg": 1.9,
-    "mpg": 28.8,
+    "mpg": 28.9,
     "usg": 13.8,
-    "gp": 75
+    "gp": 76
   },
   "Kevin Porter Jr.": {
     "team": "MIL",
@@ -2082,12 +2082,12 @@
   "Ryan Rollins": {
     "team": "MIL",
     "pos": "G",
-    "ppg": 17.2,
+    "ppg": 17.3,
     "rpg": 4.6,
     "apg": 5.6,
     "mpg": 32.1,
-    "usg": 24.1,
-    "gp": 73
+    "usg": 24.2,
+    "gp": 74
   },
   "Cole Anthony": {
     "team": "MIL",
@@ -2102,32 +2102,32 @@
   "Taurean Prince": {
     "team": "MIL",
     "pos": "F",
-    "ppg": 8.3,
+    "ppg": 8.6,
     "rpg": 2.8,
     "apg": 1.6,
-    "mpg": 22.5,
-    "usg": 15.6,
-    "gp": 23
+    "mpg": 22.7,
+    "usg": 15.7,
+    "gp": 24
   },
   "Amir Coffey": {
     "team": "PHO",
     "pos": "G-F",
-    "ppg": 4.1,
-    "rpg": 2,
-    "apg": 1,
-    "mpg": 13.2,
-    "usg": 11.3,
-    "gp": 13
+    "ppg": 3.8,
+    "rpg": 1.9,
+    "apg": 0.9,
+    "mpg": 12.7,
+    "usg": 11.1,
+    "gp": 14
   },
   "Jericho Sims": {
     "team": "MIL",
     "pos": "C",
-    "ppg": 4.6,
-    "rpg": 5.3,
-    "apg": 1.4,
-    "mpg": 19,
-    "usg": 9.5,
-    "gp": 64
+    "ppg": 4.7,
+    "rpg": 5.4,
+    "apg": 1.5,
+    "mpg": 19.3,
+    "usg": 9.6,
+    "gp": 65
   },
   "Gary Harris": {
     "team": "MIL",
@@ -2135,49 +2135,49 @@
     "ppg": 2.7,
     "rpg": 1.3,
     "apg": 1.1,
-    "mpg": 13.9,
-    "usg": 8.6,
-    "gp": 47
+    "mpg": 13.8,
+    "usg": 8.5,
+    "gp": 48
   },
   "Andre Jackson Jr.": {
     "team": "MIL",
     "pos": "G",
-    "ppg": 2.2,
+    "ppg": 2.3,
     "rpg": 1.4,
     "apg": 0.9,
     "mpg": 7.9,
     "usg": 17.8,
-    "gp": 45
+    "gp": 46
   },
   "Thanasis Antetokounmpo": {
     "team": "MIL",
     "pos": "F",
     "ppg": 1.2,
-    "rpg": 0.9,
+    "rpg": 0.8,
     "apg": 0.3,
-    "mpg": 3.6,
-    "usg": 17.2,
-    "gp": 32
+    "mpg": 3.7,
+    "usg": 17,
+    "gp": 33
   },
   "Derrick Jones Jr.": {
     "team": "LAC",
     "pos": "F",
     "ppg": 10.3,
-    "rpg": 3.4,
+    "rpg": 3.5,
     "apg": 1.4,
-    "mpg": 27.1,
+    "mpg": 27.2,
     "usg": 15.2,
-    "gp": 47
+    "gp": 48
   },
   "Kawhi Leonard": {
     "team": "LAC",
     "pos": "F",
-    "ppg": 28.1,
+    "ppg": 28,
     "rpg": 6.3,
     "apg": 3.6,
     "mpg": 32,
     "usg": 33.6,
-    "gp": 63
+    "gp": 64
   },
   "Ivica Zubac": {
     "team": "IND",
@@ -2202,12 +2202,12 @@
   "James Harden": {
     "team": "CLE",
     "pos": "G",
-    "ppg": 20.5,
+    "ppg": 20.6,
     "rpg": 5,
-    "apg": 7.9,
+    "apg": 7.8,
     "mpg": 34.2,
-    "usg": 23.2,
-    "gp": 24
+    "usg": 23.7,
+    "gp": 25
   },
   "John Collins": {
     "team": "LAC",
@@ -2216,28 +2216,28 @@
     "rpg": 5.3,
     "apg": 1,
     "mpg": 27.4,
-    "usg": 19.3,
-    "gp": 66
+    "usg": 19.4,
+    "gp": 67
   },
   "Kris Dunn": {
     "team": "LAC",
     "pos": "G",
-    "ppg": 7.4,
+    "ppg": 7.3,
     "rpg": 3.3,
     "apg": 3.6,
     "mpg": 27.3,
     "usg": 12.4,
-    "gp": 79
+    "gp": 80
   },
   "Brook Lopez": {
     "team": "LAC",
     "pos": "C",
-    "ppg": 8.2,
+    "ppg": 8.3,
     "rpg": 3.5,
     "apg": 1.3,
-    "mpg": 21.5,
+    "mpg": 21.6,
     "usg": 17.1,
-    "gp": 72
+    "gp": 73
   },
   "Chris Paul": {
     "team": "LAC",
@@ -2252,32 +2252,32 @@
   "Nicolas Batum": {
     "team": "LAC",
     "pos": "G-F",
-    "ppg": 4,
+    "ppg": 3.9,
     "rpg": 2.5,
     "apg": 0.9,
-    "mpg": 17.8,
+    "mpg": 17.6,
     "usg": 9.6,
-    "gp": 71
+    "gp": 72
   },
   "Cam Christie": {
     "team": "LAC",
     "pos": "G",
     "ppg": 2.9,
-    "rpg": 1.5,
+    "rpg": 1.4,
     "apg": 0.6,
-    "mpg": 8.9,
-    "usg": 17,
-    "gp": 53
+    "mpg": 8.8,
+    "usg": 16.9,
+    "gp": 54
   },
   "Kobe Sanders": {
     "team": "LAC",
     "pos": "G",
-    "ppg": 7.1,
+    "ppg": 7.3,
     "rpg": 2.3,
     "apg": 1.6,
-    "mpg": 19.9,
-    "usg": 16.1,
-    "gp": 65
+    "mpg": 20,
+    "usg": 16.2,
+    "gp": 66
   },
   "Kobe Brown": {
     "team": "IND",
@@ -2372,12 +2372,12 @@
   "Taylor Hendricks": {
     "team": "MEM",
     "pos": "F",
-    "ppg": 10.4,
-    "rpg": 4.6,
+    "ppg": 10.6,
+    "rpg": 4.7,
     "apg": 1.2,
-    "mpg": 24.2,
-    "usg": 18.2,
-    "gp": 25
+    "mpg": 24.1,
+    "usg": 18.3,
+    "gp": 26
   },
   "Jusuf Nurkic": {
     "team": "UTA",
@@ -2392,12 +2392,12 @@
   "Walter Clayton Jr.": {
     "team": "MEM",
     "pos": "G",
-    "ppg": 9.4,
+    "ppg": 9.7,
     "rpg": 2.1,
-    "apg": 5.8,
-    "mpg": 25.1,
-    "usg": 20,
-    "gp": 23
+    "apg": 5.7,
+    "mpg": 25,
+    "usg": 20.1,
+    "gp": 24
   },
   "Cody Williams": {
     "team": "UTA",
@@ -2412,12 +2412,12 @@
   "Julian Champagnie": {
     "team": "SAN",
     "pos": "F",
-    "ppg": 11.2,
+    "ppg": 11.1,
     "rpg": 5.8,
-    "apg": 1.5,
+    "apg": 1.6,
     "mpg": 27.7,
     "usg": 15.3,
-    "gp": 79
+    "gp": 80
   },
   "Harrison Barnes": {
     "team": "SAN",
@@ -2427,7 +2427,7 @@
     "apg": 1.9,
     "mpg": 25.8,
     "usg": 14.6,
-    "gp": 74
+    "gp": 75
   },
   "Victor Wembanyama": {
     "team": "SAN",
@@ -2447,7 +2447,7 @@
     "apg": 2.5,
     "mpg": 30.5,
     "usg": 18,
-    "gp": 64
+    "gp": 65
   },
   "Stephon Castle": {
     "team": "SAN",
@@ -2462,52 +2462,52 @@
   "Luke Kornet": {
     "team": "SAN",
     "pos": "C-F",
-    "ppg": 6.5,
+    "ppg": 6.6,
     "rpg": 6.1,
-    "apg": 1.8,
-    "mpg": 21,
+    "apg": 1.9,
+    "mpg": 21.1,
     "usg": 10.4,
-    "gp": 66
+    "gp": 67
   },
   "Keldon Johnson": {
     "team": "SAN",
     "pos": "F-G",
-    "ppg": 13,
-    "rpg": 5.3,
+    "ppg": 13.1,
+    "rpg": 5.4,
     "apg": 1.4,
     "mpg": 23.3,
-    "usg": 20.7,
-    "gp": 79
+    "usg": 20.8,
+    "gp": 80
   },
   "Dylan Harper": {
     "team": "SAN",
     "pos": "G",
     "ppg": 11.8,
-    "rpg": 3.3,
+    "rpg": 3.4,
     "apg": 3.9,
-    "mpg": 22.4,
+    "mpg": 22.6,
     "usg": 21.8,
-    "gp": 66
+    "gp": 67
   },
   "Jordan McLaughlin": {
     "team": "SAN",
     "pos": "G",
     "ppg": 2,
-    "rpg": 0.6,
+    "rpg": 0.7,
     "apg": 0.9,
     "mpg": 6.5,
-    "usg": 14.6,
-    "gp": 41
+    "usg": 14.5,
+    "gp": 42
   },
   "Carter Bryant": {
     "team": "SAN",
     "pos": "F",
-    "ppg": 3.8,
+    "ppg": 4,
     "rpg": 2.4,
-    "apg": 0.5,
-    "mpg": 10.8,
+    "apg": 0.6,
+    "mpg": 11,
     "usg": 16.3,
-    "gp": 68
+    "gp": 69
   },
   "Bismack Biyombo": {
     "team": "SAN",
@@ -2592,12 +2592,12 @@
   "Cooper Flagg": {
     "team": "DAL",
     "pos": "F",
-    "ppg": 21.2,
-    "rpg": 6.6,
-    "apg": 4.5,
-    "mpg": 33.9,
+    "ppg": 21,
+    "rpg": 6.7,
+    "apg": 4.6,
+    "mpg": 33.8,
     "usg": 26.7,
-    "gp": 67
+    "gp": 68
   },
   "Naji Marshall": {
     "team": "DAL",
@@ -2612,12 +2612,12 @@
   "Max Christie": {
     "team": "DAL",
     "pos": "G",
-    "ppg": 12.1,
+    "ppg": 12.2,
     "rpg": 3.3,
     "apg": 2,
     "mpg": 29.3,
     "usg": 16.4,
-    "gp": 74
+    "gp": 75
   },
   "D'Angelo Russell": {
     "team": "DAL",
@@ -2632,22 +2632,22 @@
   "Ryan Nembhard": {
     "team": "DAL",
     "pos": "G",
-    "ppg": 6.3,
+    "ppg": 6.4,
     "rpg": 2.1,
     "apg": 4.9,
-    "mpg": 18.8,
-    "usg": 17.6,
-    "gp": 57
+    "mpg": 19,
+    "usg": 17.5,
+    "gp": 58
   },
   "Dwight Powell": {
     "team": "DAL",
     "pos": "F-C",
     "ppg": 3.3,
-    "rpg": 3.9,
+    "rpg": 3.8,
     "apg": 1,
     "mpg": 14,
     "usg": 8.8,
-    "gp": 60
+    "gp": 61
   },
   "Brandon Williams": {
     "team": "DAL",
@@ -2682,12 +2682,12 @@
   "Moussa Cisse": {
     "team": "DAL",
     "pos": "C",
-    "ppg": 3.9,
-    "rpg": 5.1,
+    "ppg": 4.1,
+    "rpg": 5.2,
     "apg": 0.2,
-    "mpg": 12.8,
+    "mpg": 13,
     "usg": 13.6,
-    "gp": 35
+    "gp": 36
   },
   "DeMar DeRozan": {
     "team": "SAC",
@@ -2732,12 +2732,12 @@
   "Dennis Schroder": {
     "team": "CLE",
     "pos": "G",
-    "ppg": 8.4,
-    "rpg": 2.3,
-    "apg": 4.4,
-    "mpg": 21.8,
+    "ppg": 8.2,
+    "rpg": 2.2,
+    "apg": 4.3,
+    "mpg": 21.6,
     "usg": 18.5,
-    "gp": 28
+    "gp": 29
   },
   "Maxime Raynaud": {
     "team": "SAC",
@@ -2782,12 +2782,12 @@
   "Keon Ellis": {
     "team": "CLE",
     "pos": "G",
-    "ppg": 8.7,
+    "ppg": 8.5,
     "rpg": 2.8,
-    "apg": 1.7,
-    "mpg": 25.2,
-    "usg": 12.5,
-    "gp": 27
+    "apg": 1.6,
+    "mpg": 25.1,
+    "usg": 12.4,
+    "gp": 28
   },
   "Dylan Cardwell": {
     "team": "SAC",
@@ -2802,32 +2802,32 @@
   "Dillon Brooks": {
     "team": "PHO",
     "pos": "G-F",
-    "ppg": 20.2,
-    "rpg": 3.6,
+    "ppg": 20.3,
+    "rpg": 3.7,
     "apg": 1.8,
-    "mpg": 30.5,
-    "usg": 28.4,
-    "gp": 54
+    "mpg": 30.6,
+    "usg": 28.5,
+    "gp": 55
   },
   "Ryan Dunn": {
     "team": "PHO",
     "pos": "F",
-    "ppg": 5.8,
-    "rpg": 4.1,
+    "ppg": 5.7,
+    "rpg": 4.2,
     "apg": 1.4,
     "mpg": 19.1,
-    "usg": 13.8,
-    "gp": 67
+    "usg": 13.7,
+    "gp": 68
   },
   "Oso Ighodaro": {
     "team": "PHO",
     "pos": "F",
     "ppg": 6.5,
-    "rpg": 5.1,
-    "apg": 2.3,
+    "rpg": 5,
+    "apg": 2.2,
     "mpg": 22.2,
-    "usg": 12.2,
-    "gp": 79
+    "usg": 12.1,
+    "gp": 80
   },
   "Grayson Allen": {
     "team": "PHO",
@@ -2842,12 +2842,12 @@
   "Devin Booker": {
     "team": "PHO",
     "pos": "G",
-    "ppg": 25.9,
+    "ppg": 26.1,
     "rpg": 3.9,
     "apg": 6,
     "mpg": 33.5,
-    "usg": 32,
-    "gp": 63
+    "usg": 32.2,
+    "gp": 64
   },
   "Collin Gillespie": {
     "team": "PHO",
@@ -2855,9 +2855,9 @@
     "ppg": 12.7,
     "rpg": 4.1,
     "apg": 4.7,
-    "mpg": 28.6,
+    "mpg": 28.7,
     "usg": 18.7,
-    "gp": 78
+    "gp": 79
   },
   "Mark Williams": {
     "team": "PHO",
@@ -2872,12 +2872,12 @@
   "Royce O'Neale": {
     "team": "PHO",
     "pos": "F",
-    "ppg": 9.7,
-    "rpg": 4.8,
+    "ppg": 9.8,
+    "rpg": 4.7,
     "apg": 2.7,
     "mpg": 28.5,
     "usg": 14.2,
-    "gp": 76
+    "gp": 77
   },
   "Nigel Hayes-Davis": {
     "team": "PHO",
@@ -2905,9 +2905,9 @@
     "ppg": 14.8,
     "rpg": 4.2,
     "apg": 2.7,
-    "mpg": 31.9,
-    "usg": 18.2,
-    "gp": 71
+    "mpg": 31.7,
+    "usg": 18.4,
+    "gp": 72
   },
   "Julius Randle": {
     "team": "MIN",
@@ -2943,11 +2943,11 @@
     "team": "MIN",
     "pos": "G",
     "ppg": 12.2,
-    "rpg": 4.2,
+    "rpg": 4.1,
     "apg": 3.9,
-    "mpg": 30.8,
+    "mpg": 30.7,
     "usg": 16.8,
-    "gp": 79
+    "gp": 80
   },
   "Naz Reid": {
     "team": "MIN",
@@ -2956,18 +2956,18 @@
     "rpg": 6.2,
     "apg": 2.2,
     "mpg": 26.1,
-    "usg": 22,
-    "gp": 76
+    "usg": 22.1,
+    "gp": 77
   },
   "Terrence Shannon Jr.": {
     "team": "MIN",
     "pos": "G-F",
-    "ppg": 4,
+    "ppg": 4.7,
     "rpg": 1.1,
-    "apg": 0.7,
-    "mpg": 11.1,
-    "usg": 15.6,
-    "gp": 40
+    "apg": 0.8,
+    "mpg": 11.6,
+    "usg": 16.2,
+    "gp": 41
   },
   "Mike Conley": {
     "team": "MIN",
@@ -2985,9 +2985,9 @@
     "ppg": 4,
     "rpg": 1.8,
     "apg": 0.6,
-    "mpg": 12.5,
-    "usg": 13.6,
-    "gp": 65
+    "mpg": 12.8,
+    "usg": 13.3,
+    "gp": 66
   },
   "Deni Avdija": {
     "team": "POR",
@@ -2995,29 +2995,29 @@
     "ppg": 24,
     "rpg": 7,
     "apg": 6.7,
-    "mpg": 33.2,
-    "usg": 29.2,
-    "gp": 63
+    "mpg": 33.3,
+    "usg": 29.3,
+    "gp": 64
   },
   "Toumani Camara": {
     "team": "POR",
     "pos": "F",
-    "ppg": 13.4,
+    "ppg": 13.5,
     "rpg": 5.2,
-    "apg": 2.4,
-    "mpg": 33.2,
+    "apg": 2.5,
+    "mpg": 33.3,
     "usg": 16.3,
-    "gp": 79
+    "gp": 80
   },
   "Donovan Clingan": {
     "team": "POR",
     "pos": "C",
-    "ppg": 12.1,
+    "ppg": 12,
     "rpg": 11.6,
     "apg": 2.1,
     "mpg": 27.2,
-    "usg": 16.9,
-    "gp": 74
+    "usg": 16.8,
+    "gp": 75
   },
   "Shaedon Sharpe": {
     "team": "POR",
@@ -3032,12 +3032,12 @@
   "Jrue Holiday": {
     "team": "POR",
     "pos": "G",
-    "ppg": 16.4,
-    "rpg": 4.5,
+    "ppg": 16.3,
+    "rpg": 4.6,
     "apg": 6.2,
     "mpg": 29.3,
-    "usg": 23.4,
-    "gp": 50
+    "usg": 23.5,
+    "gp": 51
   },
   "Jerami Grant": {
     "team": "POR",
@@ -3046,7 +3046,7 @@
     "rpg": 3.5,
     "apg": 2.1,
     "mpg": 29.7,
-    "usg": 23.7,
+    "usg": 23.8,
     "gp": 57
   },
   "Yang Hansen": {
@@ -3062,52 +3062,52 @@
   "Blake Wesley": {
     "team": "POR",
     "pos": "G",
-    "ppg": 5.2,
+    "ppg": 5.1,
     "rpg": 1.3,
-    "apg": 2.2,
-    "mpg": 12.6,
-    "usg": 19.5,
-    "gp": 28
+    "apg": 2.1,
+    "mpg": 12.3,
+    "usg": 19.9,
+    "gp": 29
   },
   "Kris Murray": {
     "team": "POR",
     "pos": "F",
     "ppg": 5.7,
-    "rpg": 3.6,
+    "rpg": 3.5,
     "apg": 1.4,
-    "mpg": 23.5,
-    "usg": 10.7,
-    "gp": 54
+    "mpg": 23.3,
+    "usg": 10.6,
+    "gp": 55
   },
   "Matisse Thybulle": {
     "team": "POR",
     "pos": "G-F",
-    "ppg": 6,
-    "rpg": 2.1,
-    "apg": 1,
-    "mpg": 15.9,
-    "usg": 14.9,
-    "gp": 27
+    "ppg": 5.8,
+    "rpg": 2,
+    "apg": 0.9,
+    "mpg": 16.2,
+    "usg": 14.6,
+    "gp": 28
   },
   "Bones Hyland": {
     "team": "MIN",
     "pos": "G",
     "ppg": 8.5,
     "rpg": 1.8,
-    "apg": 2.7,
-    "mpg": 16.5,
-    "usg": 20.5,
-    "gp": 70
+    "apg": 2.6,
+    "mpg": 16.6,
+    "usg": 20.6,
+    "gp": 71
   },
   "Ousmane Dieng": {
     "team": "MIL",
     "pos": "F",
-    "ppg": 10.8,
-    "rpg": 4.4,
+    "ppg": 11,
+    "rpg": 4.5,
     "apg": 3.1,
     "mpg": 25.9,
-    "usg": 21.3,
-    "gp": 27
+    "usg": 21.5,
+    "gp": 28
   },
   "Branden Carlson": {
     "team": "OKC",
@@ -3152,12 +3152,12 @@
   "Bennedict Mathurin": {
     "team": "LAC",
     "pos": "G-F",
-    "ppg": 18.3,
-    "rpg": 5.7,
+    "ppg": 18,
+    "rpg": 5.5,
     "apg": 2.4,
-    "mpg": 29,
-    "usg": 27.9,
-    "gp": 23
+    "mpg": 28.8,
+    "usg": 27.7,
+    "gp": 24
   },
   "Andrew Nembhard": {
     "team": "IND",
@@ -3242,52 +3242,52 @@
   "Cameron Johnson": {
     "team": "DEN",
     "pos": "F",
-    "ppg": 12.1,
+    "ppg": 12.2,
     "rpg": 3.8,
-    "apg": 2.5,
+    "apg": 2.4,
     "mpg": 30.5,
-    "usg": 15,
-    "gp": 53
+    "usg": 15.1,
+    "gp": 54
   },
   "Aaron Gordon": {
     "team": "DEN",
     "pos": "F",
-    "ppg": 16.5,
-    "rpg": 5.9,
-    "apg": 2.6,
-    "mpg": 28.1,
-    "usg": 22.2,
-    "gp": 35
+    "ppg": 16.2,
+    "rpg": 5.8,
+    "apg": 2.7,
+    "mpg": 27.9,
+    "usg": 22,
+    "gp": 36
   },
   "Nikola Jokic": {
     "team": "DEN",
     "pos": "C",
-    "ppg": 28,
+    "ppg": 27.8,
     "rpg": 12.9,
     "apg": 10.9,
-    "mpg": 35.2,
-    "usg": 30.6,
-    "gp": 63
+    "mpg": 35.1,
+    "usg": 30.4,
+    "gp": 64
   },
   "Christian Braun": {
     "team": "DEN",
     "pos": "G",
-    "ppg": 11.9,
-    "rpg": 4.9,
-    "apg": 2.8,
-    "mpg": 31.9,
-    "usg": 14.7,
-    "gp": 43
+    "ppg": 12,
+    "rpg": 4.8,
+    "apg": 2.7,
+    "mpg": 31.8,
+    "usg": 14.8,
+    "gp": 44
   },
   "Jamal Murray": {
     "team": "DEN",
     "pos": "G",
     "ppg": 25.4,
     "rpg": 4.4,
-    "apg": 7.2,
+    "apg": 7.1,
     "mpg": 35.4,
     "usg": 27.9,
-    "gp": 74
+    "gp": 75
   },
   "Tim Hardaway Jr.": {
     "team": "DEN",
@@ -3295,19 +3295,19 @@
     "ppg": 13.5,
     "rpg": 2.6,
     "apg": 1.3,
-    "mpg": 26.7,
+    "mpg": 26.6,
     "usg": 18.5,
-    "gp": 78
+    "gp": 79
   },
   "Bruce Brown": {
     "team": "DEN",
     "pos": "G-F",
-    "ppg": 7.7,
+    "ppg": 7.8,
     "rpg": 3.8,
     "apg": 2,
     "mpg": 24.3,
-    "usg": 14.4,
-    "gp": 79
+    "usg": 14.5,
+    "gp": 80
   },
   "Peyton Watson": {
     "team": "DEN",
@@ -3322,12 +3322,12 @@
   "Jonas Valanciunas": {
     "team": "DEN",
     "pos": "C",
-    "ppg": 8.3,
+    "ppg": 8.4,
     "rpg": 4.8,
     "apg": 1.1,
     "mpg": 13,
-    "usg": 25.7,
-    "gp": 62
+    "usg": 25.8,
+    "gp": 63
   },
   "Spencer Jones": {
     "team": "DEN",
@@ -3436,18 +3436,18 @@
     "rpg": 0.7,
     "apg": 0.5,
     "mpg": 8,
-    "usg": 15,
-    "gp": 31
+    "usg": 15.1,
+    "gp": 32
   },
   "Daniss Jenkins": {
     "team": "DET",
     "pos": "G",
     "ppg": 9.5,
-    "rpg": 2.2,
-    "apg": 3.8,
+    "rpg": 2.3,
+    "apg": 3.9,
     "mpg": 20.3,
     "usg": 21.5,
-    "gp": 69
+    "gp": 70
   },
   "Keshad Johnson": {
     "team": "MIA",
@@ -3512,22 +3512,22 @@
   "Joan Beringer": {
     "team": "MIN",
     "pos": "F",
-    "ppg": 2.9,
-    "rpg": 1.8,
+    "ppg": 3.1,
+    "rpg": 2,
     "apg": 0.2,
-    "mpg": 6.3,
-    "usg": 16.4,
-    "gp": 37
+    "mpg": 6.8,
+    "usg": 16.8,
+    "gp": 38
   },
   "Joe Ingles": {
     "team": "MIN",
     "pos": "F-G",
-    "ppg": 0.8,
-    "rpg": 0.4,
-    "apg": 0.8,
-    "mpg": 4.1,
-    "usg": 9.5,
-    "gp": 25
+    "ppg": 1,
+    "rpg": 0.5,
+    "apg": 0.9,
+    "mpg": 4.6,
+    "usg": 10.1,
+    "gp": 26
   },
   "Leonard Miller": {
     "team": "CHI",
@@ -3642,12 +3642,12 @@
   "Rasheer Fleming": {
     "team": "PHO",
     "pos": "F",
-    "ppg": 4.2,
+    "ppg": 4.1,
     "rpg": 2.2,
     "apg": 0.2,
     "mpg": 11.5,
-    "usg": 16.3,
-    "gp": 52
+    "usg": 16.2,
+    "gp": 53
   },
   "Jordan Goodwin": {
     "team": "PHO",
@@ -3655,29 +3655,29 @@
     "ppg": 8.7,
     "rpg": 4.9,
     "apg": 2.1,
-    "mpg": 22.6,
-    "usg": 17.4,
-    "gp": 69
+    "mpg": 22.5,
+    "usg": 17.5,
+    "gp": 70
   },
   "Khaman Maluach": {
     "team": "PHO",
     "pos": "C",
-    "ppg": 2.6,
-    "rpg": 2.4,
+    "ppg": 2.7,
+    "rpg": 2.6,
     "apg": 0.1,
-    "mpg": 8,
-    "usg": 14.8,
-    "gp": 43
+    "mpg": 8.5,
+    "usg": 14.1,
+    "gp": 44
   },
   "Julian Phillips": {
     "team": "MIN",
     "pos": "F",
-    "ppg": 1.7,
-    "rpg": 0.2,
+    "ppg": 2.1,
+    "rpg": 0.3,
     "apg": 0.2,
-    "mpg": 3.9,
-    "usg": 16.2,
-    "gp": 11
+    "mpg": 5.6,
+    "usg": 16.7,
+    "gp": 12
   },
   "Jase Richardson": {
     "team": "ORL",
@@ -3685,9 +3685,9 @@
     "ppg": 4.4,
     "rpg": 1.2,
     "apg": 1.1,
-    "mpg": 11.1,
-    "usg": 16.7,
-    "gp": 52
+    "mpg": 11,
+    "usg": 16.6,
+    "gp": 53
   },
   "Jacob Toppin": {
     "team": "ATL",
@@ -3753,41 +3753,41 @@
     "team": "DEN",
     "pos": "G",
     "ppg": 4.9,
-    "rpg": 2.3,
+    "rpg": 2.2,
     "apg": 2.2,
-    "mpg": 15.8,
-    "usg": 14.2,
-    "gp": 47
+    "mpg": 15.6,
+    "usg": 14.3,
+    "gp": 48
   },
   "Julian Strawther": {
     "team": "DEN",
     "pos": "G",
-    "ppg": 6.6,
+    "ppg": 6.7,
     "rpg": 1.9,
     "apg": 1,
     "mpg": 14.4,
     "usg": 18.8,
-    "gp": 54
+    "gp": 55
   },
   "Zeke Nnaji": {
     "team": "DEN",
     "pos": "F-C",
-    "ppg": 3.7,
+    "ppg": 3.6,
     "rpg": 2.6,
     "apg": 0.5,
-    "mpg": 11.9,
-    "usg": 13.7,
-    "gp": 49
+    "mpg": 11.8,
+    "usg": 13.6,
+    "gp": 50
   },
   "DaRon Holmes II": {
     "team": "DEN",
     "pos": "F",
     "ppg": 4,
-    "rpg": 1.4,
+    "rpg": 1.5,
     "apg": 0.7,
-    "mpg": 9.1,
-    "usg": 16.1,
-    "gp": 22
+    "mpg": 8.8,
+    "usg": 16.2,
+    "gp": 23
   },
   "Mark Sears": {
     "team": "MIL",
@@ -3796,7 +3796,7 @@
     "rpg": 0.3,
     "apg": 0.3,
     "mpg": 3.7,
-    "usg": 34.8,
+    "usg": 34.7,
     "gp": 7
   },
   "De'Andre Hunter": {
@@ -3922,22 +3922,22 @@
   "Tolu Smith": {
     "team": "DET",
     "pos": "F",
-    "ppg": 3.9,
-    "rpg": 3.5,
+    "ppg": 3.6,
+    "rpg": 3.3,
     "apg": 0.9,
-    "mpg": 10,
-    "usg": 16.4,
-    "gp": 13
+    "mpg": 9.4,
+    "usg": 16.6,
+    "gp": 14
   },
   "Noah Penda": {
     "team": "ORL",
     "pos": "G-F",
-    "ppg": 4,
-    "rpg": 3.3,
+    "ppg": 3.9,
+    "rpg": 3.2,
     "apg": 1.2,
-    "mpg": 13,
-    "usg": 15,
-    "gp": 57
+    "mpg": 12.9,
+    "usg": 14.9,
+    "gp": 58
   },
   "Eric Gordon": {
     "team": "PHI",
@@ -4092,22 +4092,22 @@
   "Caleb Love": {
     "team": "POR",
     "pos": "G",
-    "ppg": 10.8,
+    "ppg": 10.6,
     "rpg": 2.4,
     "apg": 2.6,
-    "mpg": 21.5,
+    "mpg": 21.1,
     "usg": 23.1,
-    "gp": 47
+    "gp": 48
   },
   "Sidy Cissoko": {
     "team": "POR",
     "pos": "G",
-    "ppg": 5.3,
+    "ppg": 5.2,
     "rpg": 2.3,
     "apg": 1.5,
-    "mpg": 19.7,
-    "usg": 12.6,
-    "gp": 72
+    "mpg": 19.6,
+    "usg": 12.5,
+    "gp": 73
   },
   "Nick Smith Jr.": {
     "team": "LAL",
@@ -4212,12 +4212,12 @@
   "Isaiah Joe": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 10.9,
-    "rpg": 2.6,
+    "ppg": 11.1,
+    "rpg": 2.5,
     "apg": 1.3,
     "mpg": 21.2,
     "usg": 18.4,
-    "gp": 70
+    "gp": 71
   },
   "Mitchell Robinson": {
     "team": "NYK",
@@ -4242,22 +4242,22 @@
   "Kyle Anderson": {
     "team": "MIN",
     "pos": "F-G",
-    "ppg": 3.6,
-    "rpg": 3.4,
-    "apg": 3,
-    "mpg": 18,
-    "usg": 10.7,
-    "gp": 17
+    "ppg": 3.9,
+    "rpg": 3.6,
+    "apg": 2.9,
+    "mpg": 18.3,
+    "usg": 10.8,
+    "gp": 18
   },
   "Robert Williams III": {
     "team": "POR",
     "pos": "C-F",
-    "ppg": 6.7,
+    "ppg": 6.6,
     "rpg": 6.9,
     "apg": 1,
-    "mpg": 17.1,
-    "usg": 12.9,
-    "gp": 56
+    "mpg": 17,
+    "usg": 13,
+    "gp": 57
   },
   "Daniel Gafford": {
     "team": "DAL",
@@ -4322,22 +4322,22 @@
   "KJ Simpson": {
     "team": "DEN",
     "pos": "G",
-    "ppg": 1.3,
-    "rpg": 1.3,
-    "apg": 2,
-    "mpg": 6.2,
-    "usg": 15.7,
-    "gp": 4
+    "ppg": 1,
+    "rpg": 1.2,
+    "apg": 1.6,
+    "mpg": 5.6,
+    "usg": 17,
+    "gp": 5
   },
   "Jevon Carter": {
     "team": "ORL",
     "pos": "G",
-    "ppg": 7.2,
-    "rpg": 2.2,
+    "ppg": 7.3,
+    "rpg": 2.1,
     "apg": 2.4,
-    "mpg": 20.8,
-    "usg": 16.5,
-    "gp": 27
+    "mpg": 20.6,
+    "usg": 16.3,
+    "gp": 28
   },
   "Pacome Dadiet": {
     "team": "NYK",
@@ -4382,12 +4382,12 @@
   "Jared McCain": {
     "team": "OKC",
     "pos": "G",
-    "ppg": 10.6,
-    "rpg": 2.1,
+    "ppg": 10.3,
+    "rpg": 2,
     "apg": 0.9,
-    "mpg": 18,
-    "usg": 23,
-    "gp": 27
+    "mpg": 17.5,
+    "usg": 23.2,
+    "gp": 28
   },
   "Darius Garland": {
     "team": "LAC",
@@ -4462,12 +4462,12 @@
   "Jalen Green": {
     "team": "PHO",
     "pos": "G",
-    "ppg": 18.3,
-    "rpg": 3.7,
-    "apg": 2.9,
-    "mpg": 26.6,
+    "ppg": 17.8,
+    "rpg": 3.6,
+    "apg": 2.8,
+    "mpg": 25.9,
     "usg": 31.9,
-    "gp": 31
+    "gp": 32
   },
   "Isaiah Collier": {
     "team": "UTA",
@@ -4492,12 +4492,12 @@
   "De'Aaron Fox": {
     "team": "SAN",
     "pos": "G",
-    "ppg": 18.4,
-    "rpg": 3.7,
+    "ppg": 18.5,
+    "rpg": 3.8,
     "apg": 6.1,
     "mpg": 31,
-    "usg": 24.8,
-    "gp": 69
+    "usg": 24.9,
+    "gp": 70
   },
   "Monte Morris": {
     "team": "IND",
@@ -4522,22 +4522,22 @@
   "Pete Nance": {
     "team": "MIL",
     "pos": "F",
-    "ppg": 5.5,
+    "ppg": 5.4,
     "rpg": 2.7,
     "apg": 1,
-    "mpg": 15.6,
-    "usg": 13.6,
-    "gp": 46
+    "mpg": 15.7,
+    "usg": 13.5,
+    "gp": 47
   },
   "Wendell Moore Jr.": {
     "team": "DET",
     "pos": "G",
-    "ppg": 2,
-    "rpg": 1.2,
-    "apg": 0.6,
-    "mpg": 10.9,
-    "usg": 6.8,
-    "gp": 5
+    "ppg": 1.7,
+    "rpg": 1,
+    "apg": 0.7,
+    "mpg": 9.9,
+    "usg": 6.2,
+    "gp": 6
   },
   "Daeqwon Plowden": {
     "team": "SAC",
@@ -4562,12 +4562,12 @@
   "Jordan Miller": {
     "team": "LAC",
     "pos": "G",
-    "ppg": 9.7,
+    "ppg": 9.8,
     "rpg": 3,
     "apg": 2.2,
-    "mpg": 21.6,
-    "usg": 18.1,
-    "gp": 57
+    "mpg": 21.8,
+    "usg": 18.2,
+    "gp": 58
   },
   "Garrett Temple": {
     "team": "TOR",
@@ -4582,12 +4582,12 @@
   "Jamal Cain": {
     "team": "ORL",
     "pos": "F",
-    "ppg": 5,
+    "ppg": 5.1,
     "rpg": 1.8,
     "apg": 0.7,
-    "mpg": 11.6,
-    "usg": 16.5,
-    "gp": 37
+    "mpg": 11.7,
+    "usg": 16.7,
+    "gp": 38
   },
   "Antonio Reeves": {
     "team": "CHA",
@@ -4606,7 +4606,7 @@
     "rpg": 11.1,
     "apg": 1.1,
     "mpg": 25.8,
-    "usg": 20.2,
+    "usg": 20.3,
     "gp": 11
   },
   "Adou Thiero": {
@@ -4662,12 +4662,12 @@
   "Jamaree Bouyea": {
     "team": "PHO",
     "pos": "G",
-    "ppg": 5.4,
+    "ppg": 5.3,
     "rpg": 1.7,
     "apg": 1.6,
-    "mpg": 13.3,
+    "mpg": 13.1,
     "usg": 17.8,
-    "gp": 43
+    "gp": 44
   },
   "Javonte Cooke": {
     "team": "POR",
@@ -4692,12 +4692,12 @@
   "Jahmai Mashack": {
     "team": "MEM",
     "pos": "G",
-    "ppg": 5.7,
+    "ppg": 5.8,
     "rpg": 2.2,
-    "apg": 1.3,
-    "mpg": 19.8,
-    "usg": 15.5,
-    "gp": 28
+    "apg": 1.5,
+    "mpg": 20.2,
+    "usg": 15.6,
+    "gp": 29
   },
   "Garrison Mathews": {
     "team": "IND",
@@ -4772,22 +4772,22 @@
   "Kenrich Williams": {
     "team": "OKC",
     "pos": "G-F",
-    "ppg": 6.3,
+    "ppg": 6.2,
     "rpg": 3.1,
     "apg": 1.3,
-    "mpg": 14.8,
-    "usg": 17.8,
-    "gp": 53
+    "mpg": 14.6,
+    "usg": 17.7,
+    "gp": 54
   },
   "Jalen Williams": {
     "team": "OKC",
     "pos": "G-F",
-    "ppg": 17,
+    "ppg": 17.1,
     "rpg": 4.6,
     "apg": 5.5,
-    "mpg": 28.2,
-    "usg": 26.3,
-    "gp": 32
+    "mpg": 28.4,
+    "usg": 26.1,
+    "gp": 33
   },
   "Lachlan Olbrich": {
     "team": "CHI",
@@ -4812,12 +4812,12 @@
   "Curtis Jones": {
     "team": "DEN",
     "pos": "G",
-    "ppg": 1.3,
-    "rpg": 0.7,
-    "apg": 0.6,
-    "mpg": 4.7,
-    "usg": 19.9,
-    "gp": 7
+    "ppg": 1.1,
+    "rpg": 0.6,
+    "apg": 0.5,
+    "mpg": 4.5,
+    "usg": 19.3,
+    "gp": 8
   },
   "Trey Alexander": {
     "team": "NOR",
@@ -4882,12 +4882,12 @@
   "Marcus Sasser": {
     "team": "DET",
     "pos": "G",
-    "ppg": 5.5,
+    "ppg": 5.4,
     "rpg": 1.1,
     "apg": 2.1,
-    "mpg": 12.6,
+    "mpg": 12.4,
     "usg": 19.6,
-    "gp": 35
+    "gp": 36
   },
   "A.J. Lawson": {
     "team": "TOR",
@@ -5004,10 +5004,10 @@
     "pos": "F-C",
     "ppg": 6.9,
     "rpg": 3.2,
-    "apg": 0.7,
-    "mpg": 12,
-    "usg": 24.1,
-    "gp": 35
+    "apg": 0.8,
+    "mpg": 11.9,
+    "usg": 24.3,
+    "gp": 36
   },
   "Kobe Bufkin": {
     "team": "LAL",
@@ -5022,12 +5022,12 @@
   "TyTy Washington Jr.": {
     "team": "LAC",
     "pos": "G",
-    "ppg": 1.5,
+    "ppg": 1.4,
     "rpg": 0.4,
     "apg": 1.1,
     "mpg": 5.7,
-    "usg": 12.3,
-    "gp": 14
+    "usg": 11.3,
+    "gp": 15
   },
   "Malevy Leons": {
     "team": "GOL",
@@ -5126,18 +5126,18 @@
     "rpg": 2.2,
     "apg": 4.7,
     "mpg": 21.2,
-    "usg": 26.1,
+    "usg": 26.2,
     "gp": 10
   },
   "Scoot Henderson": {
     "team": "POR",
     "pos": "G",
-    "ppg": 14.2,
-    "rpg": 2.7,
+    "ppg": 14.4,
+    "rpg": 2.8,
     "apg": 3.8,
-    "mpg": 24.1,
-    "usg": 25.7,
-    "gp": 27
+    "mpg": 24.6,
+    "usg": 25.6,
+    "gp": 28
   },
   "Keshon Gilbert": {
     "team": "WAS",
@@ -5352,12 +5352,12 @@
   "John Poulakidas": {
     "team": "DAL",
     "pos": "G",
-    "ppg": 5.2,
-    "rpg": 2.6,
+    "ppg": 6.8,
+    "rpg": 2.5,
     "apg": 0.6,
-    "mpg": 15.9,
-    "usg": 14.2,
-    "gp": 10
+    "mpg": 17.1,
+    "usg": 14.9,
+    "gp": 11
   },
   "Jayson Tatum": {
     "team": "BOS",
@@ -5452,22 +5452,22 @@
   "Taj Gibson": {
     "team": "MEM",
     "pos": "F",
-    "ppg": 3.5,
+    "ppg": 3.3,
     "rpg": 2.6,
     "apg": 0.6,
-    "mpg": 9.1,
-    "usg": 12.9,
-    "gp": 8
+    "mpg": 8.6,
+    "usg": 13.7,
+    "gp": 9
   },
   "Tyler Smith": {
     "team": "DAL",
     "pos": "F",
     "ppg": 3,
-    "rpg": 2.7,
-    "apg": 0.3,
-    "mpg": 10.5,
-    "usg": 15,
-    "gp": 9
+    "rpg": 2.4,
+    "apg": 0.4,
+    "mpg": 11,
+    "usg": 13.6,
+    "gp": 10
   },
   "Bez Mbeng": {
     "team": "UTA",
@@ -5492,12 +5492,12 @@
   "Max Strus": {
     "team": "CLE",
     "pos": "G-F",
-    "ppg": 12.7,
-    "rpg": 6,
+    "ppg": 12.2,
+    "rpg": 5.6,
     "apg": 2.2,
-    "mpg": 25.1,
-    "usg": 17.1,
-    "gp": 9
+    "mpg": 24.7,
+    "usg": 17,
+    "gp": 10
   },
   "Omer Yurtseven": {
     "team": "GOL",
@@ -5539,15 +5539,35 @@
     "usg": 17.7,
     "gp": 4
   },
+  "Alex Morales": {
+    "team": "ORL",
+    "pos": "G",
+    "ppg": 2.7,
+    "rpg": 1,
+    "apg": 1.3,
+    "mpg": 6.1,
+    "usg": 22.7,
+    "gp": 3
+  },
+  "Colin Castleton": {
+    "team": "ORL",
+    "pos": "C",
+    "ppg": 0.7,
+    "rpg": 2,
+    "apg": 0.3,
+    "mpg": 5.1,
+    "usg": 13.7,
+    "gp": 3
+  },
   "Cormac Ryan": {
     "team": "MIL",
     "pos": "G",
-    "ppg": 11.4,
-    "rpg": 1.6,
-    "apg": 1.5,
-    "mpg": 21.8,
-    "usg": 18.9,
-    "gp": 8
+    "ppg": 11.9,
+    "rpg": 1.4,
+    "apg": 1.3,
+    "mpg": 22.1,
+    "usg": 19.1,
+    "gp": 9
   },
   "Kennedy Chandler": {
     "team": "UTA",
@@ -5582,32 +5602,32 @@
   "Adama Bal": {
     "team": "MEM",
     "pos": "G",
-    "ppg": 8.8,
-    "rpg": 2.8,
-    "apg": 1.7,
-    "mpg": 27.3,
-    "usg": 13,
-    "gp": 6
+    "ppg": 9.3,
+    "rpg": 3.3,
+    "apg": 2.1,
+    "mpg": 29,
+    "usg": 13.2,
+    "gp": 7
   },
   "Alex Antetokounmpo": {
     "team": "MIL",
     "pos": "F",
-    "ppg": 1.5,
-    "rpg": 0.3,
-    "apg": 0.3,
-    "mpg": 3.1,
-    "usg": 23.9,
-    "gp": 4
+    "ppg": 2.2,
+    "rpg": 0.8,
+    "apg": 0.2,
+    "mpg": 3.3,
+    "usg": 28.9,
+    "gp": 5
   },
   "Lucas Williamson": {
     "team": "MEM",
     "pos": "G",
-    "ppg": 7.3,
-    "rpg": 3.3,
-    "apg": 2.8,
-    "mpg": 26.1,
-    "usg": 14.7,
-    "gp": 4
+    "ppg": 9,
+    "rpg": 3.8,
+    "apg": 2.4,
+    "mpg": 28.2,
+    "usg": 15.1,
+    "gp": 5
   },
   "Trevon Scott": {
     "team": "BRO",
@@ -5622,21 +5642,21 @@
   "Dariq Whitehead": {
     "team": "MEM",
     "pos": "G-F",
-    "ppg": 14.7,
-    "rpg": 3.3,
-    "apg": 1.7,
-    "mpg": 30.6,
-    "usg": 23.7,
-    "gp": 3
+    "ppg": 12.8,
+    "rpg": 4.3,
+    "apg": 2,
+    "mpg": 30,
+    "usg": 21.9,
+    "gp": 4
   },
   "Toby Okani": {
     "team": "MEM",
     "pos": "F",
-    "ppg": 6.3,
-    "rpg": 4,
-    "apg": 0.3,
-    "mpg": 33.8,
-    "usg": 13,
-    "gp": 3
+    "ppg": 8.5,
+    "rpg": 3,
+    "apg": 0.8,
+    "mpg": 33.6,
+    "usg": 13.5,
+    "gp": 4
   }
 }
