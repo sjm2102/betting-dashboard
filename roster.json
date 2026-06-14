@@ -92,12 +92,12 @@
   "Julian Champagnie": {
     "team": "SAN",
     "pos": "F",
-    "ppg": 11.1,
-    "rpg": 5.6,
+    "ppg": 11.2,
+    "rpg": 5.7,
     "apg": 1.6,
     "mpg": 30.6,
-    "usg": 13.4,
-    "gp": 22
+    "usg": 13.6,
+    "gp": 23
   },
   "Harrison Barnes": {
     "team": "SAN",
@@ -113,111 +113,111 @@
     "team": "SAN",
     "pos": "G-F",
     "ppg": 13,
-    "rpg": 5.2,
+    "rpg": 5.3,
     "apg": 2.7,
-    "mpg": 34.6,
-    "usg": 15.5,
-    "gp": 22
+    "mpg": 34.8,
+    "usg": 15.2,
+    "gp": 23
   },
   "Stephon Castle": {
     "team": "SAN",
     "pos": "G",
-    "ppg": 18.7,
+    "ppg": 18.2,
     "rpg": 5,
-    "apg": 6.2,
+    "apg": 6.1,
     "mpg": 33.1,
-    "usg": 24.8,
-    "gp": 22
+    "usg": 24.7,
+    "gp": 23
   },
   "Luke Kornet": {
     "team": "SAN",
     "pos": "C-F",
-    "ppg": 3.8,
-    "rpg": 4,
+    "ppg": 3.7,
+    "rpg": 3.9,
     "apg": 0.7,
-    "mpg": 13,
-    "usg": 11.7,
-    "gp": 22
+    "mpg": 12.9,
+    "usg": 11.6,
+    "gp": 23
   },
   "Keldon Johnson": {
     "team": "SAN",
     "pos": "F-G",
-    "ppg": 7.8,
-    "rpg": 3.2,
+    "ppg": 7.7,
+    "rpg": 3.3,
     "apg": 0.9,
     "mpg": 17.9,
-    "usg": 21.7,
-    "gp": 22
+    "usg": 21.5,
+    "gp": 23
   },
   "Dylan Harper": {
     "team": "SAN",
     "pos": "G",
-    "ppg": 13.6,
+    "ppg": 14.1,
     "rpg": 5.6,
-    "apg": 2.6,
-    "mpg": 26.6,
-    "usg": 20.6,
-    "gp": 22
+    "apg": 2.7,
+    "mpg": 26.8,
+    "usg": 21.1,
+    "gp": 23
   },
   "Karl-Anthony Towns": {
     "team": "NYK",
     "pos": "C-F",
-    "ppg": 16.7,
+    "ppg": 15.9,
     "rpg": 10.6,
-    "apg": 5.2,
-    "mpg": 30.8,
-    "usg": 20.5,
-    "gp": 18
+    "apg": 4.9,
+    "mpg": 30.4,
+    "usg": 20.6,
+    "gp": 19
   },
   "Mikal Bridges": {
     "team": "NYK",
     "pos": "G-F",
-    "ppg": 13.4,
-    "rpg": 3.3,
+    "ppg": 13.5,
+    "rpg": 3.2,
     "apg": 2.7,
-    "mpg": 31.6,
-    "usg": 15.8,
-    "gp": 18
+    "mpg": 32,
+    "usg": 15.6,
+    "gp": 19
   },
   "Jalen Brunson": {
     "team": "NYK",
     "pos": "G",
-    "ppg": 27.4,
+    "ppg": 28.4,
     "rpg": 3.2,
-    "apg": 6.2,
-    "mpg": 36.7,
-    "usg": 32.3,
-    "gp": 18
+    "apg": 6.1,
+    "mpg": 36.9,
+    "usg": 32.6,
+    "gp": 19
   },
   "Miles McBride": {
     "team": "NYK",
     "pos": "G",
-    "ppg": 5.9,
-    "rpg": 1.3,
+    "ppg": 5.6,
+    "rpg": 1.2,
     "apg": 1.2,
-    "mpg": 17.9,
-    "usg": 15.9,
-    "gp": 18
+    "mpg": 17.6,
+    "usg": 15.6,
+    "gp": 19
   },
   "Landry Shamet": {
     "team": "NYK",
     "pos": "G",
-    "ppg": 6.1,
+    "ppg": 6,
     "rpg": 1.1,
-    "apg": 0.8,
-    "mpg": 16.5,
-    "usg": 13.5,
-    "gp": 18
+    "apg": 0.7,
+    "mpg": 16.3,
+    "usg": 13.9,
+    "gp": 19
   },
   "Jordan Clarkson": {
     "team": "NYK",
     "pos": "G",
-    "ppg": 5.1,
-    "rpg": 1.8,
+    "ppg": 4.9,
+    "rpg": 1.7,
     "apg": 0.6,
-    "mpg": 11.1,
-    "usg": 22.4,
-    "gp": 17
+    "mpg": 10.8,
+    "usg": 22.8,
+    "gp": 18
   },
   "Ausar Thompson": {
     "team": "DET",
@@ -272,32 +272,32 @@
   "Victor Wembanyama": {
     "team": "SAN",
     "pos": "F-C",
-    "ppg": 24,
-    "rpg": 10.7,
+    "ppg": 23.8,
+    "rpg": 10.9,
     "apg": 2.7,
-    "mpg": 33.9,
-    "usg": 28.3,
-    "gp": 21
+    "mpg": 34.1,
+    "usg": 28.2,
+    "gp": 22
   },
   "Carter Bryant": {
     "team": "SAN",
     "pos": "F",
-    "ppg": 2.8,
+    "ppg": 2.6,
     "rpg": 1.7,
     "apg": 0.7,
-    "mpg": 8.6,
-    "usg": 14.2,
-    "gp": 21
+    "mpg": 8.5,
+    "usg": 14,
+    "gp": 22
   },
   "Josh Hart": {
     "team": "NYK",
     "pos": "G",
-    "ppg": 10.3,
-    "rpg": 8.8,
-    "apg": 4.7,
-    "mpg": 31.9,
-    "usg": 16.2,
-    "gp": 18
+    "ppg": 10.4,
+    "rpg": 8.9,
+    "apg": 4.6,
+    "mpg": 32.3,
+    "usg": 16.1,
+    "gp": 19
   },
   "Daniss Jenkins": {
     "team": "DET",
@@ -332,32 +332,32 @@
   "Mitchell Robinson": {
     "team": "NYK",
     "pos": "C-F",
-    "ppg": 5,
-    "rpg": 5.2,
-    "apg": 0.3,
-    "mpg": 13.6,
-    "usg": 15.7,
-    "gp": 17
+    "ppg": 4.8,
+    "rpg": 5.5,
+    "apg": 0.4,
+    "mpg": 13.9,
+    "usg": 15,
+    "gp": 18
   },
   "De'Aaron Fox": {
     "team": "SAN",
     "pos": "G",
-    "ppg": 16,
-    "rpg": 4,
+    "ppg": 15.6,
+    "rpg": 3.8,
     "apg": 6,
-    "mpg": 33.4,
-    "usg": 23,
-    "gp": 20
+    "mpg": 33.5,
+    "usg": 22.8,
+    "gp": 21
   },
   "Jose Alvarado": {
     "team": "NYK",
     "pos": "G",
-    "ppg": 4.4,
+    "ppg": 4.2,
     "rpg": 1.4,
     "apg": 1.2,
-    "mpg": 9.3,
-    "usg": 20.7,
-    "gp": 17
+    "mpg": 9.5,
+    "usg": 20.6,
+    "gp": 18
   },
   "Luguentz Dort": {
     "team": "OKC",
@@ -432,12 +432,12 @@
   "O.G. Anunoby": {
     "team": "NYK",
     "pos": "F-G",
-    "ppg": 20.7,
-    "rpg": 6.2,
-    "apg": 1.8,
-    "mpg": 34.6,
+    "ppg": 20.1,
+    "rpg": 6.3,
+    "apg": 1.6,
+    "mpg": 34.5,
     "usg": 18.5,
-    "gp": 16
+    "gp": 17
   },
   "Jaden McDaniels": {
     "team": "MIN",
@@ -782,12 +782,12 @@
   "Ariel Hukporti": {
     "team": "NYK",
     "pos": "C",
-    "ppg": 1.9,
-    "rpg": 3.4,
-    "apg": 0.2,
-    "mpg": 8.2,
-    "usg": 13.5,
-    "gp": 9
+    "ppg": 1.7,
+    "rpg": 3.2,
+    "apg": 0.3,
+    "mpg": 7.6,
+    "usg": 13.1,
+    "gp": 10
   },
   "Tyler Kolek": {
     "team": "NYK",
@@ -796,7 +796,7 @@
     "rpg": 0.8,
     "apg": 1.5,
     "mpg": 6.7,
-    "usg": 23.8,
+    "usg": 23.7,
     "gp": 8
   },
   "Jordan McLaughlin": {
@@ -826,7 +826,7 @@
     "rpg": 0.7,
     "apg": 0.4,
     "mpg": 3.8,
-    "usg": 17.8,
+    "usg": 17.9,
     "gp": 9
   },
   "Kenrich Williams": {
@@ -1116,7 +1116,7 @@
     "rpg": 1,
     "apg": 0.4,
     "mpg": 5.7,
-    "usg": 20.8,
+    "usg": 20.7,
     "gp": 7
   },
   "Nae'Qwan Tomlin": {
@@ -1682,12 +1682,12 @@
   "Jeremy Sochan": {
     "team": "NYK",
     "pos": "F",
-    "ppg": 2.9,
-    "rpg": 0.7,
+    "ppg": 2.5,
+    "rpg": 0.6,
     "apg": 0.3,
-    "mpg": 3.7,
-    "usg": 23.1,
-    "gp": 7
+    "mpg": 3.2,
+    "usg": 22.9,
+    "gp": 8
   },
   "Clint Capela": {
     "team": "HOU",
